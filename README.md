@@ -1,9 +1,5 @@
 # GoGoPet
----
-
 ## 环境说明
----
-
 ### 版本
 | 内容 | 版本 | 说明 |
 | --- | --- | --- |
@@ -46,4 +42,3 @@
 + `**static/**`：存放静态资源（例如图片、JavaScript 文件、CSS 文件等）。
 + `**templates/**`：存放 Thymeleaf 模板文件（如果用 Thymeleaf 渲染视图的话）。
 + `**mapper/**`：存放 MyBatis 的 XML 文件。每个 Mapper XML 文件通常对应一个接口，定义 SQL 查询、插入、更新、删除等操作。
-
