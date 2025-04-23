@@ -7,7 +7,6 @@ import com.backend.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,9 +18,6 @@ public class AuthServiceImpl implements AuthService {
     private UserMapper userMapper;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
     @Override
@@ -30,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!password.equals(user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
         return jwtUtil.generateToken(username);
@@ -51,9 +47,6 @@ public class AuthServiceImpl implements AuthService {
         String userId = java.util.UUID.randomUUID().toString().substring(0, 18);
         user.setUserId(userId);
         logger.info("生成用户ID: {}", userId);
-        
-        // 加密密码
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         try {
             // 保存用户

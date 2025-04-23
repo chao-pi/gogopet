@@ -1,11 +1,8 @@
 package com.backend.controller;
 
-import com.backend.model.dto.UserDTO;
 import com.backend.model.dto.UserRegisterDTO;
-import com.backend.model.dto.UserLoginDTO;
 import com.backend.model.entity.User;
 import com.backend.service.AuthService;
-import com.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +17,6 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
