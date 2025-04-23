@@ -2,12 +2,13 @@ package com.backend.service.impl;
 
 import com.backend.mapper.UserMapper;
 import com.backend.model.dto.UserDTO;
-import com.backend.model.dto.UserLoginDTO;
 import com.backend.model.dto.UserRegisterDTO;
+import com.backend.model.dto.UserLoginDTO;
 import com.backend.model.entity.User;
 import com.backend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // 生成18位用户ID
     private String generateUserId() {
@@ -39,9 +42,9 @@ public class UserServiceImpl implements UserService {
         user.setUserType(userRegisterDTO.getUserType());
         user.setUserAddress(userRegisterDTO.getUserAddress());
         
-        // 设置用户ID和密码
+        // 设置用户ID和加密密码
         user.setUserId(generateUserId());
-        user.setPassword(userRegisterDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
 
         // 保存用户
         userMapper.insert(user);
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 验证密码
-        if (!userLoginDTO.getPassword().equals(user.getPassword())) {
+        if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
 
