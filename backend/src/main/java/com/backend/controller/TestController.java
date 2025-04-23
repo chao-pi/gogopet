@@ -11,6 +11,6 @@ public class TestController {
     @GetMapping
     public String test() {
         System.out.println("成功进入 test 方法");
-        return "login";
+        return "test";
     }
 }

@@ -1,17 +1,19 @@
 package com.backend.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * JWT 工具类，用于生成、解析和验证 JWT Token
@@ -69,6 +71,14 @@ public class JwtUtil {
     public Boolean validateToken(String token, String username) {
         final String tokenUsername = extractUsername(token);
         return (tokenUsername.equals(username) && !isTokenExpired(token));
+    }
+
+    /**
+     * 校验 Token 是否有效（针对UserDetails对象）
+     */
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String tokenUsername = extractUsername(token);
+        return (tokenUsername.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     /**

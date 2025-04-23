@@ -1,9 +1,8 @@
 package com.backend.util;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,9 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.lang.NonNull;
 
-import java.io.IOException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 自定义的 JWT 认证过滤器，在每次请求前验证 Token 并设置认证信息
@@ -49,51 +50,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 从请求头中获取 Authorization 字段
         final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String username;
 
-        // 判断请求是否为公开路径，如果是则直接放行
-        if (isPublicPath(request.getRequestURI())) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 若没有 token 或格式不正确，返回 401
+        // 如果请求头中没有 Authorization 字段或者不是以 "Bearer " 开头，直接放行
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("未提供有效的认证令牌");
+            filterChain.doFilter(request, response);
             return;
         }
 
+        // 提取 JWT Token
+        jwt = authHeader.substring(7);
+        
         try {
-            // 提取 token 并解析用户名
-            String jwt = authHeader.substring(7);
-            String username = jwtUtil.extractUsername(jwt);
-
-            // 若用户名有效，且当前未认证，则进行手动认证
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // 加载用户信息
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-                // 验证 token 是否有效
-                if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-                    // 构造认证信息并加入安全上下文
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
-
-            // 放行请求
-            filterChain.doFilter(request, response);
+            // 从 Token 中提取用户名
+            username = jwtUtil.extractUsername(jwt);
         } catch (Exception e) {
-            // 若 token 无效或解析异常，返回 401
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("无效的认证令牌");
+            // Token 解析失败，直接放行
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        // 如果已经设置了认证信息，直接放行
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // 加载用户信息
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            
+            // 验证 Token 是否有效
+            if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
+                // 创建认证令牌
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                
+                // 设置认证详情
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                
+                // 设置认证上下文
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        
+        // 继续过滤器链
+        filterChain.doFilter(request, response);
     }
 
     /**
-     * 判断是否为无需认证的公共路径
+     * 判断请求路径是否为公共路径
      */
     private boolean isPublicPath(String requestURI) {
         return requestURI.startsWith("/api/auth/") || requestURI.equals("/error");

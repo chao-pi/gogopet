@@ -1,53 +1,45 @@
 package com.backend.controller;
 
-import com.backend.model.dto.UserRegisterDTO;
-import com.backend.model.entity.User;
-import com.backend.service.AuthService;
+import com.backend.model.dto.LoginDTO;
+import com.backend.model.dto.LoginResultDTO;
+import com.backend.model.dto.RegisterDTO;
+import com.backend.model.dto.UserDTO;
+import com.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * 认证控制器
+ * 处理用户登录、注册等认证相关请求
+ */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    private UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        String username = loginRequest.get("username");
-        String password = loginRequest.get("password");
-
-        try {
-            String token = authService.login(username, password);
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
+    /**
+     * 用户注册
+     * @param registerDTO 注册信息
+     * @return 注册成功的用户信息
+     */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO) {
-        try {
-            // 创建User对象
-            User user = new User();
-            user.setUserName(userRegisterDTO.getUserName());
-            user.setPassword(userRegisterDTO.getPassword());
-            user.setUserType(userRegisterDTO.getUserType());
-            user.setUserAddress(userRegisterDTO.getUserAddress());
-            
-            // 使用AuthService进行注册
-            authService.register(user);
-            return ResponseEntity.ok("注册成功");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserDTO> register(@Valid @RequestBody RegisterDTO registerDTO) {
+        UserDTO userDTO = userService.register(registerDTO);
+        return ResponseEntity.ok(userDTO);
     }
-} 
+
+    /**
+     * 用户登录
+     * @param loginDTO 登录信息
+     * @return 登录结果，包含token和用户信息
+     */
+    @PostMapping("/login")
+    public ResponseEntity<LoginResultDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+        LoginResultDTO loginResult = userService.login(loginDTO);
+        return ResponseEntity.ok(loginResult);
+    }
+}

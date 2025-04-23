@@ -2,10 +2,12 @@ package com.backend.service.impl;
 
 import com.backend.mapper.UserMapper;
 import com.backend.model.dto.UserDTO;
-import com.backend.model.dto.UserRegisterDTO;
-import com.backend.model.dto.UserLoginDTO;
+import com.backend.model.dto.RegisterDTO;
+import com.backend.model.dto.LoginDTO;
+import com.backend.model.dto.LoginResultDTO;
 import com.backend.model.entity.User;
 import com.backend.service.UserService;
+import com.backend.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +22,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // 生成18位用户ID
@@ -29,7 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO register(UserRegisterDTO userRegisterDTO) {
+    public UserDTO register(RegisterDTO userRegisterDTO) {
         // 检查用户名是否已存在
         User existingUser = userMapper.selectByUserName(userRegisterDTO.getUserName());
         if (existingUser != null) {
@@ -41,7 +46,7 @@ public class UserServiceImpl implements UserService {
         user.setUserName(userRegisterDTO.getUserName());
         user.setUserType(userRegisterDTO.getUserType());
         user.setUserAddress(userRegisterDTO.getUserAddress());
-        
+
         // 设置用户ID和加密密码
         user.setUserId(generateUserId());
         user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
@@ -56,22 +61,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO login(UserLoginDTO userLoginDTO) {
+    public LoginResultDTO login(LoginDTO userLoginDTO) {
         // 查询用户
         User user = userMapper.selectByUserName(userLoginDTO.getUserName());
-        if (user == null) {
+        if (user == null || !passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
 
-        // 验证密码
-        if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
-        }
-
-        // 返回用户信息
+        // 构建 UserDTO
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
-        return userDTO;
+
+        // 生成 JWT Token
+        String token = jwtUtil.generateToken(user.getUserId());
+
+        // 返回结果
+        LoginResultDTO result = new LoginResultDTO();
+        result.setToken(token);
+        result.setUser(userDTO);
+        return result;
     }
 
     @Override
@@ -100,7 +108,7 @@ public class UserServiceImpl implements UserService {
         user.setUserAddress(userDTO.getUserAddress());
         user.setPictureId(userDTO.getPictureId());
         user.setCompanyId(userDTO.getCompanyId());
-        
+
         userMapper.update(user);
 
         return userDTO;
@@ -116,4 +124,4 @@ public class UserServiceImpl implements UserService {
 
         userMapper.deleteById(userId);
     }
-} 
+}

@@ -1,8 +1,9 @@
 package com.backend.service;
 
 import com.backend.model.dto.UserDTO;
-import com.backend.model.dto.UserLoginDTO;
-import com.backend.model.dto.UserRegisterDTO;
+import com.backend.model.dto.LoginDTO;
+import com.backend.model.dto.RegisterDTO;
+import com.backend.model.dto.LoginResultDTO;
 
 public interface UserService {
     /**
@@ -10,14 +11,15 @@ public interface UserService {
      * @param userRegisterDTO 用户注册信息
      * @return 注册后的用户信息
      */
-    UserDTO register(UserRegisterDTO userRegisterDTO);
+    UserDTO register(RegisterDTO userRegisterDTO);
 
     /**
      * 用户登录
      * @param userLoginDTO 用户登录信息
      * @return 登录后的用户信息
      */
-    UserDTO login(UserLoginDTO userLoginDTO);
+//    UserDTO login(UserLoginDTO userLoginDTO);
+    LoginResultDTO login(LoginDTO userLoginDTO);
 
     /**
      * 获取用户信息

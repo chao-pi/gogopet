@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+/**
+ * 自定义UserDetailsService实现
+ * 用于从数据库中加载用户信息，供Spring Security使用
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -19,15 +23,21 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 从数据库中查询用户
         User user = userMapper.selectByUserName(username);
+        
         if (user == null) {
-            throw new UsernameNotFoundException("用户不存在");
+            throw new UsernameNotFoundException("用户不存在: " + username);
         }
-
+        
+        // 根据用户类型设置角色
+        String role = "ROLE_" + user.getUserType();
+        
+        // 创建UserDetails对象
         return new org.springframework.security.core.userdetails.User(
-            user.getUserName(),
-            user.getPassword(),
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserType()))
+                user.getUserName(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 } 
