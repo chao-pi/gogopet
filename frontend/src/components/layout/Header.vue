@@ -28,6 +28,9 @@
           <router-link to="/login" class="nav-link">
             <i class="fas fa-sign-in-alt mr-1"></i>登录
           </router-link>
+          <router-link to="/register" class="nav-link">
+            <i class="fas fa-user-plus mr-1"></i>注册
+          </router-link>
         </template>
       </div>
     </div>
