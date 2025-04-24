@@ -4,8 +4,8 @@
       <!-- 左侧Logo -->
       <div class="logo-section">
         <i class="fas fa-paw mr-2"></i>
-        <div class="text-xl font-bold tracking-wide">GoGoPet</div>
-      </div>
+      <div class="text-xl font-bold tracking-wide">GoGoPet</div>
+    </div>
 
       <!-- 中间导航菜单 -->
       <nav class="nav-section">
