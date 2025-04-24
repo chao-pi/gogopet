@@ -23,12 +23,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("尝试加载用户: " + username);
+        
         // 从数据库中查询用户
         User user = userMapper.selectByUserName(username);
         
         if (user == null) {
+            System.out.println("用户不存在: " + username);
             throw new UsernameNotFoundException("用户不存在: " + username);
         }
+        
+        System.out.println("找到用户: " + user.getUserName() + ", 密码: " + user.getPassword());
         
         // 根据用户类型设置角色
         String role = "ROLE_" + user.getUserType();

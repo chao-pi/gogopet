@@ -48,24 +48,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 如果是公共路径，直接放行
+        if (isPublicPath(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 从请求头中获取 Authorization 字段
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;
 
+        System.out.println("收到请求: " + request.getRequestURI());
+        System.out.println("Authorization header: " + authHeader);
+
         // 如果请求头中没有 Authorization 字段或者不是以 "Bearer " 开头，直接放行
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("没有有效的 Authorization header，直接放行");
             filterChain.doFilter(request, response);
             return;
         }
 
         // 提取 JWT Token
         jwt = authHeader.substring(7);
+        System.out.println("提取到的 JWT Token: " + jwt);
         
         try {
             // 从 Token 中提取用户名
             username = jwtUtil.extractUsername(jwt);
+            System.out.println("从 Token 中提取的用户名: " + username);
         } catch (Exception e) {
+            System.out.println("Token 解析失败: " + e.getMessage());
             // Token 解析失败，直接放行
             filterChain.doFilter(request, response);
             return;
@@ -73,11 +86,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 如果已经设置了认证信息，直接放行
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("尝试加载用户信息: " + username);
             // 加载用户信息
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             
             // 验证 Token 是否有效
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
+                System.out.println("Token 验证成功");
                 // 创建认证令牌
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -90,6 +105,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 
                 // 设置认证上下文
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("Token 验证失败");
             }
         }
         

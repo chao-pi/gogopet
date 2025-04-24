@@ -21,7 +21,7 @@ public interface UserMapper {
             "VALUES (#{userId}, #{userName}, #{password}, #{userType}, #{userAddress})")
     int insert(User user);
 
-    @Update("UPDATE gogopet.t_user SET user_name = #{userName}, user_type = #{userType}, " +
+    @Update("UPDATE gogopet.t_user SET user_name = #{userName}, password = #{password}, user_type = #{userType}, " +
             "user_address = #{userAddress}, picture_id = #{pictureId}, company_id = #{companyId} " +
             "WHERE user_id = #{userId}")
     int update(User user);
