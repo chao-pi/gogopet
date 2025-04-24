@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Error from '../components/Error.vue'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
+import Login from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
 
 const routes = [
   {

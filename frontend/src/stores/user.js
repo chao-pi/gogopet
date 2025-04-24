@@ -10,20 +10,48 @@ export const useUserStore = defineStore('user', () => {
 
   // 设置用户信息
   const setUserInfo = (info) => {
-    if (info) {
-      // 确保用户信息包含必要的字段
-      const userData = {
-        id: info.id || info.userId,
-        userName: info.userName,
-        pictureUrl: info.pictureUrl || null
+    try {
+      console.log('设置用户信息:', info)
+      if (info) {
+        // 确保用户信息包含必要的字段
+        const userData = {
+          id: info.id || info.userId,
+          userName: info.userName,
+          userType: info.userType,
+          userAddress: info.userAddress,
+          pictureUrl: info.pictureUrl || null
+        }
+        console.log('处理后的用户数据:', userData)
+        userInfo.value = userData
+        isLoggedIn.value = true
+        localStorage.setItem('userInfo', JSON.stringify(userData))
+        console.log('用户信息已保存到localStorage')
+      } else {
+        console.log('清除用户信息')
+        userInfo.value = null
+        isLoggedIn.value = false
+        localStorage.removeItem('userInfo')
       }
-      userInfo.value = userData
-      isLoggedIn.value = true
-      localStorage.setItem('userInfo', JSON.stringify(userData))
-    } else {
-      userInfo.value = null
-      isLoggedIn.value = false
-      localStorage.removeItem('userInfo')
+    } catch (error) {
+      console.error('设置用户信息失败:', error)
+      throw error
+    }
+  }
+
+  // 设置token
+  const setToken = (token) => {
+    try {
+      console.log('设置token:', token)
+      if (token) {
+        localStorage.setItem('token', token)
+        console.log('token已保存到localStorage')
+      } else {
+        console.log('清除token')
+        localStorage.removeItem('token')
+      }
+    } catch (error) {
+      console.error('设置token失败:', error)
+      throw error
     }
   }
 
@@ -79,6 +107,7 @@ export const useUserStore = defineStore('user', () => {
     userInfo,
     isLoggedIn,
     setUserInfo,
+    setToken,
     fetchUserInfo,
     clearUserInfo
   }
