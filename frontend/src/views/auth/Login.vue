@@ -64,6 +64,7 @@
               <div class="flex items-center">
                 <input
                   id="remember-me"
+                  v-model="loginForm.rememberMe"
                   type="checkbox"
                   class="form-checkbox"
                 />
@@ -98,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '@/api/user'
 import { useUserStore } from '@/stores/user'
@@ -109,16 +110,33 @@ const userStore = useUserStore()
 
 const loginForm = ref({
   userName: '',
-  password: ''
+  password: '',
+  rememberMe: false
 })
 
 const loading = ref(false)
 const errorMessage = ref('')
 
+// 在组件挂载时检查是否有保存的用户名
+onMounted(() => {
+  const savedUsername = localStorage.getItem('rememberedUsername')
+  if (savedUsername) {
+    loginForm.value.userName = savedUsername
+    loginForm.value.rememberMe = true
+  }
+})
+
 const handleLogin = async () => {
   try {
     loading.value = true
     errorMessage.value = ''
+    
+    // 处理记住我功能
+    if (loginForm.value.rememberMe) {
+      localStorage.setItem('rememberedUsername', loginForm.value.userName)
+    } else {
+      localStorage.removeItem('rememberedUsername')
+    }
     
     // 打印请求参数
     console.log('登录请求参数:', {
