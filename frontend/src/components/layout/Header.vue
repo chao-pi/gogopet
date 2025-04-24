@@ -9,12 +9,15 @@
         <router-link to="/" class="nav-link">首页</router-link>
         <router-link to="/about" class="nav-link">关于我们</router-link>
       </nav>
-      <div class="ml-6">
+      <div class="ml-6 flex items-center">
         <template v-if="userStore.isLoggedIn">
           <UserAvatar
             :avatar-url="userStore.userInfo?.pictureUrl"
             :username="userStore.userInfo?.userName"
           />
+          <button @click="handleLogout" class="ml-4 nav-link">
+            <i class="fas fa-sign-out-alt mr-1"></i>退出
+          </button>
         </template>
         <template v-else>
           <router-link to="/login" class="nav-link">
@@ -33,6 +36,16 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+const handleLogout = () => {
+  // 清除本地存储的token和用户信息
+  localStorage.removeItem('token')
+  localStorage.removeItem('userInfo')
+  // 清除用户状态
+  userStore.clearUserInfo()
+  // 跳转到登录页
+  router.push('/login')
+}
 </script>
 
 <style scoped>
