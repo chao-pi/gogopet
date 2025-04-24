@@ -1,22 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
-import Error from '../views/Error.vue'
+import Home from '../views/Home.vue'
+import About from '../views/About.vue'
+import Error from '../components/Error.vue'
+import BaseLayout from '@/components/layout/BaseLayout.vue'
 
 const routes = [
   {
     path: '/',
-    redirect: '/login'  // 默认重定向到登录页
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: Register
+    component: BaseLayout,
+    children: [
+      { path: '', name: 'Home', component: Home },
+      { path: 'about', name: 'About', component: About },
+    ]
   },
   {
     path: '/error/:code',
@@ -34,4 +29,4 @@ const router = createRouter({
   routes
 })
 
-export default router 
+export default router
