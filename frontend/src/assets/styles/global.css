@@ -53,14 +53,15 @@ input:focus, textarea:focus {
 header {
   position: relative; 
   z-index: 100;
-  background-color: #007bff;
+  background-color: #ff9f43; /* 较亮的橙色 */
   color: white;
-  border-bottom: 2px solid #0056b3;
+  border-bottom: 2px solid #e67e22;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="10" fill="rgba(255, 255, 255, 0.1)"/></svg>');
 }
 
 header nav a {
@@ -70,31 +71,20 @@ header nav a {
 }
 
 header nav a:hover {
-  color: #e0e0e0;
+  color: #f1c40f;
   text-decoration: none;
-}
-
-/* 页面整体布局 */
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* 确保页面至少占满视口高度 */
-}
-
-/* 主内容区域样式 */
-main {
-  flex: 1; /* 主内容区域会自动填充剩余空间 */
 }
 
 /* 页脚样式 */
 footer {
-  flex-shrink: 0; /* 防止页脚在空间不足时收缩 */
-  background-color: #333;
+  flex-shrink: 0;
+  background-color: #e67e22; /* 较深的橙色，与导航栏颜色呼应 */
   color: white;
-  border-top: 2px solid #222;
+  border-top: 2px solid #d35400;
   padding: 2rem;
   text-align: center;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="10" fill="rgba(255, 255, 255, 0.1)"/></svg>');
 }
 
 footer div {
@@ -102,12 +92,12 @@ footer div {
 }
 
 footer a {
-  color: #007bff;
+  color: #f1c40f;
   transition: color 0.3s ease;
 }
 
 footer a:hover {
-  color: #0056b3;
+  color: #e67e22;
 }
 
 /* 响应式样式 */
@@ -137,4 +127,28 @@ header {
 aside {
   position: relative; /* 确保不是 fixed 或者 absolute 导致覆盖问题 */
   z-index: 90; /* 让侧边栏的层级低于导航栏 */
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+/* 添加通用过渡效果 */
+a, button {
+  transition: all 0.3s ease;
 }

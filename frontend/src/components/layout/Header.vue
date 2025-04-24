@@ -1,9 +1,12 @@
 <template>
-  <header class="bg-blue-500 text-white p-4 flex justify-between items-center shadow-md">
-    <div class="text-xl font-bold">GoGoPet</div>
+  <header class="custom-header text-white flex justify-between items-center">
+    <div class="flex items-center">
+      <i class="fas fa-paw mr-2"></i> <!-- 宠物爪印图标 -->
+      <div class="text-xl font-bold tracking-wide">GoGoPet</div>
+    </div>
     <nav class="md:flex hidden">
-      <router-link to="/" class="mx-4 hover:underline">首页</router-link>
-      <router-link to="/about" class="mx-4 hover:underline">关于我们</router-link>
+      <router-link to="/" class="nav-link">首页</router-link>
+      <router-link to="/about" class="nav-link">关于我们</router-link>
     </nav>
   </header>
 </template>
@@ -14,5 +17,28 @@ const router = useRouter()
 </script>
 
 <style scoped>
-/* 可以添加更多样式 */
+.custom-header {
+  background: linear-gradient(90deg, #ff9f43 0%, #e67e22 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.custom-header:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-link {
+  color: white;
+  margin-left: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
 </style>

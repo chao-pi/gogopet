@@ -57,7 +57,7 @@ public class SecurityConfig {
                 // 配置请求授权策略
                 .authorizeHttpRequests(auth -> auth
                         // 放行认证接口和错误页面
-                        .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers("/api/auth/**", "/error", "/test").permitAll()
                         // 其他请求都需要认证
                         .anyRequest().authenticated()
                 )
