@@ -50,6 +50,12 @@
             {{ loading ? '登录中...' : '登录' }}
           </button>
         </div>
+
+        <div class="text-center">
+          <router-link to="/register" class="text-sm text-orange-600 hover:text-orange-500">
+            没有账号？立即注册
+          </router-link>
+        </div>
       </form>
     </div>
   </div>
