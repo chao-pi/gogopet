@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Error from '../components/Error.vue'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
-import Error from '../components/Error.vue'
-import BaseLayout from '@/components/layout/BaseLayout.vue'
 
 const routes = [
   {
     path: '/',
-    component: BaseLayout,
-    children: [
-      { path: '', name: 'Home', component: Home },
-      { path: 'about', name: 'About', component: About },
-    ]
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   },
   {
     path: '/error/:code',

@@ -12,3 +12,7 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 </script>
+
+<style scoped>
+/* 可以添加更多样式 */
+</style>
