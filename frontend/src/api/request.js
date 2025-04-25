@@ -17,6 +17,12 @@ request.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`
         }
+        // 打印请求数据，用于调试
+        console.log('Request:', {
+            url: config.url,
+            method: config.method,
+            data: config.data
+        })
         return config
     },
     error => {
@@ -27,14 +33,26 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
     response => {
+        // 打印响应数据，用于调试
+        console.log('Response:', response.data)
         return response.data
     },
     error => {
+        // 打印错误信息，用于调试
+        console.error('Error:', {
+            status: error.response?.status,
+            data: error.response?.data
+        })
+
         // 处理错误响应
         if (error.response) {
             switch (error.response.status) {
+                case 400:
+                    // 请求参数错误
+                    console.error('请求参数错误:', error.response.data)
+                    break
                 case 401:
-                    // token过期，跳转到登录页
+                    // token无效或过期，清除用户信息并跳转到登录页
                     localStorage.removeItem('token')
                     window.location.href = '/login'
                     break
@@ -43,13 +61,15 @@ request.interceptors.response.use(
                     console.error('权限不足')
                     break
                 case 404:
-                    // 请求的资源不存在
+                    // 资源不存在
                     console.error('请求的资源不存在')
                     break
                 case 500:
                     // 服务器错误
                     console.error('服务器错误')
                     break
+                default:
+                    console.error('请求失败:', error.response.status)
             }
         }
         return Promise.reject(error)

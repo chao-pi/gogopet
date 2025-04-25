@@ -1,9 +1,11 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import BaseLayout from '@/components/layout/BaseLayout.vue'
 </script>
 
 <template>
-  <router-view></router-view>
+  <BaseLayout>
+    <router-view />
+  </BaseLayout>
 </template>
 
 <style>
@@ -13,6 +15,6 @@ import HelloWorld from './components/HelloWorld.vue'
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0;
 }
 </style>

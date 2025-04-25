@@ -1,0 +1,154 @@
+/* 重置默认样式 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 链接样式 */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 按钮样式 */
+button {
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* 输入框样式 */
+input, textarea {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* 导航栏样式 */
+header {
+  position: relative; 
+  z-index: 100;
+  background-color: #ff9f43; /* 较亮的橙色 */
+  color: white;
+  border-bottom: 2px solid #e67e22;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="10" fill="rgba(255, 255, 255, 0.1)"/></svg>');
+}
+
+header nav a {
+  color: white;
+  margin-left: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+header nav a:hover {
+  color: #f1c40f;
+  text-decoration: none;
+}
+
+/* 页脚样式 */
+footer {
+  flex-shrink: 0;
+  background-color: #e67e22; /* 较深的橙色，与导航栏颜色呼应 */
+  color: white;
+  border-top: 2px solid #d35400;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="10" fill="rgba(255, 255, 255, 0.1)"/></svg>');
+}
+
+footer div {
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: #f1c40f;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #e67e22;
+}
+
+/* 响应式样式 */
+@media (max-width: 640px) {
+  header {
+    padding: 1rem;
+  }
+
+  header nav a {
+    margin-left: 1rem;
+  }
+
+  main {
+    padding: 1rem;
+  }
+
+  footer {
+    padding: 1rem;
+  }
+}
+
+header {
+  position: relative; /* 确保不是 fixed 或者 absolute 导致覆盖问题 */
+  z-index: 100;
+}
+
+aside {
+  position: relative; /* 确保不是 fixed 或者 absolute 导致覆盖问题 */
+  z-index: 90; /* 让侧边栏的层级低于导航栏 */
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+/* 添加通用过渡效果 */
+a, button {
+  transition: all 0.3s ease;
+}

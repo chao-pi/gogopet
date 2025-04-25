@@ -1,11 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
+import Error from '../components/Error.vue'
+import Home from '../views/Home.vue'
+import About from '../views/About.vue'
+import Login from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
 
 const routes = [
   {
     path: '/',
-    redirect: '/login'  // 默认重定向到登录页
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   },
   {
     path: '/login',
@@ -16,6 +25,15 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/error/:code',
+    name: 'Error',
+    component: Error
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/error/404'  // 捕获所有未匹配的路由，重定向到404错误页
   }
 ]
 
@@ -24,4 +42,4 @@ const router = createRouter({
   routes
 })
 
-export default router 
+export default router
