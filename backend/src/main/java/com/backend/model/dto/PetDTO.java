@@ -61,4 +61,9 @@ public class PetDTO {
     @NotNull(message = "宠物性别不能为空")
     @Size(max = 1, message = "宠物性别长度必须为1个字符")
     private String petGender;
+
+    /**
+     * 宠物头像URL
+     */
+    private String avatarUrl;
 } 

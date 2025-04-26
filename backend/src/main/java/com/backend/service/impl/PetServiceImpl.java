@@ -141,6 +141,13 @@ public class PetServiceImpl implements PetService {
         for (Pet pet : pets) {
             PetDTO petDTO = new PetDTO();
             BeanUtils.copyProperties(pet, petDTO);
+
+            // 查询宠物的图片
+            Picture picture = pictureMapper.selectByPetId(pet.getPetId());
+            if (picture != null) {
+                petDTO.setAvatarUrl(picture.getPictureUrl());
+            }
+
             petDTOs.add(petDTO);
         }
 
@@ -191,21 +198,33 @@ public class PetServiceImpl implements PetService {
             file.transferTo(destFile);
             System.out.println("文件保存成功: " + destFile.getAbsolutePath());
 
-            // 创建图片记录
-            Picture picture = new Picture();
-            picture.setPictureId(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
-            picture.setPictureUsage("P"); // P-宠物照片
-            picture.setPictureUrl(urlPrefix + "/pets/" + fileName);
-            picture.setUserId(pet.getUserId());
-            picture.setUploadTime(new Date());
-
-            // 保存图片记录
-            pictureMapper.insert(picture);
-            System.out.println("图片记录保存成功");
+            // 检查宠物是否已有图片
+            Picture existingPicture = pictureMapper.selectByPetId(petId);
+            String pictureUrl = urlPrefix + "/pets/" + fileName;
+            
+            if (existingPicture != null) {
+                // 更新现有图片记录
+                existingPicture.setPictureUrl(pictureUrl);
+                existingPicture.setUploadTime(new Date());
+                pictureMapper.update(existingPicture);
+                System.out.println("更新图片记录成功");
+            } else {
+                // 创建新的图片记录
+                Picture picture = new Picture();
+                picture.setPictureId(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
+                picture.setPictureUsage("P"); // P-宠物照片
+                picture.setPictureUrl(pictureUrl);
+                picture.setUserId(pet.getUserId()); // 设置用户ID
+                picture.setPetId(petId); // 设置宠物ID
+                picture.setUploadTime(new Date());
+                pictureMapper.insert(picture);
+                System.out.println("创建图片记录成功");
+            }
 
             // 返回宠物信息
             PetDTO petDTO = new PetDTO();
             BeanUtils.copyProperties(pet, petDTO);
+            petDTO.setAvatarUrl(pictureUrl);
             return petDTO;
 
         } catch (IOException e) {

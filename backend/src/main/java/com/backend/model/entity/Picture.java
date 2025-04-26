@@ -44,6 +44,12 @@ public class Picture {
     @TableField("user_id")
     private String userId;
 
+    /**
+     * 宠物ID，关联宠物（当图片用途为宠物照片时）
+     */
+    @TableField("pet_id")
+    private String petId;
+
     // Getters and Setters
     public String getPictureId() {
         return pictureId;
@@ -83,5 +89,13 @@ public class Picture {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getPetId() {
+        return petId;
+    }
+
+    public void setPetId(String petId) {
+        this.petId = petId;
     }
 } 
