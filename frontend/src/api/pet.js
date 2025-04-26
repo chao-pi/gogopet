@@ -35,10 +35,11 @@ export function getPetById(petId) {
 }
 
 // 获取用户的所有宠物
-export function getPets() {
+export function getPets(userId) {
     return request({
         url: '/pet/list',
-        method: 'get'
+        method: 'get',
+        params: { userId }
     })
 }
 

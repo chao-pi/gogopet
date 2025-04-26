@@ -65,12 +65,11 @@ public class PetController {
 
     /**
      * 获取用户的所有宠物
+     * @param userId 用户ID
      * @return 宠物列表
      */
     @GetMapping("/list")
-    public ResponseEntity<List<PetDTO>> getPets() {
-        // TODO: 从token中获取用户ID
-        String userId = "123456789012345678"; // 临时使用固定用户ID
+    public ResponseEntity<List<PetDTO>> getPets(@RequestParam String userId) {
         List<PetDTO> result = petService.getPetsByUserId(userId);
         return ResponseEntity.ok(result);
     }

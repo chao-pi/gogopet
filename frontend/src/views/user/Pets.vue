@@ -136,7 +136,7 @@ const petFormRules = {
 const fetchPets = async () => {
   loading.value = true
   try {
-    const response = await getPets()
+    const response = await getPets(userStore.userInfo.id)
     pets.value = response
   } catch (error) {
     console.error('获取宠物列表失败:', error)
