@@ -57,6 +57,11 @@ public class PetServiceImpl implements PetService {
         // 设置宠物ID和时间
         String petId = UUID.randomUUID().toString().replace("-", "").substring(0, 18);
         pet.setPetId(petId);
+        pet.setPetBreed(petDTO.getPetBreed());
+        pet.setPetWeight(petDTO.getPetWeight());
+        pet.setPetHealthStatus(petDTO.getPetHealthStatus());
+        pet.setPetAge(petDTO.getPetAge());
+        pet.setPetGender(petDTO.getPetGender());
         pet.setCreateTime(new Date());
         pet.setUpdateTime(new Date());
 
