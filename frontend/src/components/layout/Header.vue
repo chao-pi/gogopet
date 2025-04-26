@@ -17,7 +17,7 @@
       <div class="user-section">
         <template v-if="userStore.isLoggedIn">
           <UserAvatar
-            :avatar-url="userStore.userInfo?.pictureUrl"
+            :avatar-url="userStore.userInfo?.avatarUrl"
             :username="userStore.userInfo?.userName"
           />
         </template>
@@ -74,8 +74,18 @@ const userStore = useUserStore()
   top: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  align-items: center;
   gap: 2rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .user-section {
@@ -86,20 +96,6 @@ const userStore = useUserStore()
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.nav-link {
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  text-decoration: none;
-  transform: translateY(-2px);
 }
 
 /* 响应式布局 */

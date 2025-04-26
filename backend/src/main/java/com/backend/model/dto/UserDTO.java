@@ -22,4 +22,7 @@ public class UserDTO {
 
     @Size(min = 18, max = 18, message = "公司ID长度必须为18个字符")
     private String companyId;
+
+    @Size(max = 255, message = "头像URL长度不能超过255个字符")
+    private String avatarUrl;
 }

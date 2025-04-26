@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', () => {
           userName: info.userName,
           userType: info.userType,
           userAddress: info.userAddress,
-          pictureUrl: info.pictureUrl || null
+          avatarUrl: info.avatarUrl || null  // 使用 avatarUrl 而不是 pictureUrl
         }
         console.log('处理后的用户数据:', userData)
         userInfo.value = userData

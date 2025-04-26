@@ -1,38 +1,38 @@
 <template>
-  <div class="user-avatar flex items-center">
-    <div class="avatar-container relative">
-      <div class="avatar-wrapper flex items-center gap-2" @click="toggleDropdown">
+  <div class="user-avatar">
+    <div class="avatar-container">
+      <div class="avatar-wrapper" @click="toggleDropdown">
         <div class="avatar-content">
-          <img
-            v-if="avatarUrl"
-            :src="avatarUrl"
-            :alt="username"
-            class="w-10 h-10 rounded-full object-cover"
-            @error="handleImageError"
-          />
-          <div
-            v-else
-            class="default-avatar w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center"
-          >
-            <i class="fas fa-user text-gray-600"></i>
+          <div v-if="avatarUrl" class="avatar-image">
+            <img
+              :src="avatarUrl"
+              :alt="username"
+              @error="handleImageError"
+            />
+            <div class="default-avatar" style="display: none">
+              <i class="fas fa-user"></i>
+            </div>
           </div>
+          <div v-else class="default-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="username">{{ username }}</span>
+          <i class="fas fa-chevron-down ml-2"></i>
         </div>
-        <span v-if="showUsername" class="username">{{ username }}</span>
       </div>
-      
-      <!-- 下拉菜单 -->
+
       <div v-if="isDropdownOpen" class="dropdown-menu">
         <div class="dropdown-item" @click="navigateTo('/profile')">
-          <i class="fas fa-user-circle"></i>
-          <span>个人中心</span>
+          <i class="fas fa-user mr-2"></i>
+          个人中心
         </div>
         <div class="dropdown-item" @click="navigateTo('/pets')">
-          <i class="fas fa-paw"></i>
-          <span>宠物中心</span>
+          <i class="fas fa-paw mr-2"></i>
+          我的宠物
         </div>
         <div class="dropdown-item" @click="handleLogout">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>退出登录</span>
+          <i class="fas fa-sign-out-alt mr-2"></i>
+          退出登录
         </div>
       </div>
     </div>
@@ -52,11 +52,7 @@ const props = defineProps({
   },
   username: {
     type: String,
-    default: ''
-  },
-  showUsername: {
-    type: Boolean,
-    default: true
+    required: true
   }
 })
 
@@ -130,8 +126,30 @@ const handleImageError = (e) => {
   align-items: center;
 }
 
+.avatar-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.avatar-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .default-avatar {
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  color: #6b7280;
 }
 
 .username {
@@ -166,43 +184,11 @@ const handleImageError = (e) => {
 
 .dropdown-item:hover {
   background-color: #f3f4f6;
-  color: #1f2937;
 }
 
 .dropdown-item i {
-  margin-right: 0.75rem;
-  width: 1.25rem;
+  width: 20px;
   text-align: center;
-}
-
-.dropdown-item:not(:last-child) {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.logout-confirm) {
-  .el-message-box__header {
-    padding: 20px 20px 10px;
-  }
-  .el-message-box__content {
-    padding: 20px;
-  }
-  .el-message-box__btns {
-    padding: 10px 20px 20px;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-start;
-    gap: 10px;
-  }
-  .el-button {
-    padding: 8px 20px;
-  }
-  .el-button--danger {
-    background-color: #f56c6c;
-    border-color: #f56c6c;
-  }
-  .el-button--danger:hover {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
-  }
+  margin-right: 8px;
 }
 </style> 

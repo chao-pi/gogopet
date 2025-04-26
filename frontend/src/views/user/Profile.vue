@@ -7,8 +7,8 @@
           <div class="avatar-section">
             <div class="avatar-wrapper">
               <img
-                v-if="userInfo.pictureUrl"
-                :src="userInfo.pictureUrl"
+                v-if="userInfo.avatarUrl"
+                :src="userInfo.avatarUrl"
                 :alt="userInfo.userName"
                 class="profile-avatar"
               />
@@ -252,7 +252,7 @@ const handleUploadAvatar = () => {
       // 更新用户信息
       userStore.setUserInfo({
         ...userInfo.value,
-        pictureUrl: response.pictureUrl
+        avatarUrl: response.pictureUrl  // 使用 pictureUrl 作为 avatarUrl
       })
       
       ElMessage.success('头像上传成功')

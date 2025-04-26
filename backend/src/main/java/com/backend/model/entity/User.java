@@ -5,11 +5,17 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 用户实体类
  * 对应数据库表 t_user
  */
+@Data
+@Getter
+@Setter
 @TableName("t_user")
 public class User {
     /**
@@ -65,6 +71,9 @@ public class User {
      */
     @TableField("update_time")
     private Date updateTime;
+
+    @TableField(exist = false)
+    private String avatarUrl; // 头像URL，不映射到数据库
 
     // Getters and Setters
     public String getUserId() {
