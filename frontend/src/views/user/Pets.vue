@@ -12,25 +12,36 @@
       <!-- 宠物列表 -->
       <div class="pets-list" v-loading="loading">
         <el-empty v-if="pets.length === 0" description="暂无宠物" />
-        <el-row :gutter="20" v-else>
-          <el-col :span="6" v-for="pet in pets" :key="pet.petId">
+        <el-row :gutter="24" v-else>
+          <el-col :span="8" v-for="pet in pets" :key="pet.petId">
             <el-card class="pet-card" shadow="hover">
               <div class="pet-avatar">
-                <el-avatar :size="100" :src="pet.avatarUrl">
+                <el-avatar :size="120" :src="pet.avatarUrl">
                   <el-icon><Picture /></el-icon>
                 </el-avatar>
               </div>
               <div class="pet-info">
-                <h3>{{ pet.petName }}</h3>
-                <p>品种：{{ pet.petBreed }}</p>
-                <p>体重：{{ pet.petWeight }}kg</p>
-                <p>健康状态：{{ pet.petHealthStatus || '良好' }}</p>
+                <h3 class="pet-name">{{ pet.petName }}</h3>
+                <div class="info-item">
+                  <el-icon><Collection /></el-icon>
+                  <span>品种：{{ pet.petBreed }}</span>
+                </div>
+                <div class="info-item">
+                  <el-icon><ScaleToOriginal /></el-icon>
+                  <span>体重：{{ pet.petWeight }}kg</span>
+                </div>
+                <div class="info-item">
+                  <el-icon><FirstAidKit /></el-icon>
+                  <span>健康状态：{{ pet.petHealthStatus || '良好' }}</span>
+                </div>
               </div>
               <div class="pet-actions">
-                <el-button type="primary" size="small" @click="editPet(pet)">
+                <el-button type="primary" size="large" @click="editPet(pet)">
+                  <el-icon><Edit /></el-icon>
                   编辑
                 </el-button>
-                <el-button type="danger" size="small" @click="handleDeletePet(pet.petId)">
+                <el-button type="danger" size="large" @click="handleDeletePet(pet.petId)">
+                  <el-icon><Delete /></el-icon>
                   删除
                 </el-button>
               </div>
@@ -99,7 +110,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Picture } from '@element-plus/icons-vue'
+import { Plus, Picture, Edit, Delete, Collection, ScaleToOriginal, FirstAidKit } from '@element-plus/icons-vue'
 import { addPet, updatePet, deletePet as deletePetApi, getPets, uploadPetPhoto } from '@/api/pet.js'
 import { useUserStore } from '@/stores/user.js'
 
@@ -250,15 +261,18 @@ onMounted(() => {
 <style scoped>
 .pets-page {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 60px);
 }
 
 .pets-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .add-pet-section {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  text-align: right;
 }
 
 .pets-list {
@@ -266,32 +280,69 @@ onMounted(() => {
 }
 
 .pet-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   text-align: center;
+  transition: all 0.3s;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.pet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .pet-avatar {
-  margin-bottom: 15px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.pet-avatar :deep(.el-avatar) {
+  border: 4px solid #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .pet-info {
-  margin-bottom: 15px;
+  margin: 20px 0;
+  padding: 0 20px;
 }
 
-.pet-info h3 {
-  margin: 0 0 10px 0;
+.pet-name {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  color: #303133;
+  font-weight: 600;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+  color: #606266;
+  font-size: 16px;
+}
+
+.info-item .el-icon {
+  margin-right: 8px;
   font-size: 18px;
-}
-
-.pet-info p {
-  margin: 5px 0;
-  color: #666;
 }
 
 .pet-actions {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.pet-actions .el-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .avatar-uploader {
@@ -299,21 +350,23 @@ onMounted(() => {
 }
 
 .avatar-uploader .avatar {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   display: block;
   margin: 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .avatar-uploader .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 100px;
-  height: 100px;
-  line-height: 100px;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
   text-align: center;
   border: 1px dashed #d9d9d9;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   position: relative;
   overflow: hidden;
