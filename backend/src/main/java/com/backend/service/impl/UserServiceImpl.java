@@ -5,6 +5,7 @@ import com.backend.model.dto.UserDTO;
 import com.backend.model.dto.RegisterDTO;
 import com.backend.model.dto.LoginDTO;
 import com.backend.model.dto.LoginResultDTO;
+import com.backend.model.dto.ChangePasswordDTO;
 import com.backend.model.entity.User;
 import com.backend.service.UserService;
 import com.backend.util.JwtUtil;
@@ -157,5 +158,45 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.deleteById(userId);
+    }
+
+    @Override
+    @Transactional
+    public boolean changePassword(ChangePasswordDTO changePasswordDTO) {
+        // 验证新密码和确认密码是否一致
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new RuntimeException("新密码和确认密码不一致");
+        }
+
+        // 查询用户
+        User user = userMapper.selectById(changePasswordDTO.getUserId());
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 验证旧密码
+        boolean passwordMatches = false;
+        try {
+            // 尝试使用 BCrypt 验证
+            passwordMatches = passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword());
+            
+            // 如果密码不匹配且不是 BCrypt 格式，尝试直接比较
+            if (!passwordMatches && !user.getPassword().startsWith("$2a$")) {
+                passwordMatches = changePasswordDTO.getOldPassword().equals(user.getPassword());
+            }
+        } catch (Exception e) {
+            // 如果 BCrypt 验证失败，尝试直接比较
+            passwordMatches = changePasswordDTO.getOldPassword().equals(user.getPassword());
+        }
+
+        if (!passwordMatches) {
+            throw new RuntimeException("旧密码错误");
+        }
+
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        int result = userMapper.update(user);
+
+        return result > 0;
     }
 }

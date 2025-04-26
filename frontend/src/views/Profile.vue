@@ -86,22 +86,73 @@
         </div>
       </div>
     </div>
+
+    <!-- 修改密码对话框 -->
+    <el-dialog
+      v-model="passwordDialogVisible"
+      title="修改密码"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <div class="password-form">
+        <div class="form-group">
+          <label>旧密码</label>
+          <el-input
+            v-model="passwordForm.oldPassword"
+            type="password"
+            placeholder="请输入旧密码"
+            show-password
+          />
+        </div>
+        <div class="form-group">
+          <label>新密码</label>
+          <el-input
+            v-model="passwordForm.newPassword"
+            type="password"
+            placeholder="请输入新密码"
+            show-password
+          />
+        </div>
+        <div class="form-group">
+          <label>确认新密码</label>
+          <el-input
+            v-model="passwordForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入新密码"
+            show-password
+          />
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="passwordDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitChangePassword">确认修改</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { updateUserInfo } from '@/api/user'
+import { updateUserInfo, changePassword } from '@/api/user'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.userInfo)
 const isEditing = ref(false)
+const passwordDialogVisible = ref(false)
 
 const editForm = ref({
   userName: '',
   userAddress: ''
+})
+
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
 })
 
 const userTypeText = computed(() => {
@@ -161,8 +212,54 @@ const handleUploadAvatar = () => {
 }
 
 const handleChangePassword = () => {
-  // TODO: 实现修改密码功能
-  console.log('修改密码')
+  // 重置表单
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  // 显示对话框
+  passwordDialogVisible.value = true
+}
+
+const submitChangePassword = async () => {
+  try {
+    // 验证表单
+    if (!passwordForm.value.oldPassword) {
+      ElMessage.error('请输入旧密码')
+      return
+    }
+    if (!passwordForm.value.newPassword) {
+      ElMessage.error('请输入新密码')
+      return
+    }
+    if (!passwordForm.value.confirmPassword) {
+      ElMessage.error('请确认新密码')
+      return
+    }
+    if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+      ElMessage.error('两次输入的密码不一致')
+      return
+    }
+    if (passwordForm.value.newPassword.length < 6) {
+      ElMessage.error('新密码长度不能少于6个字符')
+      return
+    }
+
+    // 调用API修改密码
+    await changePassword({
+      userId: userInfo.value.id,
+      oldPassword: passwordForm.value.oldPassword,
+      newPassword: passwordForm.value.newPassword,
+      confirmPassword: passwordForm.value.confirmPassword
+    })
+
+    ElMessage.success('密码修改成功')
+    passwordDialogVisible.value = false
+  } catch (error) {
+    console.error('修改密码失败:', error)
+    ElMessage.error(error.response?.data?.message || '修改失败，请稍后重试')
+  }
 }
 </script>
 
@@ -363,6 +460,18 @@ const handleChangePassword = () => {
 .cancel-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 @media (max-width: 640px) {

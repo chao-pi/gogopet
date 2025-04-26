@@ -1,6 +1,7 @@
 package com.backend.controller;
 
 import com.backend.model.dto.UserDTO;
+import com.backend.model.dto.ChangePasswordDTO;
 import com.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,17 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUserInfo(@Valid @RequestBody UserDTO userDTO) {
         UserDTO updatedUser = userService.updateUserInfo(userDTO);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * 修改密码
+     * @param changePasswordDTO 修改密码信息
+     * @return 修改结果
+     */
+    @PutMapping("/password")
+    public ResponseEntity<Boolean> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+        boolean result = userService.changePassword(changePasswordDTO);
+        return ResponseEntity.ok(result);
     }
 
     /**

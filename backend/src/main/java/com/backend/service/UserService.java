@@ -4,6 +4,7 @@ import com.backend.model.dto.UserDTO;
 import com.backend.model.dto.LoginDTO;
 import com.backend.model.dto.RegisterDTO;
 import com.backend.model.dto.LoginResultDTO;
+import com.backend.model.dto.ChangePasswordDTO;
 
 public interface UserService {
     /**
@@ -34,6 +35,13 @@ public interface UserService {
      * @return 更新后的用户信息
      */
     UserDTO updateUserInfo(UserDTO userDTO);
+
+    /**
+     * 修改密码
+     * @param changePasswordDTO 修改密码信息
+     * @return 是否修改成功
+     */
+    boolean changePassword(ChangePasswordDTO changePasswordDTO);
 
     /**
      * 删除用户
