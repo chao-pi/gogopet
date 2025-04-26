@@ -25,7 +25,7 @@
         <div class="profile-content">
           <div class="info-section">
             <h3>基本信息</h3>
-            <div v-if="!isEditing" class="info-items">
+            <div v-if="!isEditing && !isChangingPassword" class="info-items">
               <div class="info-item">
                 <label>用户名</label>
                 <span>{{ userInfo.userName }}</span>
@@ -39,7 +39,7 @@
                 <span>{{ userInfo.userAddress || '未设置' }}</span>
               </div>
             </div>
-            <div v-else class="edit-form">
+            <div v-else-if="isEditing" class="edit-form">
               <div class="form-group">
                 <label>用户名</label>
                 <input
@@ -59,20 +59,49 @@
                 />
               </div>
             </div>
+            <div v-else-if="isChangingPassword" class="edit-form">
+              <div class="form-group">
+                <label>旧密码</label>
+                <input
+                  v-model="passwordForm.oldPassword"
+                  type="password"
+                  class="form-input"
+                  placeholder="请输入旧密码"
+                />
+              </div>
+              <div class="form-group">
+                <label>新密码</label>
+                <input
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  class="form-input"
+                  placeholder="请输入新密码"
+                />
+              </div>
+              <div class="form-group">
+                <label>确认新密码</label>
+                <input
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  class="form-input"
+                  placeholder="请再次输入新密码"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="action-section">
-            <template v-if="!isEditing">
+            <template v-if="!isEditing && !isChangingPassword">
               <button class="edit-btn" @click="startEditing">
                 <i class="fas fa-edit"></i>
                 编辑资料
               </button>
-              <button class="change-pwd-btn" @click="handleChangePassword">
+              <button class="change-pwd-btn" @click="startChangePassword">
                 <i class="fas fa-key"></i>
                 修改密码
               </button>
             </template>
-            <template v-else>
+            <template v-else-if="isEditing">
               <button class="save-btn" @click="handleSaveProfile">
                 <i class="fas fa-save"></i>
                 保存修改
@@ -82,54 +111,20 @@
                 取消
               </button>
             </template>
+            <template v-else-if="isChangingPassword">
+              <button class="save-btn" @click="submitChangePassword">
+                <i class="fas fa-save"></i>
+                保存修改
+              </button>
+              <button class="cancel-btn" @click="cancelChangePassword">
+                <i class="fas fa-times"></i>
+                取消
+              </button>
+            </template>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- 修改密码对话框 -->
-    <el-dialog
-      v-model="passwordDialogVisible"
-      title="修改密码"
-      width="400px"
-      :close-on-click-modal="false"
-    >
-      <div class="password-form">
-        <div class="form-group">
-          <label>旧密码</label>
-          <el-input
-            v-model="passwordForm.oldPassword"
-            type="password"
-            placeholder="请输入旧密码"
-            show-password
-          />
-        </div>
-        <div class="form-group">
-          <label>新密码</label>
-          <el-input
-            v-model="passwordForm.newPassword"
-            type="password"
-            placeholder="请输入新密码"
-            show-password
-          />
-        </div>
-        <div class="form-group">
-          <label>确认新密码</label>
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            type="password"
-            placeholder="请再次输入新密码"
-            show-password
-          />
-        </div>
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="passwordDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitChangePassword">确认修改</el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -142,7 +137,7 @@ import { ElMessage } from 'element-plus'
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.userInfo)
 const isEditing = ref(false)
-const passwordDialogVisible = ref(false)
+const isChangingPassword = ref(false)
 
 const editForm = ref({
   userName: '',
@@ -170,10 +165,26 @@ const startEditing = () => {
     userAddress: userInfo.value.userAddress || ''
   }
   isEditing.value = true
+  isChangingPassword.value = false
 }
 
 const cancelEditing = () => {
   isEditing.value = false
+}
+
+const startChangePassword = () => {
+  // 重置表单
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  isChangingPassword.value = true
+  isEditing.value = false
+}
+
+const cancelChangePassword = () => {
+  isChangingPassword.value = false
 }
 
 const handleSaveProfile = async () => {
@@ -211,17 +222,6 @@ const handleUploadAvatar = () => {
   console.log('上传头像')
 }
 
-const handleChangePassword = () => {
-  // 重置表单
-  passwordForm.value = {
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  }
-  // 显示对话框
-  passwordDialogVisible.value = true
-}
-
 const submitChangePassword = async () => {
   try {
     // 验证表单
@@ -255,7 +255,7 @@ const submitChangePassword = async () => {
     })
 
     ElMessage.success('密码修改成功')
-    passwordDialogVisible.value = false
+    isChangingPassword.value = false
   } catch (error) {
     console.error('修改密码失败:', error)
     ElMessage.error(error.response?.data?.message || '修改失败，请稍后重试')
@@ -460,18 +460,6 @@ const submitChangePassword = async () => {
 .cancel-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }
 
 @media (max-width: 640px) {
