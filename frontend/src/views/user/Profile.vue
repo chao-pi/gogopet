@@ -131,7 +131,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/user.js'
-import { updateUserInfo, changePassword } from '@/api/user.js'
+import { updateUserInfo, changePassword, uploadAvatar } from '@/api/user.js'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
@@ -218,8 +218,47 @@ const handleSaveProfile = async () => {
 }
 
 const handleUploadAvatar = () => {
-  // TODO: 实现头像上传功能
-  console.log('上传头像')
+  // 创建文件输入元素
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  
+  // 监听文件选择
+  input.onchange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      ElMessage.error('请选择图片文件')
+      return
+    }
+    
+    // 验证文件大小（限制为5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      ElMessage.error('图片大小不能超过5MB')
+      return
+    }
+    
+    try {
+      // 上传头像
+      const response = await uploadAvatar(file, userInfo.value.id)
+      
+      // 更新用户信息
+      userStore.setUserInfo({
+        ...userInfo.value,
+        pictureUrl: response.pictureUrl
+      })
+      
+      ElMessage.success('头像上传成功')
+    } catch (error) {
+      console.error('上传头像失败:', error)
+      ElMessage.error(error.response?.data?.message || '上传失败，请稍后重试')
+    }
+  }
+  
+  // 触发文件选择
+  input.click()
 }
 
 const submitChangePassword = async () => {

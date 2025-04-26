@@ -11,7 +11,15 @@ spring:
 #      mode: always
 #      schema-locations: classpath:sql/DB_by_cursor.sql
 #      continue-on-error: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 jwt:
   secret: 8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb
   expiration: 86400  # 24小时，单位：秒
+
+upload:
+  path: uploads
+  url-prefix: http://localhost:8080/uploads
