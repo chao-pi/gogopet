@@ -5,18 +5,23 @@
       <div class="profile-card">
         <div class="profile-header">
           <div class="avatar-section">
-            <img
-              v-if="userInfo.pictureUrl"
-              :src="userInfo.pictureUrl"
-              :alt="userInfo.userName"
-              class="profile-avatar"
-            />
-            <div v-else class="default-avatar">
-              <i class="fas fa-user"></i>
+            <div class="avatar-wrapper">
+              <img
+                v-if="userInfo.pictureUrl"
+                :src="userInfo.pictureUrl"
+                :alt="userInfo.userName"
+                class="profile-avatar"
+              />
+              <div v-else class="default-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="upload-overlay">
+                <button class="upload-btn" @click="handleUploadAvatar">
+                  <i class="fas fa-camera"></i>
+                  <span>更换头像</span>
+                </button>
+              </div>
             </div>
-            <button class="upload-btn" @click="handleUploadAvatar">
-              <i class="fas fa-camera"></i>
-            </button>
           </div>
           <h2 class="username">{{ userInfo.userName }}</h2>
           <p class="user-type">{{ userTypeText }}</p>
@@ -334,19 +339,34 @@ const submitChangePassword = async () => {
   margin-bottom: 1rem;
 }
 
-.profile-avatar {
+.avatar-wrapper {
+  position: relative;
   width: 120px;
   height: 120px;
   border-radius: 50%;
+  overflow: hidden;
   border: 4px solid white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.avatar-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.avatar-wrapper:hover .upload-overlay {
+  opacity: 1;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
 .default-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 4px solid white;
+  width: 100%;
+  height: 100%;
   background-color: #e5e7eb;
   display: flex;
   align-items: center;
@@ -355,21 +375,38 @@ const submitChangePassword = async () => {
   color: #6b7280;
 }
 
-.upload-btn {
+.upload-overlay {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background: white;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.upload-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+.upload-btn i {
+  font-size: 1.5rem;
+}
+
+.upload-btn span {
+  font-size: 0.75rem;
 }
 
 .upload-btn:hover {
