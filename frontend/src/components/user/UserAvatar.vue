@@ -17,7 +17,6 @@
             <i class="fas fa-user"></i>
           </div>
           <span class="username">{{ username }}</span>
-          <i class="fas fa-chevron-down ml-2"></i>
         </div>
       </div>
 
