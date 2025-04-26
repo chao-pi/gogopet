@@ -16,31 +16,45 @@
           <el-col :span="8" v-for="pet in pets" :key="pet.petId">
             <el-card class="pet-card" shadow="hover">
               <div class="pet-avatar">
-                <el-avatar :size="120" :src="pet.avatarUrl">
-                  <el-icon><Picture /></el-icon>
-                </el-avatar>
+                <el-image 
+                  :src="pet.avatarUrl" 
+                  fit="cover"
+                  class="pet-image"
+                >
+                  <template #error>
+                    <div class="image-slot">
+                      <el-icon><Picture /></el-icon>
+                    </div>
+                  </template>
+                </el-image>
               </div>
               <div class="pet-info">
                 <h3 class="pet-name">{{ pet.petName }}</h3>
-                <div class="info-item">
-                  <el-icon><Collection /></el-icon>
-                  <span>品种：{{ pet.petBreed }}</span>
-                </div>
-                <div class="info-item">
-                  <el-icon><ScaleToOriginal /></el-icon>
-                  <span>体重：{{ pet.petWeight }}kg</span>
-                </div>
-                <div class="info-item">
-                  <el-icon><Calendar /></el-icon>
-                  <span>年龄：{{ pet.petAge }}岁</span>
-                </div>
-                <div class="info-item">
-                  <el-icon><User /></el-icon>
-                  <span>性别：{{ pet.petGender === 'M' ? '雄性' : '雌性' }}</span>
-                </div>
-                <div class="info-item">
-                  <el-icon><FirstAidKit /></el-icon>
-                  <span>健康状态：{{ pet.petHealthStatus || '良好' }}</span>
+                <div class="info-grid">
+                  <div class="info-column">
+                    <div class="info-item">
+                      <el-icon><Collection /></el-icon>
+                      <span>品种：{{ pet.petBreed }}</span>
+                    </div>
+                    <div class="info-item">
+                      <el-icon><ScaleToOriginal /></el-icon>
+                      <span>体重：{{ pet.petWeight }}kg</span>
+                    </div>
+                    <div class="info-item">
+                      <el-icon><Calendar /></el-icon>
+                      <span>年龄：{{ pet.petAge }}岁</span>
+                    </div>
+                  </div>
+                  <div class="info-column">
+                    <div class="info-item">
+                      <el-icon><User /></el-icon>
+                      <span>性别：{{ pet.petGender === 'M' ? '公' : '母' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <el-icon><FirstAidKit /></el-icon>
+                      <span>健康：{{ pet.petHealthStatus || '良好' }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="pet-actions">
@@ -94,17 +108,16 @@
           </el-form-item>
           <el-form-item label="宠物性别" prop="petGender">
             <el-radio-group v-model="petForm.petGender">
-              <el-radio label="M">雄性</el-radio>
-              <el-radio label="F">雌性</el-radio>
+              <el-radio label="M">公</el-radio>
+              <el-radio label="F">母</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="健康状态" prop="petHealthStatus">
-            <el-input
-              v-model="petForm.petHealthStatus"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入宠物健康状态描述"
-            />
+            <el-select v-model="petForm.petHealthStatus" placeholder="请选择健康状态">
+              <el-option label="良好" value="良好" />
+              <el-option label="一般" value="一般" />
+              <el-option label="较差" value="较差" />
+            </el-select>
           </el-form-item>
           <el-form-item label="宠物照片">
             <el-upload
@@ -147,9 +160,9 @@ const petForm = ref({
   petName: '',
   petBreed: '',
   petWeight: 0.01,
-  petAge: 0,
+  petAge: 1,
   petGender: 'M',
-  petHealthStatus: '',
+  petHealthStatus: '良好',
   avatarUrl: ''
 })
 
@@ -194,9 +207,9 @@ const showAddPetDialog = () => {
     petName: '',
     petBreed: '',
     petWeight: 0.01,
-    petAge: 0,
+    petAge: 1,
     petGender: 'M',
-    petHealthStatus: '',
+    petHealthStatus: '良好',
     avatarUrl: ''
   }
   dialogVisible.value = true
@@ -325,14 +338,27 @@ onMounted(() => {
 }
 
 .pet-avatar {
-  margin: 20px 0;
-  display: flex;
-  justify-content: center;
+  margin: 0;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
-.pet-avatar :deep(.el-avatar) {
-  border: 4px solid #fff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+.pet-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #f5f7fa;
+  color: #909399;
+  font-size: 30px;
 }
 
 .pet-info {
@@ -345,20 +371,32 @@ onMounted(() => {
   font-size: 24px;
   color: #303133;
   font-weight: 600;
+  text-align: center;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 12px 0;
   color: #606266;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .info-item .el-icon {
   margin-right: 8px;
-  font-size: 18px;
+  font-size: 16px;
+  color: #909399;
 }
 
 .pet-actions {
