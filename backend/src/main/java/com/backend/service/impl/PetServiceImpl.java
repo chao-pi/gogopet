@@ -193,14 +193,28 @@ public class PetServiceImpl implements PetService {
                 System.out.println("创建上传目录成功");
             }
 
-            // 保存文件
-            File destFile = new File(uploadDir, fileName);
-            file.transferTo(destFile);
-            System.out.println("文件保存成功: " + destFile.getAbsolutePath());
-
             // 检查宠物是否已有图片
             Picture existingPicture = pictureMapper.selectByPetId(petId);
             String pictureUrl = urlPrefix + "/pets/" + fileName;
+            
+            // 如果已有图片，先删除旧文件
+            if (existingPicture != null) {
+                String oldFileName = existingPicture.getPictureUrl().substring(existingPicture.getPictureUrl().lastIndexOf("/") + 1);
+                File oldFile = new File(uploadDir, oldFileName);
+                if (oldFile.exists()) {
+                    boolean deleted = oldFile.delete();
+                    if (deleted) {
+                        System.out.println("删除旧图片文件成功: " + oldFile.getAbsolutePath());
+                    } else {
+                        System.out.println("删除旧图片文件失败: " + oldFile.getAbsolutePath());
+                    }
+                }
+            }
+
+            // 保存新文件
+            File destFile = new File(uploadDir, fileName);
+            file.transferTo(destFile);
+            System.out.println("文件保存成功: " + destFile.getAbsolutePath());
             
             if (existingPicture != null) {
                 // 更新现有图片记录
