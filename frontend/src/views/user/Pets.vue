@@ -305,8 +305,8 @@ onMounted(() => {
 
 <style scoped>
 .pets-page {
-  padding: 20px;
-  background-color: #f5f7fa;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
   min-height: calc(100vh - 60px);
 }
 
@@ -316,8 +316,22 @@ onMounted(() => {
 }
 
 .add-pet-section {
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
   text-align: right;
+}
+
+.add-pet-section .el-button {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-pet-section .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1), 0 2px 4px -1px rgba(249, 115, 22, 0.06);
 }
 
 .pets-list {
@@ -325,22 +339,23 @@ onMounted(() => {
 }
 
 .pet-card {
-  margin-bottom: 24px;
-  text-align: center;
-  transition: all 0.3s;
-  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border-radius: 1rem;
   overflow: hidden;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .pet-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .pet-avatar {
-  margin: 0;
+  position: relative;
   width: 100%;
-  height: 200px;
+  height: 250px;
   overflow: hidden;
 }
 
@@ -348,6 +363,11 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.pet-card:hover .pet-image {
+  transform: scale(1.05);
 }
 
 .image-slot {
@@ -356,94 +376,152 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   height: 100%;
-  background: #f5f7fa;
-  color: #909399;
-  font-size: 30px;
+  background: #f3f4f6;
+  color: #9ca3af;
+  font-size: 2rem;
 }
 
 .pet-info {
-  margin: 20px 0;
-  padding: 0 20px;
+  padding: 1.5rem;
 }
 
 .pet-name {
-  margin: 0 0 20px 0;
-  font-size: 24px;
-  color: #303133;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
   font-weight: 600;
+  color: #1f2937;
   text-align: center;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .info-column {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  color: #606266;
-  font-size: 14px;
+  gap: 0.5rem;
+  color: #4b5563;
+  font-size: 0.875rem;
 }
 
 .info-item .el-icon {
-  margin-right: 8px;
-  font-size: 16px;
-  color: #909399;
+  color: #f97316;
+  font-size: 1.25rem;
 }
 
 .pet-actions {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin: 20px 0;
-  padding: 0 20px;
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 .pet-actions .el-button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
 }
 
-.avatar-uploader {
-  text-align: center;
+.pet-actions .el-button:hover {
+  transform: translateY(-2px);
 }
 
-.avatar-uploader .avatar {
-  width: 120px;
-  height: 120px;
-  display: block;
-  margin: 0 auto;
-  border-radius: 50%;
-  object-fit: cover;
+/* 对话框样式 */
+:deep(.el-dialog) {
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
-.avatar-uploader .avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 120px;
-  height: 120px;
-  line-height: 120px;
-  text-align: center;
-  border: 1px dashed #d9d9d9;
-  border-radius: 50%;
+:deep(.el-dialog__header) {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  margin: 0;
+  padding: 1rem 1.5rem;
+}
+
+:deep(.el-dialog__title) {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+:deep(.el-dialog__body) {
+  padding: 2rem;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #4b5563;
+}
+
+:deep(.el-input__inner) {
+  border-radius: 0.5rem;
+}
+
+:deep(.el-upload) {
+  border: 2px dashed #e5e7eb;
+  border-radius: 0.5rem;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: var(--el-transition-duration-fast);
+  transition: all 0.3s ease;
 }
 
-.avatar-uploader .avatar-uploader-icon:hover {
-  border-color: var(--el-color-primary);
+:deep(.el-upload:hover) {
+  border-color: #f97316;
+}
+
+:deep(.avatar-uploader-icon) {
+  font-size: 2rem;
+  color: #9ca3af;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+}
+
+:deep(.avatar) {
+  width: 100px;
+  height: 100px;
+  display: block;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+:deep(.dialog-footer) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+:deep(.dialog-footer .el-button) {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+:deep(.dialog-footer .el-button--primary) {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border: none;
+}
+
+:deep(.dialog-footer .el-button--primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1), 0 2px 4px -1px rgba(249, 115, 22, 0.06);
 }
 </style>
