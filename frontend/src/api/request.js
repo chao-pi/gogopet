@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 创建axios实例
 const request = axios.create({
-    baseURL: 'http://localhost:8080/api', // 后端API基础URL
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api', // 使用环境变量配置baseURL
     timeout: 5000, // 请求超时时间
     headers: {
         'Content-Type': 'application/json'
@@ -21,11 +21,13 @@ request.interceptors.request.use(
         console.log('Request:', {
             url: config.url,
             method: config.method,
-            data: config.data
+            data: config.data,
+            headers: config.headers
         })
         return config
     },
     error => {
+        console.error('Request Error:', error)
         return Promise.reject(error)
     }
 )
@@ -34,14 +36,19 @@ request.interceptors.request.use(
 request.interceptors.response.use(
     response => {
         // 打印响应数据，用于调试
-        console.log('Response:', response.data)
+        console.log('Response:', {
+            status: response.status,
+            data: response.data,
+            headers: response.headers
+        })
         return response.data
     },
     error => {
         // 打印错误信息，用于调试
-        console.error('Error:', {
+        console.error('Response Error:', {
             status: error.response?.status,
-            data: error.response?.data
+            data: error.response?.data,
+            message: error.message
         })
 
         // 处理错误响应
@@ -54,6 +61,7 @@ request.interceptors.response.use(
                 case 401:
                     // token无效或过期，清除用户信息并跳转到登录页
                     localStorage.removeItem('token')
+                    localStorage.removeItem('userInfo')
                     window.location.href = '/login'
                     break
                 case 403:
