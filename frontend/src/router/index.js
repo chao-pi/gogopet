@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Error from '../components/Error.vue'
-import Home from '@/views/Home.vue'
-import About from '@/views/About.vue'
+import Home from '@/views/home/Home.vue'
+import About from '@/views/about/About.vue'
 import Login from '@/views/auth/Login.vue'
 import Register from '@/views/auth/Register.vue'
-import Profile from '@/views/Profile.vue'
-import Pets from '@/views/Pets.vue'
+import Profile from '@/views/user/Profile.vue'
+import Pets from '@/views/user/Pets.vue'
 
 const routes = [
   {

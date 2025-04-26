@@ -130,8 +130,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useUserStore } from '@/stores/user'
-import { updateUserInfo, changePassword } from '@/api/user'
+import { useUserStore } from '@/stores/user.js'
+import { updateUserInfo, changePassword } from '@/api/user.js'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
