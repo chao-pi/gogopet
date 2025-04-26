@@ -75,15 +75,35 @@ public class PictureServiceImpl implements PictureService {
             File destFile = new File(uploadDir, fileName);
             file.transferTo(destFile);
 
-            // 创建图片记录
-            Picture picture = new Picture();
-            picture.setPictureId(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
-            picture.setPictureUsage("A"); // A-头像
-            picture.setPictureUrl(urlPrefix + "/avatars/" + fileName);
-            picture.setUserId(userId);
+            // 检查用户是否已有头像
+            Picture picture;
+            if (user.getPictureId() != null) {
+                // 如果已有头像，更新现有记录
+                picture = pictureMapper.selectById(user.getPictureId());
+                if (picture != null) {
+                    // 删除旧文件
+                    String oldFileName = picture.getPictureUrl().substring(picture.getPictureUrl().lastIndexOf("/") + 1);
+                    File oldFile = new File(uploadDir, oldFileName);
+                    if (oldFile.exists()) {
+                        oldFile.delete();
+                    }
+                    // 更新图片信息
+                    picture.setPictureUrl(urlPrefix + "/avatars/" + fileName);
+                } else {
+                    // 如果找不到记录，创建新记录
+                    picture = createNewPicture(fileName, userId);
+                }
+            } else {
+                // 如果没有头像，创建新记录
+                picture = createNewPicture(fileName, userId);
+            }
 
             // 保存图片记录
-            pictureMapper.insert(picture);
+            if (picture.getPictureId() == null) {
+                pictureMapper.insert(picture);
+            } else {
+                pictureMapper.update(picture);
+            }
 
             // 更新用户头像
             user.setPictureId(picture.getPictureId());
@@ -97,5 +117,14 @@ public class PictureServiceImpl implements PictureService {
         } catch (IOException e) {
             throw new RuntimeException("文件上传失败", e);
         }
+    }
+
+    private Picture createNewPicture(String fileName, String userId) {
+        Picture picture = new Picture();
+        picture.setPictureId(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
+        picture.setPictureUsage("A"); // A-头像
+        picture.setPictureUrl(urlPrefix + "/avatars/" + fileName);
+        picture.setUserId(userId);
+        return picture;
     }
 } 
