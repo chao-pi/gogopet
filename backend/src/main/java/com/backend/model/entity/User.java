@@ -7,12 +7,16 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 用户实体类
  * 对应数据库表 t_user
  */
 @Data
+@Getter
+@Setter
 @TableName("t_user")
 public class User {
     /**

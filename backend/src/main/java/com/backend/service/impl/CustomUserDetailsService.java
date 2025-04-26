@@ -22,15 +22,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserMapper userMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("尝试加载用户: " + username);
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        System.out.println("尝试加载用户: " + userId);
         
         // 从数据库中查询用户
-        User user = userMapper.selectByUserName(username);
+        User user = userMapper.selectById(userId);
         
         if (user == null) {
-            System.out.println("用户不存在: " + username);
-            throw new UsernameNotFoundException("用户不存在: " + username);
+            System.out.println("用户不存在: " + userId);
+            throw new UsernameNotFoundException("用户不存在: " + userId);
         }
         
         System.out.println("找到用户: " + user.getUserName() + ", 密码: " + user.getPassword());
@@ -38,9 +38,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 根据用户类型设置角色
         String role = "ROLE_" + user.getUserType();
         
-        // 创建UserDetails对象
+        // 创建UserDetails对象，使用用户ID作为用户名
         return new org.springframework.security.core.userdetails.User(
-                user.getUserName(),
+                user.getUserId(),
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(role))
         );

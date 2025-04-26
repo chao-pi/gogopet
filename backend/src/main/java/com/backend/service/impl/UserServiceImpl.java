@@ -103,8 +103,8 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
 
-        // 生成 JWT Token，使用用户名而不是用户ID
-        String token = jwtUtil.generateToken(user.getUserName());
+        // 生成 JWT Token，使用用户ID而不是用户名
+        String token = jwtUtil.generateToken(user.getUserId());
 
         // 返回结果
         LoginResultDTO result = new LoginResultDTO();
