@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', () => {
       if (info) {
         // 确保用户信息包含必要的字段
         const userData = {
-          id: info.id || info.userId,
+          id: info.userId || info.id,  // 优先使用 userId
           userName: info.userName,
           userType: info.userType,
           userAddress: info.userAddress,

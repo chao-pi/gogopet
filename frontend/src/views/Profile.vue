@@ -135,7 +135,7 @@ const handleSaveProfile = async () => {
 
     // 调用API更新用户信息
     await updateUserInfo({
-      id: userInfo.value.id,
+      userId: userInfo.value.id,
       userName: editForm.value.userName,
       userAddress: editForm.value.userAddress
     })

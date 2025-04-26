@@ -128,13 +128,22 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO updateUserInfo(UserDTO userDTO) {
+        // 添加日志输出
+        System.out.println("更新用户信息，用户ID: " + userDTO.getUserId());
+        
         User user = userMapper.selectById(userDTO.getUserId());
         if (user == null) {
+            System.out.println("用户不存在，用户ID: " + userDTO.getUserId());
             throw new RuntimeException("用户不存在");
         }
 
-        BeanUtils.copyProperties(userDTO, user);
-        userMapper.update(user);
+        // 更新用户信息
+        user.setUserName(userDTO.getUserName());
+        user.setUserAddress(userDTO.getUserAddress());
+        
+        // 执行更新
+        int result = userMapper.update(user);
+        System.out.println("更新结果: " + result);
 
         return userDTO;
     }
