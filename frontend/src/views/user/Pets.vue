@@ -1,12 +1,18 @@
 <template>
   <div class="pets-page">
     <div class="pets-container">
-      <!-- 添加宠物按钮 -->
-      <div class="add-pet-section">
-        <el-button type="primary" @click="showAddPetDialog">
-          <el-icon><Plus /></el-icon>
-          添加宠物
-        </el-button>
+      <!-- 页面标题和添加按钮 -->
+      <div class="page-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h2 class="page-title">我的宠物</h2>
+            <p class="page-subtitle">管理您的宠物信息</p>
+          </div>
+          <el-button type="primary" class="add-button" @click="showAddPetDialog">
+            <el-icon><Plus /></el-icon>
+            添加宠物
+          </el-button>
+        </div>
       </div>
 
       <!-- 宠物列表 -->
@@ -315,23 +321,59 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.add-pet-section {
-  margin-bottom: 2rem;
-  text-align: right;
+.page-header {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.add-pet-section .el-button {
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.add-button {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border: none;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
+  height: auto;
   transition: all 0.3s ease;
 }
 
-.add-pet-section .el-button:hover {
+.add-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1), 0 2px 4px -1px rgba(249, 115, 22, 0.06);
+}
+
+.add-button .el-icon {
+  margin-right: 0.5rem;
 }
 
 .pets-list {
