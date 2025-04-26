@@ -1,116 +1,255 @@
 <template>
   <div class="pets-page">
     <div class="pets-container">
-      <!-- 宠物列表头部 -->
-      <div class="pets-header">
-        <h2>我的宠物</h2>
-        <button class="add-pet-btn" @click="handleAddPet">
-          <i class="fas fa-plus"></i>
+      <!-- 添加宠物按钮 -->
+      <div class="add-pet-section">
+        <el-button type="primary" @click="showAddPetDialog">
+          <el-icon><Plus /></el-icon>
           添加宠物
-        </button>
+        </el-button>
       </div>
 
       <!-- 宠物列表 -->
-      <div class="pets-list">
-        <div v-if="pets.length === 0" class="empty-state">
-          <i class="fas fa-paw"></i>
-          <p>您还没有添加任何宠物</p>
-          <button class="add-pet-btn" @click="handleAddPet">
-            <i class="fas fa-plus"></i>
-            添加宠物
-          </button>
-        </div>
-
-        <div v-else class="pets-grid">
-          <div v-for="pet in pets" :key="pet.id" class="pet-card">
-            <div class="pet-image">
-              <img :src="pet.imageUrl" :alt="pet.name" />
-              <div class="pet-status" :class="pet.status">
-                {{ petStatusText[pet.status] }}
+      <div class="pets-list" v-loading="loading">
+        <el-empty v-if="pets.length === 0" description="暂无宠物" />
+        <el-row :gutter="20" v-else>
+          <el-col :span="6" v-for="pet in pets" :key="pet.petId">
+            <el-card class="pet-card" shadow="hover">
+              <div class="pet-avatar">
+                <el-avatar :size="100" :src="pet.avatarUrl">
+                  <el-icon><Picture /></el-icon>
+                </el-avatar>
               </div>
-            </div>
-            <div class="pet-info">
-              <h3>{{ pet.name }}</h3>
-              <p class="pet-type">{{ pet.type }}</p>
-              <div class="pet-details">
-                <div class="detail-item">
-                  <i class="fas fa-birthday-cake"></i>
-                  <span>{{ pet.age }}岁</span>
-                </div>
-                <div class="detail-item">
-                  <i class="fas fa-venus-mars"></i>
-                  <span>{{ pet.gender === 'M' ? '公' : '母' }}</span>
-                </div>
+              <div class="pet-info">
+                <h3>{{ pet.petName }}</h3>
+                <p>品种：{{ pet.petBreed }}</p>
+                <p>体重：{{ pet.petWeight }}kg</p>
+                <p>健康状态：{{ pet.petHealthStatus || '良好' }}</p>
               </div>
-            </div>
-            <div class="pet-actions">
-              <button class="action-btn edit" @click="handleEditPet(pet)">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="action-btn delete" @click="handleDeletePet(pet)">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
+              <div class="pet-actions">
+                <el-button type="primary" size="small" @click="editPet(pet)">
+                  编辑
+                </el-button>
+                <el-button type="danger" size="small" @click="handleDeletePet(pet.petId)">
+                  删除
+                </el-button>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
       </div>
+
+      <!-- 添加/编辑宠物对话框 -->
+      <el-dialog
+        v-model="dialogVisible"
+        :title="isEdit ? '编辑宠物' : '添加宠物'"
+        width="500px"
+      >
+        <el-form
+          ref="petFormRef"
+          :model="petForm"
+          :rules="petFormRules"
+          label-width="100px"
+        >
+          <el-form-item label="宠物名称" prop="petName">
+            <el-input v-model="petForm.petName" placeholder="请输入宠物名称" />
+          </el-form-item>
+          <el-form-item label="宠物品种" prop="petBreed">
+            <el-input v-model="petForm.petBreed" placeholder="请输入宠物品种" />
+          </el-form-item>
+          <el-form-item label="宠物体重" prop="petWeight">
+            <el-input-number
+              v-model="petForm.petWeight"
+              :min="0.01"
+              :precision="2"
+              :step="0.1"
+            />
+          </el-form-item>
+          <el-form-item label="健康状态" prop="petHealthStatus">
+            <el-input
+              v-model="petForm.petHealthStatus"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入宠物健康状态描述"
+            />
+          </el-form-item>
+          <el-form-item label="宠物照片">
+            <el-upload
+              class="avatar-uploader"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload"
+              :http-request="handleAvatarUpload"
+            >
+              <img v-if="petForm.avatarUrl" :src="petForm.avatarUrl" class="avatar" />
+              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            </el-upload>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="submitPetForm">确定</el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Picture } from '@element-plus/icons-vue'
+import { addPet, updatePet, deletePet as deletePetApi, getPets, uploadPetPhoto } from '@/api/pet.js'
+import { useUserStore } from '@/stores/user.js'
 
-// 模拟宠物数据
-const pets = ref([
-  {
-    id: '1',
-    name: '旺财',
-    type: '金毛',
-    age: 2,
-    gender: 'M',
-    status: 'healthy',
-    imageUrl: 'https://example.com/dog1.jpg'
-  },
-  {
-    id: '2',
-    name: '咪咪',
-    type: '英短',
-    age: 1,
-    gender: 'F',
-    status: 'healthy',
-    imageUrl: 'https://example.com/cat1.jpg'
+const userStore = useUserStore()
+const loading = ref(false)
+const pets = ref([])
+const dialogVisible = ref(false)
+const isEdit = ref(false)
+const petFormRef = ref(null)
+
+const petForm = ref({
+  petName: '',
+  petBreed: '',
+  petWeight: 0.01,
+  petHealthStatus: '',
+  avatarUrl: ''
+})
+
+const petFormRules = {
+  petName: [
+    { required: true, message: '请输入宠物名称', trigger: 'blur' },
+    { max: 63, message: '长度不能超过63个字符', trigger: 'blur' }
+  ],
+  petBreed: [
+    { required: true, message: '请输入宠物品种', trigger: 'blur' },
+    { max: 63, message: '长度不能超过63个字符', trigger: 'blur' }
+  ],
+  petWeight: [
+    { required: true, message: '请输入宠物体重', trigger: 'blur' }
+  ]
+}
+
+// 获取宠物列表
+const fetchPets = async () => {
+  loading.value = true
+  try {
+    const response = await getPets()
+    pets.value = response
+  } catch (error) {
+    console.error('获取宠物列表失败:', error)
+    ElMessage.error('获取宠物列表失败')
+  } finally {
+    loading.value = false
   }
-])
-
-const petStatusText = {
-  healthy: '健康',
-  sick: '生病',
-  pregnant: '怀孕',
-  vaccinated: '已接种'
 }
 
-const handleAddPet = () => {
-  // TODO: 实现添加宠物功能
-  console.log('添加宠物')
+// 显示添加宠物对话框
+const showAddPetDialog = () => {
+  isEdit.value = false
+  petForm.value = {
+    petName: '',
+    petBreed: '',
+    petWeight: 0.01,
+    petHealthStatus: '',
+    avatarUrl: ''
+  }
+  dialogVisible.value = true
 }
 
-const handleEditPet = (pet) => {
-  // TODO: 实现编辑宠物功能
-  console.log('编辑宠物:', pet)
+// 编辑宠物
+const editPet = (pet) => {
+  isEdit.value = true
+  petForm.value = { ...pet }
+  dialogVisible.value = true
 }
 
-const handleDeletePet = (pet) => {
-  // TODO: 实现删除宠物功能
-  console.log('删除宠物:', pet)
+// 删除宠物
+const handleDeletePet = async (petId) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这只宠物吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deletePetApi(petId)
+    ElMessage.success('删除成功')
+    fetchPets()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除宠物失败:', error)
+      ElMessage.error('删除宠物失败')
+    }
+  }
 }
+
+// 上传宠物照片前的验证
+const beforeAvatarUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt5M = file.size / 1024 / 1024 < 5
+
+  if (!isImage) {
+    ElMessage.error('上传文件只能是图片格式!')
+    return false
+  }
+  if (!isLt5M) {
+    ElMessage.error('上传图片大小不能超过 5MB!')
+    return false
+  }
+  return true
+}
+
+// 处理宠物照片上传
+const handleAvatarUpload = async ({ file }) => {
+  try {
+    const response = await uploadPetPhoto(file, petForm.value.petId)
+    petForm.value.avatarUrl = response.avatarUrl
+    ElMessage.success('上传成功')
+  } catch (error) {
+    console.error('上传宠物照片失败:', error)
+    ElMessage.error('上传宠物照片失败')
+  }
+}
+
+// 提交宠物表单
+const submitPetForm = async () => {
+  if (!petFormRef.value) return
+  
+  await petFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        const petData = {
+          ...petForm.value,
+          userId: userStore.userInfo.id
+        }
+        
+        if (isEdit.value) {
+          await updatePet(petData)
+          ElMessage.success('更新成功')
+        } else {
+          await addPet(petData)
+          ElMessage.success('添加成功')
+        }
+        dialogVisible.value = false
+        fetchPets()
+      } catch (error) {
+        console.error('操作失败:', error)
+        ElMessage.error(error.response?.data?.message || '操作失败')
+      }
+    }
+  })
+}
+
+onMounted(() => {
+  fetchPets()
+})
 </script>
 
 <style scoped>
 .pets-page {
-  min-height: 100vh;
-  background-color: #f3f4f6;
-  padding: 2rem;
+  padding: 20px;
 }
 
 .pets-container {
@@ -118,182 +257,70 @@ const handleDeletePet = (pet) => {
   margin: 0 auto;
 }
 
-.pets-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+.add-pet-section {
+  margin-bottom: 20px;
 }
 
-.pets-header h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1f2937;
-}
-
-.add-pet-btn {
-  background-color: #f97316;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.add-pet-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.empty-state i {
-  font-size: 4rem;
-  color: #e5e7eb;
-  margin-bottom: 1rem;
-}
-
-.empty-state p {
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-}
-
-.pets-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+.pets-list {
+  min-height: 200px;
 }
 
 .pet-card {
-  background: white;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-.pet-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.pet-image {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-}
-
-.pet-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pet-status {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.pet-status.healthy {
-  background-color: #10b981;
-  color: white;
-}
-
-.pet-status.sick {
-  background-color: #ef4444;
-  color: white;
-}
-
-.pet-status.pregnant {
-  background-color: #8b5cf6;
-  color: white;
-}
-
-.pet-status.vaccinated {
-  background-color: #3b82f6;
-  color: white;
+.pet-avatar {
+  margin-bottom: 15px;
 }
 
 .pet-info {
-  padding: 1rem;
+  margin-bottom: 15px;
 }
 
 .pet-info h3 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
+  margin: 0 0 10px 0;
+  font-size: 18px;
 }
 
-.pet-type {
-  color: #6b7280;
-  margin-bottom: 1rem;
-}
-
-.pet-details {
-  display: flex;
-  gap: 1rem;
-}
-
-.detail-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #4b5563;
+.pet-info p {
+  margin: 5px 0;
+  color: #666;
 }
 
 .pet-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  gap: 10px;
 }
 
-.action-btn.edit {
-  background-color: #e5e7eb;
-  color: #1f2937;
+.avatar-uploader {
+  text-align: center;
 }
 
-.action-btn.delete {
-  background-color: #fee2e2;
-  color: #ef4444;
+.avatar-uploader .avatar {
+  width: 100px;
+  height: 100px;
+  display: block;
+  margin: 0 auto;
 }
 
-.action-btn:hover {
-  transform: scale(1.1);
+.avatar-uploader .avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
 }
 
-@media (max-width: 640px) {
-  .pets-page {
-    padding: 1rem;
-  }
-  
-  .pets-grid {
-    grid-template-columns: 1fr;
-  }
+.avatar-uploader .avatar-uploader-icon:hover {
+  border-color: var(--el-color-primary);
 }
-</style> 
+</style>
