@@ -31,6 +31,14 @@
                   <span>体重：{{ pet.petWeight }}kg</span>
                 </div>
                 <div class="info-item">
+                  <el-icon><Calendar /></el-icon>
+                  <span>年龄：{{ pet.petAge }}岁</span>
+                </div>
+                <div class="info-item">
+                  <el-icon><User /></el-icon>
+                  <span>性别：{{ pet.petGender === 'M' ? '雄性' : '雌性' }}</span>
+                </div>
+                <div class="info-item">
                   <el-icon><FirstAidKit /></el-icon>
                   <span>健康状态：{{ pet.petHealthStatus || '良好' }}</span>
                 </div>
@@ -76,6 +84,20 @@
               :step="0.1"
             />
           </el-form-item>
+          <el-form-item label="宠物年龄" prop="petAge">
+            <el-input-number
+              v-model="petForm.petAge"
+              :min="0"
+              :precision="0"
+              :step="1"
+            />
+          </el-form-item>
+          <el-form-item label="宠物性别" prop="petGender">
+            <el-radio-group v-model="petForm.petGender">
+              <el-radio label="M">雄性</el-radio>
+              <el-radio label="F">雌性</el-radio>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item label="健康状态" prop="petHealthStatus">
             <el-input
               v-model="petForm.petHealthStatus"
@@ -110,7 +132,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Picture, Edit, Delete, Collection, ScaleToOriginal, FirstAidKit } from '@element-plus/icons-vue'
+import { Plus, Picture, Edit, Delete, Collection, ScaleToOriginal, FirstAidKit, Calendar, User } from '@element-plus/icons-vue'
 import { addPet, updatePet, deletePet as deletePetApi, getPets, uploadPetPhoto } from '@/api/pet.js'
 import { useUserStore } from '@/stores/user.js'
 
@@ -125,6 +147,8 @@ const petForm = ref({
   petName: '',
   petBreed: '',
   petWeight: 0.01,
+  petAge: 0,
+  petGender: 'M',
   petHealthStatus: '',
   avatarUrl: ''
 })
@@ -140,6 +164,12 @@ const petFormRules = {
   ],
   petWeight: [
     { required: true, message: '请输入宠物体重', trigger: 'blur' }
+  ],
+  petAge: [
+    { required: true, message: '请输入宠物年龄', trigger: 'blur' }
+  ],
+  petGender: [
+    { required: true, message: '请选择宠物性别', trigger: 'change' }
   ]
 }
 
@@ -164,6 +194,8 @@ const showAddPetDialog = () => {
     petName: '',
     petBreed: '',
     petWeight: 0.01,
+    petAge: 0,
+    petGender: 'M',
     petHealthStatus: '',
     avatarUrl: ''
   }
