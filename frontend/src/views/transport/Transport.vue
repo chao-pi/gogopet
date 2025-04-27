@@ -41,31 +41,41 @@
     <div class="main-content">
       <!-- 托运公司列表 -->
       <div class="company-list">
-        <div v-for="company in filteredCompanies" :key="company.id" class="company-card">
-          <div class="company-header">
-            <img :src="company.logo" :alt="company.name" class="company-logo">
-            <div class="company-info">
-              <h3>{{ company.name }}</h3>
-              <div class="company-rating">
-                <el-rate v-model="company.rating" disabled />
-                <span class="rating-text">{{ company.rating }}分</span>
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="3" animated />
+        </div>
+        <div v-else-if="error" class="error-container">
+          <el-alert
+            title="加载失败"
+            type="error"
+            :description="error"
+            show-icon
+          />
+        </div>
+        <template v-else>
+          <div v-for="company in filteredCompanies" :key="company.companyId" class="company-card">
+            <div class="company-header">
+              <img :src="company.logoUrl || 'https://via.placeholder.com/50'" :alt="company.companyName" class="company-logo">
+              <div class="company-info">
+                <h3>{{ company.companyName }}</h3>
+                <div class="company-rating">
+                  <el-rate v-model="company.rating" disabled />
+                  <span class="rating-text">{{ company.rating }}分</span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="company-details">
-            <p class="service-range">服务范围：{{ company.serviceRange }}</p>
-            <p class="starting-price">起送价：¥{{ company.startingPrice }}</p>
-            <div class="tags">
-              <el-tag v-for="tag in company.tags" :key="tag" size="small">{{ tag }}</el-tag>
+            
+            <div class="company-details">
+              <p class="service-range">服务范围：{{ company.serviceRange }}</p>
+              <p class="address">公司地址：{{ company.address }}</p>
+            </div>
+
+            <div class="company-actions">
+              <el-button type="primary" @click="viewCompanyDetail(company.companyId)">查看详情</el-button>
+              <el-button @click="bookService(company.companyId)">立即预约</el-button>
             </div>
           </div>
-
-          <div class="company-actions">
-            <el-button type="primary" @click="viewCompanyDetail(company.id)">查看详情</el-button>
-            <el-button @click="bookService(company.id)">立即预约</el-button>
-          </div>
-        </div>
+        </template>
       </div>
 
       <!-- 智能助手面板 -->
@@ -111,15 +121,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { getAllCompanyCards } from '@/api/company'
 
 // 搜索和筛选数据
 const searchQuery = ref('')
 const selectedServiceType = ref('')
 const selectedPriceRange = ref('')
 const selectedDistance = ref('')
+
+// 公司数据
+const companies = ref([])
+const loading = ref(false)
+const error = ref(null)
 
 // 智能助手状态
 const userInput = ref('')
@@ -133,51 +149,32 @@ const quickQuestions = ref([
   { id: 4, text: '如何跟踪托运状态？' }
 ])
 
-// 模拟托运公司数据
-const companies = ref([
-  {
-    id: 1,
-    name: '宠物快运',
-    logo: 'https://via.placeholder.com/50',
-    rating: 4.8,
-    serviceRange: '全国范围',
-    startingPrice: 200,
-    tags: ['专业托运', '实时跟踪', '保险服务'],
-    distance: 3.5
-  },
-  {
-    id: 2,
-    name: '爱心宠物托运',
-    logo: 'https://via.placeholder.com/50',
-    rating: 4.6,
-    serviceRange: '省内范围',
-    startingPrice: 150,
-    tags: ['专车服务', '上门接送'],
-    distance: 2.1
-  },
-  {
-    id: 3,
-    name: '国际宠物运输',
-    logo: 'https://via.placeholder.com/50',
-    rating: 4.9,
-    serviceRange: '国际航线',
-    startingPrice: 1000,
-    tags: ['国际运输', '专业团队', '海关服务'],
-    distance: 8.7
-  }
-])
-
 // 过滤后的公司列表
 const filteredCompanies = computed(() => {
   return companies.value.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchesServiceType = !selectedServiceType.value || company.tags.includes(selectedServiceType.value)
+    const matchesSearch = company.companyName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesServiceType = !selectedServiceType.value || company.serviceRange.includes(selectedServiceType.value)
     const matchesPrice = !selectedPriceRange.value || checkPriceRange(company.startingPrice, selectedPriceRange.value)
     const matchesDistance = !selectedDistance.value || company.distance <= parseInt(selectedDistance.value)
     
     return matchesSearch && matchesServiceType && matchesPrice && matchesDistance
   })
 })
+
+// 加载公司数据
+const loadCompanies = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await getAllCompanyCards()
+    companies.value = response
+  } catch (err) {
+    error.value = err.message || '加载公司数据失败'
+    ElMessage.error(error.value)
+  } finally {
+    loading.value = false
+  }
+}
 
 // 辅助函数
 const checkPriceRange = (price, range) => {
@@ -234,6 +231,11 @@ const bookService = (companyId) => {
   // 实现预约服务逻辑
   ElMessage.success('预约服务: ' + companyId)
 }
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadCompanies()
+})
 </script>
 
 <style scoped>
@@ -299,8 +301,8 @@ const bookService = (companyId) => {
 }
 
 .company-logo {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -310,7 +312,7 @@ const bookService = (companyId) => {
 }
 
 .company-info h3 {
-  margin: 0 0 8px 0;
+  margin: 0;
   font-size: 1.2rem;
   color: #333;
 }
@@ -318,12 +320,12 @@ const bookService = (companyId) => {
 .company-rating {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 5px;
 }
 
 .rating-text {
-  color: #f56c6c;
-  font-weight: bold;
+  color: #666;
   font-size: 0.9rem;
 }
 
@@ -331,27 +333,21 @@ const bookService = (companyId) => {
   margin-bottom: 20px;
 }
 
-.service-range, .starting-price {
-  margin: 8px 0;
+.service-range, .address {
+  margin: 5px 0;
   color: #666;
-  font-size: 0.95rem;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 15px;
+  font-size: 0.9rem;
 }
 
 .company-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 15px;
+  gap: 10px;
 }
 
-.company-actions .el-button {
-  flex: 1;
+.loading-container, .error-container {
+  grid-column: 1 / -1;
+  padding: 20px;
+  text-align: center;
 }
 
 .ai-assistant-panel {
@@ -359,46 +355,41 @@ const bookService = (companyId) => {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 200px);
+  overflow: hidden;
 }
 
 .assistant-header {
   padding: 15px;
+  background: #f5f5f5;
   border-bottom: 1px solid #eee;
-  background: #f5f7fa;
-  border-radius: 8px 8px 0 0;
 }
 
 .assistant-header h3 {
   margin: 0;
+  font-size: 1.1rem;
   color: #333;
 }
 
 .assistant-content {
   padding: 15px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
 }
 
 .quick-questions {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .quick-questions h4 {
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
+  font-size: 1rem;
   color: #666;
 }
 
 .chat-area {
-  flex: 1;
+  height: 300px;
   overflow-y: auto;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   padding: 10px;
-  background: #f5f7fa;
+  background: #f9f9f9;
   border-radius: 4px;
 }
 
@@ -406,45 +397,21 @@ const bookService = (companyId) => {
   margin-bottom: 10px;
   padding: 8px 12px;
   border-radius: 4px;
-  word-break: break-word;
+  max-width: 80%;
 }
 
 .message.user {
-  background: #e6f7ff;
-  margin-left: 20%;
+  background: #e3f2fd;
+  margin-left: auto;
 }
 
 .message.assistant {
-  background: #f0f0f0;
-  margin-right: 20%;
+  background: #f5f5f5;
+  margin-right: auto;
 }
 
 .input-area {
-  margin-top: auto;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-  }
-  
-  .ai-assistant-panel {
-    width: 100%;
-    height: auto;
-    margin-top: 20px;
-  }
-  
-  .company-list {
-    grid-template-columns: 1fr;
-  }
-  
-  .company-card {
-    padding: 15px;
-  }
-  
-  .company-logo {
-    width: 50px;
-    height: 50px;
-  }
+  display: flex;
+  gap: 10px;
 }
 </style> 

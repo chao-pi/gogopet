@@ -1,7 +1,8 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import java.util.Date;
@@ -14,21 +15,19 @@ import java.util.Date;
 @TableName("t_company")
 public class Company {
     /**
-     * 公司ID，唯一标识符
+     * 公司ID
      */
-    @TableId("company_id")
+    @TableId(type = IdType.ASSIGN_ID)
     private String companyId;
 
     /**
-     * 公司介绍，详细描述公司情况
+     * 公司介绍
      */
-    @TableField("company_intro")
     private String companyIntro;
 
     /**
-     * 公司地址，用于托运服务
+     * 公司地址
      */
-    @TableField("company_local")
     private String companyLocal;
 
     /**
