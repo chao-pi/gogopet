@@ -35,6 +35,16 @@
           <el-option label="国内" value="D" />
           <el-option label="国际" value="I" />
         </el-select>
+
+        <el-button 
+          type="info" 
+          plain 
+          class="clear-filter-btn"
+          @click="clearFilters"
+          :disabled="!hasActiveFilters"
+        >
+          清除筛选
+        </el-button>
       </div>
     </div>
 
@@ -257,6 +267,16 @@ const bookService = (companyId) => {
 onMounted(() => {
   loadCompanies()
 })
+
+const hasActiveFilters = computed(() => {
+  return selectedRating.value || selectedTransportMethod.value || selectedServiceArea.value
+})
+
+const clearFilters = () => {
+  selectedRating.value = ''
+  selectedTransportMethod.value = ''
+  selectedServiceArea.value = ''
+}
 </script>
 
 <style scoped>
@@ -566,5 +586,12 @@ onMounted(() => {
 
 .input-area .el-button {
   border-radius: 20px;
+}
+
+.clear-filter-btn {
+  height: 40px;
+  border-radius: 20px;
+  padding: 0 20px;
+  margin-left: 10px;
 }
 </style> 
