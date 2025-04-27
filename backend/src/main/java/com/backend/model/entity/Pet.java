@@ -51,6 +51,18 @@ public class Pet {
     private String petHealthStatus;
 
     /**
+     * 宠物年龄，单位：岁
+     */
+    @TableField("pet_age")
+    private Integer petAge;
+
+    /**
+     * 宠物性别：M-公，F-母
+     */
+    @TableField("pet_gender")
+    private String petGender;
+
+    /**
      * 创建时间
      */
     @TableField("create_time")

@@ -3,14 +3,12 @@ package com.backend.model.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import lombok.Data;
 import java.util.Date;
 
 /**
  * 图片实体类
  * 对应数据库表 t_picture
  */
-@Data
 @TableName("t_picture")
 public class Picture {
     /**
@@ -45,4 +43,59 @@ public class Picture {
      */
     @TableField("user_id")
     private String userId;
+
+    /**
+     * 宠物ID，关联宠物（当图片用途为宠物照片时）
+     */
+    @TableField("pet_id")
+    private String petId;
+
+    // Getters and Setters
+    public String getPictureId() {
+        return pictureId;
+    }
+
+    public void setPictureId(String pictureId) {
+        this.pictureId = pictureId;
+    }
+
+    public String getPictureUsage() {
+        return pictureUsage;
+    }
+
+    public void setPictureUsage(String pictureUsage) {
+        this.pictureUsage = pictureUsage;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
+    }
+
+    public Date getUploadTime() {
+        return uploadTime;
+    }
+
+    public void setUploadTime(Date uploadTime) {
+        this.uploadTime = uploadTime;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPetId() {
+        return petId;
+    }
+
+    public void setPetId(String petId) {
+        this.petId = petId;
+    }
 } 

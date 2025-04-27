@@ -35,6 +35,30 @@ export function updateUserInfo(data) {
     })
 }
 
+// 修改密码
+export function changePassword(data) {
+    return request({
+        url: '/user/password',
+        method: 'put',
+        data
+    })
+}
+
+// 上传头像
+export function uploadAvatar(file, userId) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('userId', userId)
+    return request({
+        url: '/picture/avatar',
+        method: 'post',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
+
 // 删除用户
 export function deleteUser(userId) {
     return request({

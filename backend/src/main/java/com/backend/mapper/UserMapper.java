@@ -8,14 +8,25 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.backend.model.entity.User;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 @Mapper
-public interface UserMapper {
-    @Select("SELECT * FROM gogopet.t_user WHERE user_name = #{userName}")
-    User selectByUserName(@Param("userName") String userName);
+public interface UserMapper extends BaseMapper<User> {
+    /**
+     * 根据用户名查询用户
+     * @param userName 用户名
+     * @return 用户信息
+     */
+    @Select("SELECT u.*, p.picture_url as avatar_url FROM t_user u LEFT JOIN t_picture p ON u.picture_id = p.picture_id WHERE u.user_name = #{userName}")
+    User selectByUserName(String userName);
 
-    @Select("SELECT * FROM gogopet.t_user WHERE user_id = #{userId}")
-    User selectById(@Param("userId") String userId);
+    /**
+     * 根据用户ID查询用户
+     * @param userId 用户ID
+     * @return 用户信息
+     */
+    @Select("SELECT u.*, p.picture_url as avatar_url FROM t_user u LEFT JOIN t_picture p ON u.picture_id = p.picture_id WHERE u.user_id = #{userId}")
+    User selectById(String userId);
 
     @Insert("INSERT INTO gogopet.t_user (user_id, user_name, password, user_type, user_address) " +
             "VALUES (#{userId}, #{userName}, #{password}, #{userType}, #{userAddress})")

@@ -1,63 +1,63 @@
--- ´´½¨Êý¾Ý¿â
+-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 CREATE DATABASE IF NOT EXISTS gogopet;
 
 USE gogopet;
 
--- ÓÃ»§±í
+-- ï¿½Ã»ï¿½ï¿½ï¿½
 CREATE TABLE t_user (
-    user_id VARCHAR(18) PRIMARY KEY COMMENT 'ÓÃ»§ID£¬Î¨Ò»±êÊ¶·û',
-    user_name VARCHAR(63) NOT NULL COMMENT 'ÓÃ»§Ãû£¬ÓÃÓÚµÇÂ¼ºÍÏÔÊ¾',
-    password VARCHAR(63) NOT NULL COMMENT 'ÓÃ»§ÃÜÂë£¬¼ÓÃÜ´æ´¢',
-    user_type CHAR(1) NOT NULL COMMENT 'ÓÃ»§ÀàÐÍ£ºU-ÆÕÍ¨ÓÃ»§£¬C-ÍÐÔË¹«Ë¾£¬A-¹ÜÀíÔ±',
-    user_address VARCHAR(63) COMMENT 'ÓÃ»§µØÖ·£¬ÓÃÓÚÍÐÔË·þÎñ',
-    picture_id VARCHAR(18) COMMENT 'ÓÃ»§Í·ÏñID£¬¹ØÁªÍ¼Æ¬±í',
-    company_id VARCHAR(18) COMMENT '¹«Ë¾ID£¬¹ØÁª¹«Ë¾±í£¬½öÍÐÔË¹«Ë¾ÓÃ»§ÓÐÖµ',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üÐÂÊ±¼ä',
+    user_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    user_name VARCHAR(63) NOT NULL COMMENT 'ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê¾',
+    password VARCHAR(63) NOT NULL COMMENT 'ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½Ü´æ´¢',
+    user_type CHAR(1) NOT NULL COMMENT 'ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Í£ï¿½U-ï¿½ï¿½Í¨ï¿½Ã»ï¿½ï¿½ï¿½C-ï¿½ï¿½ï¿½Ë¹ï¿½Ë¾ï¿½ï¿½A-ï¿½ï¿½ï¿½ï¿½Ô±',
+    user_address VARCHAR(63) COMMENT 'ï¿½Ã»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½',
+    picture_id VARCHAR(18) COMMENT 'ï¿½Ã»ï¿½Í·ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½',
+    company_id VARCHAR(18) COMMENT 'ï¿½ï¿½Ë¾IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½Ë¾ï¿½Ã»ï¿½ï¿½ï¿½Öµ',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     INDEX idx_user_name (user_name),
     INDEX idx_company_id (company_id)
 );
 
--- ÍÐÔË¹«Ë¾±í
+-- ï¿½ï¿½ï¿½Ë¹ï¿½Ë¾ï¿½ï¿½
 CREATE TABLE t_company (
-    company_id VARCHAR(18) PRIMARY KEY COMMENT '¹«Ë¾ID£¬Î¨Ò»±êÊ¶·û',
-    company_intro TEXT COMMENT '¹«Ë¾½éÉÜ£¬ÏêÏ¸ÃèÊö¹«Ë¾Çé¿ö',
-    company_local VARCHAR(63) COMMENT '¹«Ë¾µØÖ·£¬ÓÃÓÚÍÐÔË·þÎñ',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üÐÂÊ±¼ä'
+    company_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½Ë¾IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    company_intro TEXT COMMENT 'ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½Ü£ï¿½ï¿½ï¿½Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½',
+    company_local VARCHAR(63) COMMENT 'ï¿½ï¿½Ë¾ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½'
 );
 
--- ³èÎï±í
+-- ï¿½ï¿½ï¿½ï¿½ï¿½
 CREATE TABLE t_pet (
-    pet_id VARCHAR(18) PRIMARY KEY COMMENT '³èÎïID£¬Î¨Ò»±êÊ¶·û',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾³èÎïÖ÷ÈË',
-    pet_name VARCHAR(63) NOT NULL COMMENT '³èÎïÃû³Æ',
-    pet_breed VARCHAR(63) COMMENT '³èÎïÆ·ÖÖ',
-    pet_weight DECIMAL(5,2) COMMENT '³èÎïÌåÖØ£¬µ¥Î»£ºÇ§¿Ë',
-    pet_health_status VARCHAR(255) COMMENT '³èÎï½¡¿µ×´¿öÃèÊö',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üÐÂÊ±¼ä',
+    pet_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    pet_name VARCHAR(63) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    pet_breed VARCHAR(63) COMMENT 'ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½',
+    pet_weight DECIMAL(5,2) COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½ï¿½ï¿½Î»ï¿½ï¿½Ç§ï¿½ï¿½',
+    pet_health_status VARCHAR(255) COMMENT 'ï¿½ï¿½ï¿½ï½¡ï¿½ï¿½×´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id)
 );
 
--- ¶©µ¥±í
+-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 CREATE TABLE t_order (
-    order_id VARCHAR(18) PRIMARY KEY COMMENT '¶©µ¥ID£¬Î¨Ò»±êÊ¶·û',
-    pet_id VARCHAR(18) NOT NULL COMMENT '³èÎïID£¬¹ØÁª³èÎï±í',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾¶©µ¥´´½¨Õß',
-    company_id VARCHAR(18) NOT NULL COMMENT '¹«Ë¾ID£¬¹ØÁª¹«Ë¾±í£¬±íÊ¾³Ð½ÓÍÐÔËµÄ¹«Ë¾',
-    order_status CHAR(1) NOT NULL COMMENT '¶©µ¥×´Ì¬£ºP-´ýÖ§¸¶£¬W-´ý½Óµ¥£¬T-ÔËÊäÖÐ£¬C-ÒÑÍê³É£¬X-ÒÑÈ¡Ïû',
-    pet_status CHAR(1) NOT NULL COMMENT '³èÎï×´Ì¬£ºN-Õý³££¬A-Òì³£',
-    delivery_status CHAR(1) NOT NULL COMMENT 'ÔËÊä×´Ì¬£ºP-´ý½Óµ¥£¬T-ÔËÊäÖÐ£¬D-ÒÑËÍ´ï',
-    start_time DATETIME COMMENT 'ÍÐÔË¿ªÊ¼Ê±¼ä',
-    end_time DATETIME COMMENT 'ÍÐÔË½áÊøÊ±¼ä',
-    start_location VARCHAR(255) COMMENT 'ÆðÊ¼µØµã',
-    end_location VARCHAR(255) COMMENT 'Ä¿µÄµØ',
-    price DECIMAL(10,2) NOT NULL COMMENT '¶©µ¥¼Û¸ñ£¬µ¥Î»£ºÔª',
-    payment_status CHAR(1) NOT NULL COMMENT 'Ö§¸¶×´Ì¬£ºU-Î´Ö§¸¶£¬P-ÒÑÖ§¸¶£¬R-ÒÑÍË¿î',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üÐÂÊ±¼ä',
+    order_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    pet_id VARCHAR(18) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    company_id VARCHAR(18) NOT NULL COMMENT 'ï¿½ï¿½Ë¾IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ËµÄ¹ï¿½Ë¾',
+    order_status CHAR(1) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½P-ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½W-ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½T-ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½C-ï¿½ï¿½ï¿½ï¿½É£ï¿½X-ï¿½ï¿½È¡ï¿½ï¿½',
+    pet_status CHAR(1) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½N-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½A-ï¿½ì³£',
+    delivery_status CHAR(1) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½P-ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½T-ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½D-ï¿½ï¿½ï¿½Í´ï¿½',
+    start_time DATETIME COMMENT 'ï¿½ï¿½ï¿½Ë¿ï¿½Ê¼Ê±ï¿½ï¿½',
+    end_time DATETIME COMMENT 'ï¿½ï¿½ï¿½Ë½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    start_location VARCHAR(255) COMMENT 'ï¿½ï¿½Ê¼ï¿½Øµï¿½',
+    end_location VARCHAR(255) COMMENT 'Ä¿ï¿½Äµï¿½',
+    price DECIMAL(10,2) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½Û¸ñ£¬µï¿½Î»ï¿½ï¿½Ôª',
+    payment_status CHAR(1) NOT NULL COMMENT 'Ö§ï¿½ï¿½×´Ì¬ï¿½ï¿½U-Î´Ö§ï¿½ï¿½ï¿½ï¿½P-ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½R-ï¿½ï¿½ï¿½Ë¿ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (pet_id) REFERENCES t_pet(pet_id),
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     FOREIGN KEY (company_id) REFERENCES t_company(company_id),
@@ -66,76 +66,76 @@ CREATE TABLE t_order (
     INDEX idx_order_status (order_status)
 );
 
--- Í¼Æ¬±í
+-- Í¼Æ¬ï¿½ï¿½
 CREATE TABLE t_picture (
-    picture_id VARCHAR(18) PRIMARY KEY COMMENT 'Í¼Æ¬ID£¬Î¨Ò»±êÊ¶·û',
-    picture_usage VARCHAR(63) NOT NULL COMMENT 'Í¼Æ¬ÓÃÍ¾£ºA-Í·Ïñ£¬P-³èÎïÕÕÆ¬£¬O-¶©µ¥ÕÕÆ¬',
-    picture_url VARCHAR(255) NOT NULL COMMENT 'Í¼Æ¬URL£¬´æ´¢Í¼Æ¬µÄ·ÃÎÊÂ·¾¶',
-    upload_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ÉÏ´«Ê±¼ä',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾ÉÏ´«Õß',
+    picture_id VARCHAR(18) PRIMARY KEY COMMENT 'Í¼Æ¬IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    picture_usage VARCHAR(63) NOT NULL COMMENT 'Í¼Æ¬ï¿½ï¿½Í¾ï¿½ï¿½A-Í·ï¿½ï¿½P-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½O-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬',
+    picture_url VARCHAR(255) NOT NULL COMMENT 'Í¼Æ¬URLï¿½ï¿½ï¿½æ´¢Í¼Æ¬ï¿½Ä·ï¿½ï¿½ï¿½Â·ï¿½ï¿½',
+    upload_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½Ï´ï¿½Ê±ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ï´ï¿½ï¿½ï¿½',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id),
     INDEX idx_picture_usage (picture_usage)
 );
 
--- Ìû×Ó±í
+-- ï¿½ï¿½ï¿½Ó±ï¿½
 CREATE TABLE t_post (
-    post_id VARCHAR(18) PRIMARY KEY COMMENT 'Ìû×ÓID£¬Î¨Ò»±êÊ¶·û',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾·¢ÌûÈË',
-    post_content TEXT NOT NULL COMMENT 'Ìû×ÓÄÚÈÝ',
-    post_comment INT DEFAULT 0 COMMENT 'ÆÀÂÛÊýÁ¿',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üÐÂÊ±¼ä',
+    post_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    post_content TEXT NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    post_comment INT DEFAULT 0 COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id)
 );
 
--- ÆÀÂÛ±í
+-- ï¿½ï¿½ï¿½Û±ï¿½
 CREATE TABLE t_comment (
-    comment_id VARCHAR(18) PRIMARY KEY COMMENT 'ÆÀÂÛID£¬Î¨Ò»±êÊ¶·û',
-    company_id VARCHAR(18) NOT NULL COMMENT '¹«Ë¾ID£¬¹ØÁª¹«Ë¾±í£¬±íÊ¾±»ÆÀÂÛµÄ¹«Ë¾',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾ÆÀÂÛÕß',
-    comment_content TEXT NOT NULL COMMENT 'ÆÀÂÛÄÚÈÝ',
-    rating TINYINT NOT NULL COMMENT 'ÆÀ·Ö£º1-5ÐÇ',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
+    comment_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    company_id VARCHAR(18) NOT NULL COMMENT 'ï¿½ï¿½Ë¾IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ÛµÄ¹ï¿½Ë¾',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    comment_content TEXT NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    rating TINYINT NOT NULL COMMENT 'ï¿½ï¿½ï¿½Ö£ï¿½1-5ï¿½ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (company_id) REFERENCES t_company(company_id),
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_company_id (company_id),
     INDEX idx_user_id (user_id)
 );
 
--- ÏµÍ³ÈÕÖ¾±í
+-- ÏµÍ³ï¿½ï¿½Ö¾ï¿½ï¿½
 CREATE TABLE t_system_log (
-    log_id VARCHAR(18) PRIMARY KEY COMMENT 'ÈÕÖ¾ID£¬Î¨Ò»±êÊ¶·û',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾²Ù×÷Õß',
-    operation_type VARCHAR(63) NOT NULL COMMENT '²Ù×÷ÀàÐÍ£¬ÈçµÇÂ¼¡¢ÐÞ¸ÄÐÅÏ¢µÈ',
-    operation_content TEXT COMMENT '²Ù×÷ÄÚÈÝ£¬ÏêÏ¸ÃèÊö²Ù×÷ÐÅÏ¢',
-    operation_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '²Ù×÷Ê±¼ä',
+    log_id VARCHAR(18) PRIMARY KEY COMMENT 'ï¿½ï¿½Ö¾IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    operation_type VARCHAR(63) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½',
+    operation_content TEXT COMMENT 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢',
+    operation_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id),
     INDEX idx_operation_time (operation_time)
 );
 
--- ¶©µ¥×·×Ù±í
+-- ï¿½ï¿½ï¿½ï¿½×·ï¿½Ù±ï¿½
 CREATE TABLE t_order_tracking (
-    tracking_id VARCHAR(18) PRIMARY KEY COMMENT '×·×ÙID£¬Î¨Ò»±êÊ¶·û',
-    order_id VARCHAR(18) NOT NULL COMMENT '¶©µ¥ID£¬¹ØÁª¶©µ¥±í',
-    location VARCHAR(255) NOT NULL COMMENT 'µ±Ç°Î»ÖÃ',
-    status CHAR(1) NOT NULL COMMENT '×´Ì¬£ºT-ÔËÊäÖÐ£¬R-ÐÝÏ¢ÖÐ',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
+    tracking_id VARCHAR(18) PRIMARY KEY COMMENT '×·ï¿½ï¿½IDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    order_id VARCHAR(18) NOT NULL COMMENT 'ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    location VARCHAR(255) NOT NULL COMMENT 'ï¿½ï¿½Ç°Î»ï¿½ï¿½',
+    status CHAR(1) NOT NULL COMMENT '×´Ì¬ï¿½ï¿½T-ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½R-ï¿½ï¿½Ï¢ï¿½ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (order_id) REFERENCES t_order(order_id),
     INDEX idx_order_id (order_id),
     INDEX idx_create_time (create_time)
 );
 
--- ÏûÏ¢Í¨Öª±í
+-- ï¿½ï¿½Ï¢Í¨Öªï¿½ï¿½
 CREATE TABLE t_notification (
-    notification_id VARCHAR(18) PRIMARY KEY COMMENT 'Í¨ÖªID£¬Î¨Ò»±êÊ¶·û',
-    user_id VARCHAR(18) NOT NULL COMMENT 'ÓÃ»§ID£¬¹ØÁªÓÃ»§±í£¬±íÊ¾½ÓÊÕÕß',
-    notification_type VARCHAR(63) NOT NULL COMMENT 'Í¨ÖªÀàÐÍ£ºO-¶©µ¥£¬S-ÏµÍ³',
-    notification_content TEXT NOT NULL COMMENT 'Í¨ÖªÄÚÈÝ',
-    is_read BOOLEAN DEFAULT FALSE COMMENT 'ÊÇ·ñÒÑ¶Á£º0-Î´¶Á£¬1-ÒÑ¶Á',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
+    notification_id VARCHAR(18) PRIMARY KEY COMMENT 'Í¨ÖªIDï¿½ï¿½Î¨Ò»ï¿½ï¿½Ê¶ï¿½ï¿½',
+    user_id VARCHAR(18) NOT NULL COMMENT 'ï¿½Ã»ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+    notification_type VARCHAR(63) NOT NULL COMMENT 'Í¨Öªï¿½ï¿½ï¿½Í£ï¿½O-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½S-ÏµÍ³',
+    notification_content TEXT NOT NULL COMMENT 'Í¨Öªï¿½ï¿½ï¿½ï¿½',
+    is_read BOOLEAN DEFAULT FALSE COMMENT 'ï¿½Ç·ï¿½ï¿½Ñ¶ï¿½ï¿½ï¿½0-Î´ï¿½ï¿½ï¿½ï¿½1-ï¿½Ñ¶ï¿½',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id),
     INDEX idx_is_read (is_read)

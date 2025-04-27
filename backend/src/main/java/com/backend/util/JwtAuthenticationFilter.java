@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 从请求头中获取 Authorization 字段
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String username;
+        final String userId;
 
         System.out.println("收到请求: " + request.getRequestURI());
         System.out.println("Authorization header: " + authHeader);
@@ -74,9 +74,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("提取到的 JWT Token: " + jwt);
         
         try {
-            // 从 Token 中提取用户名
-            username = jwtUtil.extractUsername(jwt);
-            System.out.println("从 Token 中提取的用户名: " + username);
+            // 从 Token 中提取用户ID
+            userId = jwtUtil.extractUsername(jwt);
+            System.out.println("从 Token 中提取的用户ID: " + userId);
         } catch (Exception e) {
             System.out.println("Token 解析失败: " + e.getMessage());
             // Token 解析失败，直接放行
@@ -85,10 +85,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 如果已经设置了认证信息，直接放行
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            System.out.println("尝试加载用户信息: " + username);
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("尝试加载用户信息: " + userId);
             // 加载用户信息
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userId);
             
             // 验证 Token 是否有效
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
