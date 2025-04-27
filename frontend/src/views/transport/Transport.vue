@@ -248,10 +248,15 @@ onMounted(() => {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  background-color: #f8f9fa;
 }
 
 .search-section {
   margin-bottom: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.05);
 }
 
 .search-container {
@@ -262,6 +267,7 @@ onMounted(() => {
 
 .search-input {
   flex: 1;
+  border-radius: 20px;
 }
 
 .filter-section {
@@ -271,6 +277,7 @@ onMounted(() => {
 
 .filter-item {
   width: 150px;
+  border-radius: 20px;
 }
 
 .main-content {
@@ -289,13 +296,14 @@ onMounted(() => {
 
 .company-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  border: 1px solid #ebeef5;
 }
 
 .company-card:hover {
@@ -313,13 +321,14 @@ onMounted(() => {
 .company-logo {
   width: 100%;
   height: 200px;
-  border-radius: 4px;
+  border-radius: 8px;
   object-fit: cover;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f5f7fa;
   color: #909399;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
 }
 
 .company-logo img {
@@ -341,6 +350,7 @@ onMounted(() => {
   margin: 0;
   font-size: 1.4rem;
   color: #333;
+  font-weight: 600;
 }
 
 .company-rating {
@@ -358,17 +368,27 @@ onMounted(() => {
 
 .company-details {
   margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
 .service-range, .address {
   margin: 5px 0;
   color: #666;
   font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .company-actions {
   display: flex;
   gap: 10px;
+  margin-top: auto;
+}
+
+.company-actions .el-button {
+  flex: 1;
+  border-radius: 20px;
 }
 
 .loading-container, .error-container {
@@ -382,17 +402,18 @@ onMounted(() => {
   min-width: 300px;
   max-width: 300px;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
   overflow: hidden;
   position: sticky;
   top: 20px;
   height: fit-content;
+  border: 1px solid #ebeef5;
 }
 
 .assistant-header {
   padding: 15px;
-  background: #f5f5f5;
+  background: #f5f7fa;
   border-bottom: 1px solid #eee;
 }
 
@@ -400,6 +421,7 @@ onMounted(() => {
   margin: 0;
   font-size: 1.1rem;
   color: #333;
+  font-weight: 600;
 }
 
 .assistant-content {
@@ -414,6 +436,15 @@ onMounted(() => {
   margin: 0 0 10px 0;
   font-size: 1rem;
   color: #666;
+  font-weight: 500;
+}
+
+.quick-questions .el-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 15px;
+  margin-bottom: 5px;
+  border-radius: 8px;
 }
 
 .chat-area {
@@ -422,28 +453,41 @@ onMounted(() => {
   margin-bottom: 20px;
   padding: 10px;
   background: #f9f9f9;
-  border-radius: 4px;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
 }
 
 .message {
   margin-bottom: 10px;
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 8px;
   max-width: 80%;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .message.user {
   background: #e3f2fd;
+  color: #1a73e8;
   margin-left: auto;
 }
 
 .message.assistant {
   background: #f5f5f5;
+  color: #333;
   margin-right: auto;
 }
 
 .input-area {
   display: flex;
   gap: 10px;
+}
+
+.input-area .el-input {
+  border-radius: 20px;
+}
+
+.input-area .el-button {
+  border-radius: 20px;
 }
 </style> 
