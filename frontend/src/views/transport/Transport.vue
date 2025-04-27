@@ -248,7 +248,8 @@ onMounted(() => {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: #f8f9fa;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .search-section {
