@@ -276,6 +276,7 @@ onMounted(() => {
 .main-content {
   display: flex;
   gap: 20px;
+  min-height: 600px;
 }
 
 .company-list {
@@ -283,6 +284,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
+  min-width: 0;
 }
 
 .company-card {
@@ -377,10 +379,15 @@ onMounted(() => {
 
 .ai-assistant-panel {
   width: 300px;
+  min-width: 300px;
+  max-width: 300px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
   overflow: hidden;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
 }
 
 .assistant-header {
