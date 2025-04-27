@@ -17,22 +17,25 @@
 
       <!-- 筛选条件 -->
       <div class="filter-section">
+        <el-select v-model="selectedRating" placeholder="评分" class="filter-item">
+          <el-option label="4.5分以上" value="4.5" />
+          <el-option label="4.0分以上" value="4.0" />
+          <el-option label="3.5分以上" value="3.5" />
+          <el-option label="3.0分以上" value="3.0" />
+        </el-select>
+
         <el-select v-model="selectedServiceType" placeholder="服务类型" class="filter-item">
-          <el-option label="普通托运" value="normal" />
-          <el-option label="专车托运" value="special" />
-          <el-option label="空运" value="air" />
+          <el-option label="宠物托运" value="宠物托运" />
+          <el-option label="宠物寄养" value="宠物寄养" />
+          <el-option label="宠物美容" value="宠物美容" />
+          <el-option label="宠物医疗" value="宠物医疗" />
         </el-select>
 
-        <el-select v-model="selectedPriceRange" placeholder="价格区间" class="filter-item">
-          <el-option label="0-500元" value="0-500" />
-          <el-option label="500-1000元" value="500-1000" />
-          <el-option label="1000元以上" value="1000+" />
-        </el-select>
-
-        <el-select v-model="selectedDistance" placeholder="距离" class="filter-item">
-          <el-option label="5km以内" value="5" />
-          <el-option label="10km以内" value="10" />
-          <el-option label="20km以内" value="20" />
+        <el-select v-model="selectedLocation" placeholder="地区" class="filter-item">
+          <el-option label="北京市" value="北京" />
+          <el-option label="上海市" value="上海" />
+          <el-option label="广州市" value="广州" />
+          <el-option label="深圳市" value="深圳" />
         </el-select>
       </div>
     </div>
@@ -133,9 +136,9 @@ import { getAllCompanyCards } from '@/api/company'
 
 // 搜索和筛选数据
 const searchQuery = ref('')
+const selectedRating = ref('')
 const selectedServiceType = ref('')
-const selectedPriceRange = ref('')
-const selectedDistance = ref('')
+const selectedLocation = ref('')
 
 // 公司数据
 const companies = ref([])
@@ -158,11 +161,11 @@ const quickQuestions = ref([
 const filteredCompanies = computed(() => {
   return companies.value.filter(company => {
     const matchesSearch = company.companyName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesRating = !selectedRating.value || company.rating >= parseFloat(selectedRating.value)
     const matchesServiceType = !selectedServiceType.value || company.serviceRange.includes(selectedServiceType.value)
-    const matchesPrice = !selectedPriceRange.value || checkPriceRange(company.startingPrice, selectedPriceRange.value)
-    const matchesDistance = !selectedDistance.value || company.distance <= parseInt(selectedDistance.value)
+    const matchesLocation = !selectedLocation.value || company.address.includes(selectedLocation.value)
     
-    return matchesSearch && matchesServiceType && matchesPrice && matchesDistance
+    return matchesSearch && matchesRating && matchesServiceType && matchesLocation
   })
 })
 
@@ -310,6 +313,7 @@ onMounted(() => {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .filter-item {
@@ -322,15 +326,18 @@ onMounted(() => {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
   border: 1px solid #dcdfe6;
   transition: all 0.3s ease;
+  background-color: #f5f7fa;
 }
 
 .filter-item :deep(.el-input__wrapper:hover) {
   border-color: #c0c4cc;
+  background-color: #ffffff;
 }
 
 .filter-item :deep(.el-input__wrapper.is-focus) {
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64,158,255,0.1);
+  background-color: #ffffff;
 }
 
 .main-content {
