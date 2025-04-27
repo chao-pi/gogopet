@@ -55,7 +55,12 @@
         <template v-else>
           <div v-for="company in filteredCompanies" :key="company.companyId" class="company-card">
             <div class="company-header">
-              <img :src="company.logoUrl || 'https://via.placeholder.com/50'" :alt="company.companyName" class="company-logo">
+              <div v-if="company.logoUrl" class="company-logo">
+                <img :src="company.logoUrl" :alt="company.companyName">
+              </div>
+              <div v-else class="company-logo default-logo">
+                <el-icon><OfficeBuilding /></el-icon>
+              </div>
               <div class="company-info">
                 <h3>{{ company.companyName }}</h3>
                 <div class="company-rating">
@@ -122,7 +127,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { Search, OfficeBuilding } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 
@@ -308,6 +313,21 @@ onMounted(() => {
   height: 200px;
   border-radius: 4px;
   object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+  color: #909399;
+}
+
+.company-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-logo {
+  font-size: 80px;
 }
 
 .company-info {
