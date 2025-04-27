@@ -346,33 +346,40 @@ const clearFilters = () => {
 
 .filter-section {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
+  margin-top: 10px;
 }
 
 .filter-item {
-  width: 150px;
+  width: 160px;
   border-radius: 20px;
   height: 40px;
+  transition: all 0.3s ease;
 }
 
 .filter-item :deep(.el-input__wrapper) {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
   border: 1px solid #dcdfe6;
   transition: all 0.3s ease;
-  background-color: #f5f7fa;
+  background-color: #ffffff;
+  border-radius: 20px;
 }
 
 .filter-item :deep(.el-input__wrapper:hover) {
-  border-color: #c0c4cc;
-  background-color: #ffffff;
+  border-color: #409eff;
+  box-shadow: 0 2px 12px 0 rgba(64,158,255,0.1);
 }
 
 .filter-item :deep(.el-input__wrapper.is-focus) {
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64,158,255,0.1);
-  background-color: #ffffff;
 }
 
 .main-content {
@@ -591,7 +598,30 @@ const clearFilters = () => {
 .clear-filter-btn {
   height: 40px;
   border-radius: 20px;
-  padding: 0 20px;
-  margin-left: 10px;
+  padding: 0 25px;
+  margin-left: 5px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: #f0f2f5;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+}
+
+.clear-filter-btn:hover {
+  background: #e4e7ed;
+  border-color: #c0c4cc;
+  color: #409eff;
+}
+
+.clear-filter-btn:disabled {
+  background: #f5f7fa;
+  border-color: #e4e7ed;
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
+
+.clear-filter-btn:not(:disabled):active {
+  background: #d3d4d6;
+  border-color: #b1b3b8;
 }
 </style> 
