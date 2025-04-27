@@ -286,6 +286,9 @@ onMounted(() => {
   padding: 20px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .company-card:hover {
@@ -295,25 +298,26 @@ onMounted(() => {
 
 .company-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 10px;
 }
 
 .company-logo {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 100%;
+  height: 200px;
+  border-radius: 4px;
   object-fit: cover;
 }
 
 .company-info {
-  flex: 1;
+  width: 100%;
+  text-align: center;
 }
 
 .company-info h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: #333;
 }
 
@@ -322,6 +326,7 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   margin-top: 5px;
+  justify-content: center;
 }
 
 .rating-text {
