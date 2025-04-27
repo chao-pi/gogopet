@@ -24,18 +24,16 @@
           <el-option label="3.0分以上" value="3.0" />
         </el-select>
 
-        <el-select v-model="selectedServiceType" placeholder="服务类型" class="filter-item">
-          <el-option label="宠物托运" value="宠物托运" />
-          <el-option label="宠物寄养" value="宠物寄养" />
-          <el-option label="宠物美容" value="宠物美容" />
-          <el-option label="宠物医疗" value="宠物医疗" />
+        <el-select v-model="selectedTransportMethod" placeholder="运输方式" class="filter-item">
+          <el-option label="空运" value="A" />
+          <el-option label="陆运" value="L" />
+          <el-option label="海运" value="S" />
         </el-select>
 
-        <el-select v-model="selectedLocation" placeholder="地区" class="filter-item">
-          <el-option label="北京市" value="北京" />
-          <el-option label="上海市" value="上海" />
-          <el-option label="广州市" value="广州" />
-          <el-option label="深圳市" value="深圳" />
+        <el-select v-model="selectedServiceArea" placeholder="服务区域" class="filter-item">
+          <el-option label="省内" value="P" />
+          <el-option label="国内" value="D" />
+          <el-option label="国际" value="I" />
         </el-select>
       </div>
     </div>
@@ -74,7 +72,9 @@
             </div>
             
             <div class="company-details">
-              <p class="service-range">服务范围：{{ company.serviceRange }}</p>
+              <p class="transport-methods">运输方式：{{ getTransportMethodsText(company.transportMethods) }}</p>
+              <p class="service-area">服务区域：{{ getServiceAreaText(company.serviceArea) }}</p>
+              <p class="price">每公里价格：¥{{ company.transportPricePerKm }}</p>
               <p class="address">公司地址：{{ company.address }}</p>
             </div>
 
@@ -137,8 +137,8 @@ import { getAllCompanyCards } from '@/api/company'
 // 搜索和筛选数据
 const searchQuery = ref('')
 const selectedRating = ref('')
-const selectedServiceType = ref('')
-const selectedLocation = ref('')
+const selectedTransportMethod = ref('')
+const selectedServiceArea = ref('')
 
 // 公司数据
 const companies = ref([])
@@ -162,12 +162,31 @@ const filteredCompanies = computed(() => {
   return companies.value.filter(company => {
     const matchesSearch = company.companyName.toLowerCase().includes(searchQuery.value.toLowerCase())
     const matchesRating = !selectedRating.value || company.rating >= parseFloat(selectedRating.value)
-    const matchesServiceType = !selectedServiceType.value || company.serviceRange.includes(selectedServiceType.value)
-    const matchesLocation = !selectedLocation.value || company.address.includes(selectedLocation.value)
+    const matchesTransportMethod = !selectedTransportMethod.value || company.transportMethods.includes(selectedTransportMethod.value)
+    const matchesServiceArea = !selectedServiceArea.value || company.serviceArea === selectedServiceArea.value
     
-    return matchesSearch && matchesRating && matchesServiceType && matchesLocation
+    return matchesSearch && matchesRating && matchesTransportMethod && matchesServiceArea
   })
 })
+
+// 辅助函数：获取运输方式文本
+const getTransportMethodsText = (methods) => {
+  const texts = []
+  if (methods.includes('A')) texts.push('空运')
+  if (methods.includes('L')) texts.push('陆运')
+  if (methods.includes('S')) texts.push('海运')
+  return texts.join('、')
+}
+
+// 辅助函数：获取服务区域文本
+const getServiceAreaText = (area) => {
+  switch (area) {
+    case 'P': return '省内'
+    case 'D': return '国内'
+    case 'I': return '国际'
+    default: return '未知'
+  }
+}
 
 // 加载公司数据
 const loadCompanies = async () => {
@@ -182,12 +201,6 @@ const loadCompanies = async () => {
   } finally {
     loading.value = false
   }
-}
-
-// 辅助函数
-const checkPriceRange = (price, range) => {
-  const [min, max] = range.split('-').map(Number)
-  return price >= min && price <= max
 }
 
 // 方法
@@ -433,7 +446,7 @@ onMounted(() => {
   border-radius: 8px;
 }
 
-.service-range, .address {
+.transport-methods, .service-area, .price, .address {
   margin: 5px 0;
   color: #666;
   font-size: 0.9rem;

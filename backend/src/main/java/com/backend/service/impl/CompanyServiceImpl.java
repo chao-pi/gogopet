@@ -13,6 +13,7 @@ import com.backend.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,17 +56,16 @@ public class CompanyServiceImpl implements CompanyService {
                 }
             }
 
-            // 计算公司评分
-            Double rating = calculateCompanyRating(company.getCompanyId());
-
             // 构建DTO
             CompanyCardDTO dto = new CompanyCardDTO();
             dto.setCompanyId(company.getCompanyId());
             dto.setCompanyName(user.getUserName());
             dto.setLogoUrl(logoUrl);
-            dto.setRating(rating);
-            dto.setServiceRange(company.getCompanyIntro());
-            dto.setAddress(company.getCompanyLocal());
+            dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
+            dto.setTransportMethods(company.getTransportMethods() != null ? company.getTransportMethods() : "L");
+            dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
+            dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
+            dto.setAddress(company.getCompanyLocal() != null ? company.getCompanyLocal() : "");
 
             return dto;
         }).filter(dto -> dto != null).collect(Collectors.toList());
@@ -94,17 +94,16 @@ public class CompanyServiceImpl implements CompanyService {
             }
         }
 
-        // 计算公司评分
-        Double rating = calculateCompanyRating(companyId);
-
         // 构建DTO
         CompanyCardDTO dto = new CompanyCardDTO();
         dto.setCompanyId(companyId);
         dto.setCompanyName(user.getUserName());
         dto.setLogoUrl(logoUrl);
-        dto.setRating(rating);
-        dto.setServiceRange(company.getCompanyIntro());
-        dto.setAddress(company.getCompanyLocal());
+        dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
+        dto.setTransportMethods(company.getTransportMethods() != null ? company.getTransportMethods() : "L");
+        dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
+        dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
+        dto.setAddress(company.getCompanyLocal() != null ? company.getCompanyLocal() : "");
 
         return dto;
     }
