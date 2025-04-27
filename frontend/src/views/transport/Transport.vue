@@ -18,6 +18,7 @@
       <!-- 筛选条件 -->
       <div class="filter-section">
         <el-select v-model="selectedRating" placeholder="评分" class="filter-item">
+          <el-option label="所有评分" value="" />
           <el-option label="4.5分以上" value="4.5" />
           <el-option label="4.0分以上" value="4.0" />
           <el-option label="3.5分以上" value="3.5" />
@@ -25,12 +26,14 @@
         </el-select>
 
         <el-select v-model="selectedTransportMethod" placeholder="运输方式" class="filter-item">
+          <el-option label="所有运输方式" value="" />
           <el-option label="空运" value="A" />
           <el-option label="陆运" value="L" />
           <el-option label="海运" value="S" />
         </el-select>
 
         <el-select v-model="selectedServiceArea" placeholder="服务区域" class="filter-item">
+          <el-option label="所有服务区域" value="" />
           <el-option label="省内" value="P" />
           <el-option label="国内" value="D" />
           <el-option label="国际" value="I" />
