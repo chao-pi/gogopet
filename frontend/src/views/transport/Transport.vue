@@ -10,7 +10,7 @@
           @keyup.enter="handleSearch"
         >
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon class="search-icon"><Search /></el-icon>
           </template>
         </el-input>
       </div>
@@ -285,15 +285,25 @@ onMounted(() => {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
   border: 1px solid #dcdfe6;
   transition: all 0.3s ease;
+  background-color: #f5f7fa;
+  border-radius: 20px;
 }
 
 .search-input :deep(.el-input__wrapper:hover) {
   border-color: #c0c4cc;
+  background-color: #ffffff;
 }
 
 .search-input :deep(.el-input__wrapper.is-focus) {
   border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64,158,255,0.1);
+  background-color: #ffffff;
+}
+
+.search-icon {
+  color: #409eff;
+  font-size: 18px;
+  margin-right: 8px;
 }
 
 .filter-section {
