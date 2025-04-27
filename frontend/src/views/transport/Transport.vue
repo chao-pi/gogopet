@@ -5,7 +5,7 @@
       <div class="search-container">
         <el-input
           v-model="searchQuery"
-          placeholder="搜索目的地或托运公司"
+          placeholder="搜索托运公司"
           class="search-input"
           @keyup.enter="handleSearch"
         >
