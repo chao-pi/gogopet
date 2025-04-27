@@ -579,13 +579,41 @@ const clearFilters = () => {
 
 .company-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #ebeef5;
 }
 
 .company-actions .el-button {
   flex: 1;
   border-radius: 20px;
+  height: 40px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.company-actions .el-button:first-child {
+  background-color: #f0f2f5;
+  border-color: #dcdfe6;
+  color: #606266;
+}
+
+.company-actions .el-button:first-child:hover {
+  background-color: #e4e7ed;
+  border-color: #c0c4cc;
+  color: #409eff;
+}
+
+.company-actions .el-button:last-child {
+  background-color: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+
+.company-actions .el-button:last-child:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
 }
 
 .loading-container, .error-container {
