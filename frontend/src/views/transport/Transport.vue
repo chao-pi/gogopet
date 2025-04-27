@@ -261,9 +261,11 @@ onMounted(() => {
 
 <style scoped>
 .transport-page {
-  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 20px;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -365,6 +367,7 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
   min-width: 0;
+  align-content: start;
 }
 
 .company-card {
@@ -377,6 +380,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 15px;
   border: 1px solid #ebeef5;
+  height: fit-content;
 }
 
 .company-card:hover {
