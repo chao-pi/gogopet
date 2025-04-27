@@ -25,9 +25,9 @@ CREATE TABLE t_company (
     company_local VARCHAR(63) COMMENT '公司地址，用于配送服务',
     rating DECIMAL(2,1) DEFAULT 0.0 COMMENT '公司平均评分',
     rating_count INT DEFAULT 0 COMMENT '评分总数',
-    transport_methods CHAR(1) COMMENT '运输方式，每个字符代表一种方式：A-空运，L-陆运，S-海运',
-    service_area CHAR(1) COMMENT '服务区域：P-省内，D-国内，I-国际',
-    transport_price_per_km DECIMAL(10,2) COMMENT '每公里价格',
+    transport_methods CHAR(1) DEFAULT 'L' COMMENT '运输方式，每个字符代表一种方式：A-空运，L-陆运，S-海运',
+    service_area CHAR(1) DEFAULT 'D' COMMENT '服务区域：P-省内，D-国内，I-国际',
+    transport_price_per_km DECIMAL(10,2) DEFAULT 0.50 COMMENT '每公里价格',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_rating (rating)
