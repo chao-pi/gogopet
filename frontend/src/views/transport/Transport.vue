@@ -5,7 +5,7 @@
       <div class="search-container">
         <el-input
           v-model="searchQuery"
-          placeholder="搜索托运公司"
+          placeholder="搜索目的地或托运公司"
           class="search-input"
           @keyup.enter="handleSearch"
         >
@@ -85,10 +85,39 @@
             </div>
             
             <div class="company-details">
-              <p class="transport-methods">运输方式：{{ getTransportMethodsText(company.transportMethods) }}</p>
-              <p class="service-area">服务区域：{{ getServiceAreaText(company.serviceArea) }}</p>
-              <p class="price">每公里价格：¥{{ company.transportPricePerKm }}</p>
-              <p class="address">公司地址：{{ company.address }}</p>
+              <div class="detail-row">
+                <div class="detail-item">
+                  <el-icon class="detail-icon"><Van /></el-icon>
+                  <div class="detail-content">
+                    <span class="detail-label">运输方式：</span>
+                    <span class="detail-value">{{ getTransportMethodsText(company.transportMethods) }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-item">
+                  <el-icon class="detail-icon"><Location /></el-icon>
+                  <div class="detail-content">
+                    <span class="detail-label">服务区域：</span>
+                    <span class="detail-value">{{ getServiceAreaText(company.serviceArea) }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-item">
+                  <el-icon class="detail-icon"><Money /></el-icon>
+                  <div class="detail-content">
+                    <span class="detail-label">每公里价格：</span>
+                    <span class="detail-value price">¥{{ company.transportPricePerKm }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="detail-item address-item">
+                <el-icon class="detail-icon"><House /></el-icon>
+                <div class="detail-content">
+                  <span class="detail-label">公司地址：</span>
+                  <span class="detail-value">{{ company.address }}</span>
+                </div>
+              </div>
             </div>
 
             <div class="company-actions">
@@ -143,7 +172,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Search, OfficeBuilding } from '@element-plus/icons-vue'
+import { Search, OfficeBuilding, Van, Location, Money, House } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 
@@ -477,14 +506,66 @@ const clearFilters = () => {
   margin-bottom: 20px;
   padding: 15px;
   background: #f8f9fa;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  gap: 12px;
+}
+
+.detail-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.address-item {
+  width: 100%;
+}
+
+.detail-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
+}
+
+.detail-icon {
+  font-size: 20px;
+  color: #409eff;
+  padding: 8px;
+  background: #ecf5ff;
   border-radius: 8px;
 }
 
-.transport-methods, .service-area, .price, .address {
-  margin: 5px 0;
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.5;
+.detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #909399;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: #303133;
+  font-weight: 500;
+}
+
+.detail-value.price {
+  color: #f56c6c;
+  font-weight: 600;
 }
 
 .company-actions {
