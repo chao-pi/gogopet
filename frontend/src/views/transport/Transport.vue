@@ -89,7 +89,7 @@
                 <div class="detail-item">
                   <el-icon class="detail-icon"><Van /></el-icon>
                   <div class="detail-content">
-                    <span class="detail-label">运输方式：</span>
+                    <span class="detail-label">运输方式</span>
                     <span class="detail-value">{{ getTransportMethodsText(company.transportMethods) }}</span>
                   </div>
                 </div>
@@ -97,7 +97,7 @@
                 <div class="detail-item">
                   <el-icon class="detail-icon"><Location /></el-icon>
                   <div class="detail-content">
-                    <span class="detail-label">服务区域：</span>
+                    <span class="detail-label">服务区域</span>
                     <span class="detail-value">{{ getServiceAreaText(company.serviceArea) }}</span>
                   </div>
                 </div>
@@ -105,7 +105,7 @@
                 <div class="detail-item">
                   <el-icon class="detail-icon"><Money /></el-icon>
                   <div class="detail-content">
-                    <span class="detail-label">每公里价格：</span>
+                    <span class="detail-label">价格/公里</span>
                     <span class="detail-value price">¥{{ company.transportPricePerKm }}</span>
                   </div>
                 </div>
@@ -114,7 +114,7 @@
               <div class="detail-item address-item">
                 <el-icon class="detail-icon"><House /></el-icon>
                 <div class="detail-content">
-                  <span class="detail-label">公司地址：</span>
+                  <span class="detail-label">公司地址</span>
                   <span class="detail-value">{{ company.address }}</span>
                 </div>
               </div>
@@ -172,7 +172,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Search, OfficeBuilding, Van, Location, Money, House } from '@element-plus/icons-vue'
+import { Search, OfficeBuilding, 
+  Van, 
+  Location, 
+  Money, 
+  House } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 
@@ -538,11 +542,16 @@ const clearFilters = () => {
 }
 
 .detail-icon {
-  font-size: 20px;
+  font-size: 22px;
   color: #409eff;
-  padding: 8px;
+  padding: 10px;
   background: #ecf5ff;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .detail-content {
