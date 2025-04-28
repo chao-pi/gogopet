@@ -25,11 +25,11 @@
           <el-option label="3.0分以上" value="3.0" />
         </el-select>
 
-        <el-select v-model="selectedTransportMethod" placeholder="运输方式" class="filter-item">
-          <el-option label="所有运输方式" value="" />
-          <el-option label="空运" value="A" />
-          <el-option label="陆运" value="L" />
-          <el-option label="海运" value="S" />
+        <el-select v-model="selectedTransportCount" placeholder="托运次数" class="filter-item">
+          <el-option label="所有次数" value="" />
+          <el-option label="100次以上" value="100" />
+          <el-option label="500次以上" value="500" />
+          <el-option label="1000次以上" value="1000" />
         </el-select>
 
         <el-select v-model="selectedServiceArea" placeholder="服务区域" class="filter-item">
@@ -37,6 +37,14 @@
           <el-option label="省内" value="P" />
           <el-option label="国内" value="D" />
           <el-option label="国际" value="I" />
+        </el-select>
+
+        <el-select v-model="selectedPriceRange" placeholder="价格/公里" class="filter-item">
+          <el-option label="所有价格" value="" />
+          <el-option label="0.5元以下" value="0.5" />
+          <el-option label="0.5-1.0元" value="1.0" />
+          <el-option label="1.0-1.5元" value="1.5" />
+          <el-option label="1.5元以上" value="2.0" />
         </el-select>
 
         <el-button 
@@ -183,7 +191,8 @@ import { getAllCompanyCards } from '@/api/company'
 // 搜索和筛选数据
 const searchQuery = ref('')
 const selectedRating = ref('')
-const selectedTransportMethod = ref('')
+const selectedTransportCount = ref('')
+const selectedPriceRange = ref('')
 const selectedServiceArea = ref('')
 
 // 公司数据
@@ -208,9 +217,18 @@ const filteredCompanies = computed(() => {
   return companies.value.filter(company => {
     const matchesSearch = company.companyName.toLowerCase().includes(searchQuery.value.toLowerCase())
     const matchesRating = !selectedRating.value || company.rating >= parseFloat(selectedRating.value)
+    const matchesTransportCount = !selectedTransportCount.value ||
+      (selectedTransportCount.value === '100' && company.transportCount >= 100 && company.transportCount < 500) ||
+      (selectedTransportCount.value === '500' && company.transportCount >= 500 && company.transportCount < 1000) ||
+      (selectedTransportCount.value === '1000' && company.transportCount >= 1000)
+    const matchesPrice = !selectedPriceRange.value || 
+      (selectedPriceRange.value === '0.5' && company.transportPricePerKm <= 0.5) ||
+      (selectedPriceRange.value === '1.0' && company.transportPricePerKm > 0.5 && company.transportPricePerKm <= 1.0) ||
+      (selectedPriceRange.value === '1.5' && company.transportPricePerKm > 1.0 && company.transportPricePerKm <= 1.5) ||
+      (selectedPriceRange.value === '2.0' && company.transportPricePerKm > 1.5)
     const matchesServiceArea = !selectedServiceArea.value || company.serviceArea === selectedServiceArea.value
     
-    return matchesSearch && matchesRating && matchesServiceArea
+    return matchesSearch && matchesRating && matchesTransportCount && matchesPrice && matchesServiceArea
   })
 })
 
@@ -295,12 +313,13 @@ onMounted(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return selectedRating.value || selectedTransportMethod.value || selectedServiceArea.value
+  return selectedRating.value || selectedTransportCount.value || selectedPriceRange.value || selectedServiceArea.value
 })
 
 const clearFilters = () => {
   selectedRating.value = ''
-  selectedTransportMethod.value = ''
+  selectedTransportCount.value = ''
+  selectedPriceRange.value = ''
   selectedServiceArea.value = ''
 }
 </script>
