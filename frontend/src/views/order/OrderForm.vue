@@ -6,12 +6,24 @@
       <!-- 托运公司信息 -->
       <div class="company-info" v-if="companyInfo">
         <h3>托运公司信息</h3>
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="公司名称">{{ companyInfo.companyName }}</el-descriptions-item>
-          <el-descriptions-item label="公司地址">{{ companyInfo.companyAddress }}</el-descriptions-item>
-          <el-descriptions-item label="联系电话">{{ companyInfo.phone }}</el-descriptions-item>
-          <el-descriptions-item label="服务评分">
-            <el-rate v-model="companyInfo.rating" disabled />
+        <div class="company-header">
+          <div class="company-logo-container">
+            <img :src="companyInfo.logoUrl || '/default-avatar.png'" class="company-logo" />
+            <h4 class="company-name">{{ companyInfo.companyName }}</h4>
+          </div>
+        </div>
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="公司地址">
+            <el-icon><Location /></el-icon>
+            {{ companyInfo.address }}
+          </el-descriptions-item>
+          <el-descriptions-item label="托运价格">
+            <el-icon><Money /></el-icon>
+            {{ companyInfo.transportPricePerKm }} 元/公里
+          </el-descriptions-item>
+          <el-descriptions-item label="服务区域">
+            <el-icon><MapLocation /></el-icon>
+            {{ getServiceAreaText(companyInfo.serviceArea) }}
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -102,6 +114,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Location, Money, MapLocation } from '@element-plus/icons-vue'
 import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
@@ -173,14 +186,15 @@ const fetchPets = async () => {
 const fetchCompanyInfo = async () => {
   try {
     const companyId = route.query.companyId
-    console.log('Company ID:', companyId) // 添加调试信息
+    console.log('Company ID:', companyId)
     if (!companyId) {
       ElMessage.error('未选择托运公司')
       router.push('/transport')
       return
     }
     const response = await getCompanyCardById(companyId)
-    console.log('Company Info:', response) // 添加调试信息
+    console.log('Company Info:', response)
+    console.log('Rating value:', response.rating, 'Type:', typeof response.rating)
     companyInfo.value = response
   } catch (error) {
     console.error('获取公司信息失败:', error)
@@ -192,6 +206,20 @@ const fetchCompanyInfo = async () => {
 // 禁用过去的日期
 const disabledDate = (time) => {
   return time.getTime() < Date.now() - 8.64e7
+}
+
+// 获取服务区域文本
+const getServiceAreaText = (area) => {
+  switch (area) {
+    case 'P':
+      return '省内服务'
+    case 'D':
+      return '国内服务'
+    case 'I':
+      return '国际服务'
+    default:
+      return '未知'
+  }
 }
 
 // 提交订单
@@ -268,13 +296,58 @@ onMounted(() => {
 
 .company-info {
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: #f5f7fa;
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .company-info h3 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.company-header {
+  margin-bottom: 1.5rem;
+}
+
+.company-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.company-logo {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.company-name {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+:deep(.el-descriptions__label) {
+  width: 100px;
+  color: #666;
+}
+
+:deep(.el-descriptions__content) {
+  color: #333;
+}
+
+:deep(.el-icon) {
+  margin-right: 8px;
+  color: #409EFF;
 }
 </style> 
