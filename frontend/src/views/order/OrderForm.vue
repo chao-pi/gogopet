@@ -64,11 +64,21 @@
 
         <!-- 运输方式 -->
         <el-form-item label="运输方式" prop="transportMethod">
-          <el-radio-group v-model="orderForm.transportMethod">
-            <el-radio label="SPECIAL">专车托运</el-radio>
-            <el-radio label="SHARE">拼车托运</el-radio>
-            <el-radio label="AIR">空运托运</el-radio>
-          </el-radio-group>
+          <div class="transport-types">
+            <div 
+              v-for="type in transportTypes" 
+              :key="type.id"
+              class="transport-type-option"
+              :class="{ 'selected': orderForm.transportMethod === type.id }"
+              @click="orderForm.transportMethod = type.id"
+            >
+              <div class="transport-icon-container">
+                <component :is="type.icon" class="transport-icon" :size="32" />
+              </div>
+              <h4 class="transport-name">{{ type.name }}</h4>
+              <p class="transport-desc">{{ type.description }}</p>
+            </div>
+          </div>
         </el-form-item>
 
         <!-- 起始地点 -->
@@ -145,7 +155,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Location, Money, MapLocation } from '@element-plus/icons-vue'
-import { Building2, PawPrint } from 'lucide-vue-next'
+import { Building2, PawPrint, Car, Truck, Plane } from 'lucide-vue-next'
 import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
@@ -324,6 +334,28 @@ const getLocation = async (address) => {
     }
   }
 }
+
+// 运输方式数据
+const transportTypes = [
+  { 
+    id: 'SPECIAL', 
+    name: '专车托运', 
+    description: '一对一专车服务，全程专人照顾',
+    icon: Car
+  },
+  { 
+    id: 'SHARE', 
+    name: '拼车托运', 
+    description: '多宠物同行，经济实惠',
+    icon: Truck
+  },
+  { 
+    id: 'AIR', 
+    name: '空运托运', 
+    description: '长途首选，快速安全',
+    icon: Plane
+  }
+]
 
 // 提交订单
 const submitOrder = async () => {
@@ -645,5 +677,73 @@ onMounted(() => {
 
 :deep(.el-radio__input.is-checked + .el-radio__label) {
   color: #409EFF;
+}
+
+.transport-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+.transport-type-option {
+  border: 2px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: white;
+}
+
+.transport-type-option:hover {
+  border-color: #409EFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+}
+
+.transport-type-option.selected {
+  border-color: #409EFF;
+  background: linear-gradient(135deg, #ecf5ff 0%, #f0f9ff 100%);
+}
+
+.transport-icon-container {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ecf5ff 0%, #f0f9ff 100%);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.transport-type-option.selected .transport-icon-container {
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+}
+
+.transport-type-option.selected .transport-icon {
+  color: white;
+}
+
+.transport-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.transport-desc {
+  font-size: 14px;
+  color: #909399;
+  line-height: 1.5;
+}
+
+:deep(.el-radio) {
+  display: none;
 }
 </style> 
