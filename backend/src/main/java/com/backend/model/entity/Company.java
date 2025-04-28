@@ -42,9 +42,9 @@ public class Company {
     private Integer ratingCount;
 
     /**
-     * 运输方式，每个字符代表一种方式：A-空运，L-陆运，S-海运
+     * 托运次数
      */
-    private String transportMethods;
+    private Integer transportCount;
 
     /**
      * 服务区域：P-省内，D-国内，I-国际

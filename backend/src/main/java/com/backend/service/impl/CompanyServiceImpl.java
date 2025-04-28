@@ -62,7 +62,7 @@ public class CompanyServiceImpl implements CompanyService {
             dto.setCompanyName(user.getUserName());
             dto.setLogoUrl(logoUrl);
             dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
-            dto.setTransportMethods(company.getTransportMethods() != null ? company.getTransportMethods() : "L");
+            dto.setTransportCount(company.getTransportCount() != null ? company.getTransportCount() : 0);
             dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
             dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
             dto.setAddress(company.getCompanyLocal() != null ? company.getCompanyLocal() : "");
@@ -100,7 +100,7 @@ public class CompanyServiceImpl implements CompanyService {
         dto.setCompanyName(user.getUserName());
         dto.setLogoUrl(logoUrl);
         dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
-        dto.setTransportMethods(company.getTransportMethods() != null ? company.getTransportMethods() : "L");
+        dto.setTransportCount(company.getTransportCount() != null ? company.getTransportCount() : 0);
         dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
         dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
         dto.setAddress(company.getCompanyLocal() != null ? company.getCompanyLocal() : "");

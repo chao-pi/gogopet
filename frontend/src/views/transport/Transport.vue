@@ -89,8 +89,8 @@
                 <div class="detail-item">
                   <el-icon class="detail-icon"><Van /></el-icon>
                   <div class="detail-content">
-                    <span class="detail-label">运输方式</span>
-                    <span class="detail-value">{{ getTransportMethodsText(company.transportMethods) }}</span>
+                    <span class="detail-label">托运次数</span>
+                    <span class="detail-value">{{ company.transportCount }}次</span>
                   </div>
                 </div>
                 
@@ -208,21 +208,11 @@ const filteredCompanies = computed(() => {
   return companies.value.filter(company => {
     const matchesSearch = company.companyName.toLowerCase().includes(searchQuery.value.toLowerCase())
     const matchesRating = !selectedRating.value || company.rating >= parseFloat(selectedRating.value)
-    const matchesTransportMethod = !selectedTransportMethod.value || company.transportMethods.includes(selectedTransportMethod.value)
     const matchesServiceArea = !selectedServiceArea.value || company.serviceArea === selectedServiceArea.value
     
-    return matchesSearch && matchesRating && matchesTransportMethod && matchesServiceArea
+    return matchesSearch && matchesRating && matchesServiceArea
   })
 })
-
-// 辅助函数：获取运输方式文本
-const getTransportMethodsText = (methods) => {
-  const texts = []
-  if (methods.includes('A')) texts.push('空运')
-  if (methods.includes('L')) texts.push('陆运')
-  if (methods.includes('S')) texts.push('海运')
-  return texts.join('、')
-}
 
 // 辅助函数：获取服务区域文本
 const getServiceAreaText = (area) => {
