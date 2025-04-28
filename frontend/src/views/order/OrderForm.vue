@@ -72,13 +72,33 @@
         </el-form-item>
 
         <!-- 起始地点 -->
-        <el-form-item label="起始地点" prop="startLocation">
-          <el-input v-model="orderForm.startLocation" placeholder="请输入起始地点" />
+        <el-form-item label="起始地点" required>
+          <el-cascader
+            v-model="startArea"
+            :options="areaOptions"
+            :props="{ expandTrigger: 'hover' }"
+            placeholder="请选择省市区"
+            style="width: 100%"
+            @change="handleStartAreaChange"
+          />
+          <el-form-item prop="startLocation" style="margin-top: 10px">
+            <el-input v-model="orderForm.startLocation" placeholder="请输入详细地址" />
+          </el-form-item>
         </el-form-item>
 
         <!-- 目的地点 -->
-        <el-form-item label="目的地点" prop="endLocation">
-          <el-input v-model="orderForm.endLocation" placeholder="请输入目的地点" />
+        <el-form-item label="目的地点" required>
+          <el-cascader
+            v-model="endArea"
+            :options="areaOptions"
+            :props="{ expandTrigger: 'hover' }"
+            placeholder="请选择省市区"
+            style="width: 100%"
+            @change="handleEndAreaChange"
+          />
+          <el-form-item prop="endLocation" style="margin-top: 10px">
+            <el-input v-model="orderForm.endLocation" placeholder="请输入详细地址" />
+          </el-form-item>
         </el-form-item>
 
         <!-- 运输时间 -->
@@ -130,6 +150,7 @@ import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
 import { useUserStore } from '@/stores/user.js'
+import { regionData } from 'element-china-area-data'
 
 const router = useRouter()
 const route = useRoute()
@@ -141,8 +162,18 @@ const companyInfo = ref(null)
 const orderForm = ref({
   petId: '',
   transportMethod: 'SPECIAL',
+  startProvince: '',
+  startCity: '',
+  startDistrict: '',
   startLocation: '',
+  startLatitude: '',
+  startLongitude: '',
+  endProvince: '',
+  endCity: '',
+  endDistrict: '',
   endLocation: '',
+  endLatitude: '',
+  endLongitude: '',
   transportTime: '',
   receiver: '',
   phone: '',
@@ -156,11 +187,29 @@ const orderFormRules = {
   transportMethod: [
     { required: true, message: '请选择运输方式', trigger: 'change' }
   ],
+  startProvince: [
+    { required: true, message: '请选择起始省份', trigger: 'change' }
+  ],
+  startCity: [
+    { required: true, message: '请选择起始城市', trigger: 'change' }
+  ],
+  startDistrict: [
+    { required: true, message: '请选择起始区县', trigger: 'change' }
+  ],
   startLocation: [
-    { required: true, message: '请输入起始地点', trigger: 'blur' }
+    { required: true, message: '请输入起始详细地址', trigger: 'blur' }
+  ],
+  endProvince: [
+    { required: true, message: '请选择目的省份', trigger: 'change' }
+  ],
+  endCity: [
+    { required: true, message: '请选择目的城市', trigger: 'change' }
+  ],
+  endDistrict: [
+    { required: true, message: '请选择目的区县', trigger: 'change' }
   ],
   endLocation: [
-    { required: true, message: '请输入目的地点', trigger: 'blur' }
+    { required: true, message: '请输入目的详细地址', trigger: 'blur' }
   ],
   transportTime: [
     { required: true, message: '请选择运输时间', trigger: 'change' }
@@ -233,14 +282,72 @@ const getServiceAreaText = (area) => {
   }
 }
 
+// 地区数据
+const areaOptions = regionData
+
+// 选择的地区
+const startArea = ref([])
+const endArea = ref([])
+
+// 处理起始地区变化
+const handleStartAreaChange = (value) => {
+  if (value && value.length === 3) {
+    orderForm.value.startProvince = value[0]
+    orderForm.value.startCity = value[1]
+    orderForm.value.startDistrict = value[2]
+  }
+}
+
+// 处理目的地区变化
+const handleEndAreaChange = (value) => {
+  if (value && value.length === 3) {
+    orderForm.value.endProvince = value[0]
+    orderForm.value.endCity = value[1]
+    orderForm.value.endDistrict = value[2]
+  }
+}
+
+// 获取经纬度
+const getLocation = async (address) => {
+  try {
+    // 这里需要调用地图API获取经纬度
+    // 暂时返回空值，后续实现
+    return {
+      latitude: '',
+      longitude: ''
+    }
+  } catch (error) {
+    console.error('获取经纬度失败:', error)
+    return {
+      latitude: '',
+      longitude: ''
+    }
+  }
+}
+
 // 提交订单
 const submitOrder = async () => {
   if (!orderFormRef.value) return
   
   try {
     await orderFormRef.value.validate()
+    
+    // 获取起始地经纬度
+    const startLocation = await getLocation(
+      `${orderForm.value.startProvince}${orderForm.value.startCity}${orderForm.value.startDistrict}${orderForm.value.startLocation}`
+    )
+    
+    // 获取目的地经纬度
+    const endLocation = await getLocation(
+      `${orderForm.value.endProvince}${orderForm.value.endCity}${orderForm.value.endDistrict}${orderForm.value.endLocation}`
+    )
+    
     const orderData = {
       ...orderForm.value,
+      startLatitude: startLocation.latitude,
+      startLongitude: startLocation.longitude,
+      endLatitude: endLocation.latitude,
+      endLongitude: endLocation.longitude,
       userId: userStore.userInfo.id,
       companyId: route.query.companyId
     }
@@ -272,36 +379,72 @@ onMounted(() => {
   padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%); */
+  min-height: 100vh;
 }
 
 .form-container {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.form-container:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .form-title {
   text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
+  margin-bottom: 2.5rem;
+  color: #303133;
+  font-size: 1.8rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.form-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #409EFF, #67C23A);
+  border-radius: 3px;
 }
 
 .pet-option {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.pet-option:hover {
+  background-color: #f5f7fa;
 }
 
 .pet-avatar {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f5f7fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pet-avatar:hover {
+  transform: scale(1.05);
 }
 
 .pet-avatar img {
@@ -320,39 +463,63 @@ onMounted(() => {
 }
 
 .company-info {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.company-info:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .company-info h3 {
   margin-bottom: 1.5rem;
-  color: #333;
-  font-size: 1.25rem;
+  color: #303133;
+  font-size: 1.4rem;
   font-weight: 600;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.company-info h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #409EFF, #67C23A);
+  border-radius: 3px;
 }
 
 .company-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .company-logo-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.2rem;
   max-width: 400px;
   margin: 0 auto;
 }
 
 .company-logo {
   width: 100%;
-  height: 160px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 180px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.company-logo:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .company-logo img {
@@ -362,7 +529,7 @@ onMounted(() => {
 }
 
 .company-logo.default-logo {
-  background-color: #f5f7fa;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -374,22 +541,109 @@ onMounted(() => {
 
 .company-name {
   margin: 0;
-  font-size: 1.2rem;
-  color: #333;
+  font-size: 1.4rem;
+  color: #303133;
   font-weight: 600;
+  text-align: center;
+}
+
+:deep(.el-descriptions) {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 :deep(.el-descriptions__label) {
   width: 100px;
-  color: #666;
+  color: #606266;
+  font-weight: 500;
 }
 
 :deep(.el-descriptions__content) {
-  color: #333;
+  color: #303133;
 }
 
 :deep(.el-icon) {
   margin-right: 8px;
+  color: #409EFF;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #606266;
+}
+
+:deep(.el-input__inner),
+:deep(.el-textarea__inner) {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__inner:hover),
+:deep(.el-textarea__inner:hover) {
+  border-color: #409EFF;
+}
+
+:deep(.el-input__inner:focus),
+:deep(.el-textarea__inner:focus) {
+  border-color: #409EFF;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+:deep(.el-button) {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  border: none;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #66b1ff 0%, #409EFF 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+:deep(.el-button--default) {
+  background: white;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.el-button--default:hover) {
+  color: #409EFF;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+  transform: translateY(-2px);
+}
+
+:deep(.el-cascader) {
+  width: 100%;
+}
+
+:deep(.el-cascader .el-input__inner) {
+  border-radius: 8px;
+}
+
+:deep(.el-radio-group) {
+  display: flex;
+  gap: 20px;
+}
+
+:deep(.el-radio) {
+  margin-right: 0;
+}
+
+:deep(.el-radio__input.is-checked .el-radio__inner) {
+  background: #409EFF;
+  border-color: #409EFF;
+}
+
+:deep(.el-radio__input.is-checked + .el-radio__label) {
   color: #409EFF;
 }
 </style> 
