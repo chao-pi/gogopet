@@ -3,6 +3,19 @@
     <div class="form-container">
       <h2 class="form-title">填写订单信息</h2>
       
+      <!-- 托运公司信息 -->
+      <div class="company-info" v-if="companyInfo">
+        <h3>托运公司信息</h3>
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="公司名称">{{ companyInfo.companyName }}</el-descriptions-item>
+          <el-descriptions-item label="公司地址">{{ companyInfo.companyAddress }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{ companyInfo.phone }}</el-descriptions-item>
+          <el-descriptions-item label="服务评分">
+            <el-rate v-model="companyInfo.rating" disabled />
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+
       <el-form
         ref="orderFormRef"
         :model="orderForm"
@@ -91,6 +104,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
+import { getCompanyCardById } from '@/api/company.js'
 import { useUserStore } from '@/stores/user.js'
 
 const router = useRouter()
@@ -98,6 +112,7 @@ const route = useRoute()
 const userStore = useUserStore()
 const orderFormRef = ref(null)
 const pets = ref([])
+const companyInfo = ref(null)
 
 const orderForm = ref({
   petId: '',
@@ -138,11 +153,39 @@ const orderFormRules = {
 // 获取宠物列表
 const fetchPets = async () => {
   try {
-    const response = await getPets(userStore.userInfo.id)
+    const userId = userStore.userInfo?.id
+    console.log('User ID:', userId) // 添加调试信息
+    if (!userId) {
+      ElMessage.error('用户未登录')
+      router.push('/login')
+      return
+    }
+    const response = await getPets(userId)
+    console.log('Pets:', response) // 添加调试信息
     pets.value = response
   } catch (error) {
     console.error('获取宠物列表失败:', error)
     ElMessage.error('获取宠物列表失败')
+  }
+}
+
+// 获取公司信息
+const fetchCompanyInfo = async () => {
+  try {
+    const companyId = route.query.companyId
+    console.log('Company ID:', companyId) // 添加调试信息
+    if (!companyId) {
+      ElMessage.error('未选择托运公司')
+      router.push('/transport')
+      return
+    }
+    const response = await getCompanyCardById(companyId)
+    console.log('Company Info:', response) // 添加调试信息
+    companyInfo.value = response
+  } catch (error) {
+    console.error('获取公司信息失败:', error)
+    ElMessage.error('获取公司信息失败')
+    router.push('/transport')
   }
 }
 
@@ -181,6 +224,7 @@ const cancelOrder = () => {
 
 onMounted(() => {
   fetchPets()
+  fetchCompanyInfo()
 })
 </script>
 
@@ -220,5 +264,17 @@ onMounted(() => {
 .order-form {
   max-width: 600px;
   margin: 0 auto;
+}
+
+.company-info {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.company-info h3 {
+  margin-bottom: 1rem;
+  color: #333;
 }
 </style> 

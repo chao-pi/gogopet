@@ -4,7 +4,7 @@ import router from '@/router'
 
 // 创建axios实例
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: 'http://localhost:8080/api',
   timeout: 5000
 })
 
@@ -27,39 +27,33 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
+    // 直接返回响应数据
     return response.data
   },
   error => {
+    console.error('响应错误:', error)
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // token过期或无效
+          // token无效或过期，清除用户信息并跳转到登录页
           localStorage.removeItem('token')
           localStorage.removeItem('userInfo')
           router.push('/login')
-          ElMessage.error('登录已过期，请重新登录')
           break
         case 403:
-          // 权限不足
           ElMessage.error('权限不足')
           break
         case 404:
-          // 资源不存在
           ElMessage.error('请求的资源不存在')
           break
         case 500:
-          // 服务器错误
-          ElMessage.error('服务器错误，请稍后重试')
+          ElMessage.error('服务器错误')
           break
         default:
           ElMessage.error(error.response.data?.message || '请求失败')
       }
-    } else if (error.request) {
-      // 请求发出但没有收到响应
-      ElMessage.error('无法连接到服务器，请检查网络连接')
     } else {
-      // 请求配置出错
-      ElMessage.error('请求出错: ' + error.message)
+      ElMessage.error('网络错误，请检查网络连接')
     }
     return Promise.reject(error)
   }
