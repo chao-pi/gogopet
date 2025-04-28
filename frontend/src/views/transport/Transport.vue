@@ -396,9 +396,9 @@ const clearFilters = () => {
   justify-content: center;
   align-items: center;
   padding: 15px;
-  background: #f8f9fa;
+  /* background: #f8f9fa; */
   border-radius: 12px;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05);
+  /* box-shadow: 0 2px 8px 0 rgba(0,0,0,0.05); */
   margin-top: 10px;
 }
 
