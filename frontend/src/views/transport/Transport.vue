@@ -187,6 +187,9 @@ import { Search, OfficeBuilding,
   House } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // 搜索和筛选数据
 const searchQuery = ref('')
@@ -303,8 +306,11 @@ const viewCompanyDetail = (companyId) => {
 }
 
 const bookService = (companyId) => {
-  // 实现预约服务逻辑
-  ElMessage.success('预约服务: ' + companyId)
+  // 跳转到订单创建页面，并传递公司ID
+  router.push({
+    path: '/order/create',
+    query: { companyId }
+  })
 }
 
 // 组件挂载时加载数据

@@ -7,6 +7,7 @@ import Register from '@/views/auth/Register.vue'
 import Profile from '@/views/user/Profile.vue'
 import Pets from '@/views/user/Pets.vue'
 import Transport from '@/views/transport/Transport.vue'
+import OrderForm from '@/views/order/OrderForm.vue'
 
 const routes = [
   {
@@ -45,6 +46,12 @@ const routes = [
     path: '/transport',
     name: 'Transport',
     component: Transport
+  },
+  {
+    path: '/order/create',
+    name: 'OrderForm',
+    component: OrderForm,
+    meta: { requiresAuth: true }
   },
   {
     path: '/error/:code',
