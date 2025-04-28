@@ -8,7 +8,12 @@
         <h3>托运公司信息</h3>
         <div class="company-header">
           <div class="company-logo-container">
-            <img :src="companyInfo.logoUrl || '/default-avatar.png'" class="company-logo" />
+            <div class="company-logo" v-if="companyInfo.logoUrl">
+              <img :src="companyInfo.logoUrl" />
+            </div>
+            <div class="company-logo default-logo" v-else>
+              <Building2 :size="60" />
+            </div>
             <h4 class="company-name">{{ companyInfo.companyName }}</h4>
           </div>
         </div>
@@ -45,7 +50,12 @@
               :value="pet.petId"
             >
               <div class="pet-option">
-                <img :src="pet.avatarUrl" class="pet-avatar" />
+                <div class="pet-avatar" v-if="pet.avatarUrl">
+                  <img :src="pet.avatarUrl" />
+                </div>
+                <div class="pet-avatar default-avatar" v-else>
+                  <PawPrint :size="20" />
+                </div>
                 <span>{{ pet.petName }} ({{ pet.petBreed }})</span>
               </div>
             </el-option>
@@ -115,6 +125,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Location, Money, MapLocation } from '@element-plus/icons-vue'
+import { Building2, PawPrint } from 'lucide-vue-next'
 import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
@@ -286,7 +297,21 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+.pet-avatar.default-avatar svg {
+  color: #909399;
 }
 
 .order-form {
@@ -326,8 +351,25 @@ onMounted(() => {
   width: 100%;
   height: 160px;
   border-radius: 12px;
-  object-fit: cover;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.company-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.company-logo.default-logo {
+  background-color: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.company-logo.default-logo svg {
+  color: #909399;
 }
 
 .company-name {
