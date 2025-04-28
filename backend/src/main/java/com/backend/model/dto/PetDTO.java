@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 宠物数据传输对象
@@ -66,4 +67,20 @@ public class PetDTO {
      * 宠物头像URL
      */
     private String avatarUrl;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 宠物描述
+     */
+    @Size(max = 500, message = "宠物描述长度不能超过500个字符")
+    private String petDescription;
 } 

@@ -1,119 +1,73 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.util.Date;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 订单实体类
  * 对应数据库表 t_order
  */
 @Data
-@TableName("t_order")
+@TableName("`order`")
 public class Order {
     /**
      * 订单ID，唯一标识符
      */
-    @TableId("order_id")
-    private String orderId;
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
     /**
-     * 宠物ID，关联托运的宠物
+     * 用户ID，关联用户表，表示下单用户
      */
-    @TableField("pet_id")
-    private String petId;
+    private Long userId;
 
     /**
-     * 用户ID，关联订单创建者
+     * 宠物ID，关联宠物表，表示下单的宠物
      */
-    @TableField("user_id")
-    private String userId;
+    private Long petId;
 
     /**
-     * 公司ID，关联承运公司
+     * 订单金额，单位：元
      */
-    @TableField("company_id")
-    private String companyId;
+    private BigDecimal amount;
 
     /**
      * 订单状态
-     * P-待支付
-     * W-待接单
-     * T-运输中
-     * C-已完成
-     * X-已取消
+     * 0-待支付
+     * 1-已支付
+     * 2-已发货
+     * 3-已完成
+     * 4-已取消
      */
-    @TableField("order_status")
-    private String orderStatus;
+    private Integer status;
 
     /**
-     * 宠物状态
-     * N-正常
-     * A-异常
+     * 订单地址
      */
-    @TableField("pet_status")
-    private String petStatus;
+    private String address;
 
     /**
-     * 运输状态
-     * P-待接单
-     * T-运输中
-     * D-已送达
+     * 用户电话
      */
-    @TableField("delivery_status")
-    private String deliveryStatus;
+    private String phone;
 
     /**
-     * 托运开始时间
+     * 收货人
      */
-    @TableField("start_time")
-    private Date startTime;
-
-    /**
-     * 托运结束时间
-     */
-    @TableField("end_time")
-    private Date endTime;
-
-    /**
-     * 起始地点
-     */
-    @TableField("start_location")
-    private String startLocation;
-
-    /**
-     * 目的地
-     */
-    @TableField("end_location")
-    private String endLocation;
-
-    /**
-     * 订单价格，单位：元
-     */
-    @TableField("price")
-    private BigDecimal price;
-
-    /**
-     * 支付状态
-     * U-未支付
-     * P-已支付
-     * R-已退款
-     */
-    @TableField("payment_status")
-    private String paymentStatus;
+    private String receiver;
 
     /**
      * 创建时间
      */
-    @TableField("create_time")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField("update_time")
-    private Date updateTime;
+    private LocalDateTime updateTime;
 } 

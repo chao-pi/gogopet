@@ -3,7 +3,7 @@ package com.backend.model.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 图片实体类
@@ -36,7 +36,7 @@ public class Picture {
      * 上传时间
      */
     @TableField("upload_time")
-    private Date uploadTime;
+    private LocalDateTime uploadTime;
 
     /**
      * 用户ID，关联上传者
@@ -75,11 +75,11 @@ public class Picture {
         this.pictureUrl = pictureUrl;
     }
 
-    public Date getUploadTime() {
+    public LocalDateTime getUploadTime() {
         return uploadTime;
     }
 
-    public void setUploadTime(Date uploadTime) {
+    public void setUploadTime(LocalDateTime uploadTime) {
         this.uploadTime = uploadTime;
     }
 
