@@ -1,151 +1,187 @@
 <template>
   <div class="order-form-page">
-    <div class="form-container">
-      <h2 class="form-title">填写订单信息</h2>
-      
-      <!-- 托运公司信息 -->
-      <div class="company-info" v-if="companyInfo">
-        <h3>托运公司信息</h3>
-        <div class="company-header">
-          <div class="company-logo-container">
-            <div class="company-logo" v-if="companyInfo.logoUrl">
-              <img :src="companyInfo.logoUrl" />
+    <div class="form-layout">
+      <!-- 左侧表单 -->
+      <div class="form-container">
+        <h2 class="form-title">填写订单信息</h2>
+        
+        <el-form
+          ref="orderFormRef"
+          :model="orderForm"
+          :rules="orderFormRules"
+          label-width="120px"
+          class="order-form"
+        >
+          <!-- 宠物信息 -->
+          <el-form-item label="选择宠物" prop="petId">
+            <el-select v-model="orderForm.petId" placeholder="请选择要托运的宠物" @change="handlePetChange">
+              <el-option
+                v-for="pet in pets"
+                :key="pet.petId"
+                :label="pet.petName"
+                :value="pet.petId"
+              >
+                <div class="pet-option">
+                  <div class="pet-avatar" v-if="pet.avatarUrl">
+                    <img :src="pet.avatarUrl" />
+                  </div>
+                  <div class="pet-avatar default-avatar" v-else>
+                    <PawPrint :size="20" />
+                  </div>
+                  <span>{{ pet.petName }} ({{ pet.petBreed }})</span>
+                </div>
+              </el-option>
+            </el-select>
+          </el-form-item>
+
+          <!-- 运输方式 -->
+          <el-form-item label="运输方式" prop="transportMethod">
+            <div class="transport-types">
+              <div 
+                v-for="type in transportTypes" 
+                :key="type.id"
+                class="transport-type-option"
+                :class="{ 'selected': orderForm.transportMethod === type.id }"
+                @click="orderForm.transportMethod = type.id"
+              >
+                <div class="transport-icon-container">
+                  <component :is="type.icon" class="transport-icon" :size="32" />
+                </div>
+                <h4 class="transport-name">{{ type.name }}</h4>
+                <p class="transport-desc">{{ type.description }}</p>
+              </div>
             </div>
-            <div class="company-logo default-logo" v-else>
-              <Building2 :size="60" />
-            </div>
-            <h4 class="company-name">{{ companyInfo.companyName }}</h4>
-          </div>
-        </div>
-        <el-descriptions :column="1" border>
-          <el-descriptions-item label="公司地址">
-            <el-icon><Location /></el-icon>
-            {{ companyInfo.address }}
-          </el-descriptions-item>
-          <el-descriptions-item label="托运价格">
-            <el-icon><Money /></el-icon>
-            {{ companyInfo.transportPricePerKm }} 元/公里
-          </el-descriptions-item>
-          <el-descriptions-item label="服务区域">
-            <el-icon><MapLocation /></el-icon>
-            {{ getServiceAreaText(companyInfo.serviceArea) }}
-          </el-descriptions-item>
-        </el-descriptions>
+          </el-form-item>
+
+          <!-- 起始地点 -->
+          <el-form-item label="起始地点" required>
+            <el-cascader
+              v-model="startArea"
+              :options="areaOptions"
+              :props="{ expandTrigger: 'hover' }"
+              placeholder="请选择省市区"
+              style="width: 100%"
+              @change="handleStartAreaChange"
+            />
+            <el-form-item prop="startLocation" style="margin-top: 10px">
+              <el-input v-model="orderForm.startLocation" placeholder="请输入详细地址" />
+            </el-form-item>
+          </el-form-item>
+
+          <!-- 目的地点 -->
+          <el-form-item label="目的地点" required>
+            <el-cascader
+              v-model="endArea"
+              :options="areaOptions"
+              :props="{ expandTrigger: 'hover' }"
+              placeholder="请选择省市区"
+              style="width: 100%"
+              @change="handleEndAreaChange"
+            />
+            <el-form-item prop="endLocation" style="margin-top: 10px">
+              <el-input v-model="orderForm.endLocation" placeholder="请输入详细地址" />
+            </el-form-item>
+          </el-form-item>
+
+          <!-- 运输时间 -->
+          <el-form-item label="运输时间" prop="transportTime">
+            <el-date-picker
+              v-model="orderForm.transportTime"
+              type="datetime"
+              placeholder="请选择运输时间"
+              :disabled-date="disabledDate"
+            />
+          </el-form-item>
+
+          <!-- 联系人信息 -->
+          <el-form-item label="联系人" prop="receiver">
+            <el-input v-model="orderForm.receiver" placeholder="请输入联系人姓名" />
+          </el-form-item>
+
+          <el-form-item label="联系电话" prop="phone">
+            <el-input v-model="orderForm.phone" placeholder="请输入联系电话" />
+          </el-form-item>
+
+          <!-- 备注信息 -->
+          <el-form-item label="备注" prop="remark">
+            <el-input
+              v-model="orderForm.remark"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入特殊要求或备注信息"
+            />
+          </el-form-item>
+
+          <!-- 提交按钮 -->
+          <el-form-item>
+            <el-button type="primary" @click="submitOrder">提交订单</el-button>
+            <el-button @click="cancelOrder">取消</el-button>
+          </el-form-item>
+        </el-form>
       </div>
 
-      <el-form
-        ref="orderFormRef"
-        :model="orderForm"
-        :rules="orderFormRules"
-        label-width="120px"
-        class="order-form"
-      >
-        <!-- 宠物信息 -->
-        <el-form-item label="选择宠物" prop="petId">
-          <el-select v-model="orderForm.petId" placeholder="请选择要托运的宠物">
-            <el-option
-              v-for="pet in pets"
-              :key="pet.petId"
-              :label="pet.petName"
-              :value="pet.petId"
-            >
-              <div class="pet-option">
-                <div class="pet-avatar" v-if="pet.avatarUrl">
-                  <img :src="pet.avatarUrl" />
-                </div>
-                <div class="pet-avatar default-avatar" v-else>
-                  <PawPrint :size="20" />
-                </div>
-                <span>{{ pet.petName }} ({{ pet.petBreed }})</span>
+      <!-- 右侧信息 -->
+      <div class="info-sidebar">
+        <!-- 托运公司信息 -->
+        <div class="company-info" v-if="companyInfo">
+          <h3>托运公司信息</h3>
+          <div class="company-header">
+            <div class="company-logo-container">
+              <div class="company-logo" v-if="companyInfo.logoUrl">
+                <img :src="companyInfo.logoUrl" />
               </div>
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <!-- 运输方式 -->
-        <el-form-item label="运输方式" prop="transportMethod">
-          <div class="transport-types">
-            <div 
-              v-for="type in transportTypes" 
-              :key="type.id"
-              class="transport-type-option"
-              :class="{ 'selected': orderForm.transportMethod === type.id }"
-              @click="orderForm.transportMethod = type.id"
-            >
-              <div class="transport-icon-container">
-                <component :is="type.icon" class="transport-icon" :size="32" />
+              <div class="company-logo default-logo" v-else>
+                <Building2 :size="60" />
               </div>
-              <h4 class="transport-name">{{ type.name }}</h4>
-              <p class="transport-desc">{{ type.description }}</p>
+              <h4 class="company-name">{{ companyInfo.companyName }}</h4>
             </div>
           </div>
-        </el-form-item>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="公司地址">
+              <el-icon><Location /></el-icon>
+              {{ companyInfo.address }}
+            </el-descriptions-item>
+            <el-descriptions-item label="托运价格">
+              <el-icon><Money /></el-icon>
+              {{ companyInfo.transportPricePerKm }} 元/公里
+            </el-descriptions-item>
+            <el-descriptions-item label="服务区域">
+              <el-icon><MapLocation /></el-icon>
+              {{ getServiceAreaText(companyInfo.serviceArea) }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
 
-        <!-- 起始地点 -->
-        <el-form-item label="起始地点" required>
-          <el-cascader
-            v-model="startArea"
-            :options="areaOptions"
-            :props="{ expandTrigger: 'hover' }"
-            placeholder="请选择省市区"
-            style="width: 100%"
-            @change="handleStartAreaChange"
-          />
-          <el-form-item prop="startLocation" style="margin-top: 10px">
-            <el-input v-model="orderForm.startLocation" placeholder="请输入详细地址" />
-          </el-form-item>
-        </el-form-item>
-
-        <!-- 目的地点 -->
-        <el-form-item label="目的地点" required>
-          <el-cascader
-            v-model="endArea"
-            :options="areaOptions"
-            :props="{ expandTrigger: 'hover' }"
-            placeholder="请选择省市区"
-            style="width: 100%"
-            @change="handleEndAreaChange"
-          />
-          <el-form-item prop="endLocation" style="margin-top: 10px">
-            <el-input v-model="orderForm.endLocation" placeholder="请输入详细地址" />
-          </el-form-item>
-        </el-form-item>
-
-        <!-- 运输时间 -->
-        <el-form-item label="运输时间" prop="transportTime">
-          <el-date-picker
-            v-model="orderForm.transportTime"
-            type="datetime"
-            placeholder="请选择运输时间"
-            :disabled-date="disabledDate"
-          />
-        </el-form-item>
-
-        <!-- 联系人信息 -->
-        <el-form-item label="联系人" prop="receiver">
-          <el-input v-model="orderForm.receiver" placeholder="请输入联系人姓名" />
-        </el-form-item>
-
-        <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="orderForm.phone" placeholder="请输入联系电话" />
-        </el-form-item>
-
-        <!-- 备注信息 -->
-        <el-form-item label="备注" prop="remark">
-          <el-input
-            v-model="orderForm.remark"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入特殊要求或备注信息"
-          />
-        </el-form-item>
-
-        <!-- 提交按钮 -->
-        <el-form-item>
-          <el-button type="primary" @click="submitOrder">提交订单</el-button>
-          <el-button @click="cancelOrder">取消</el-button>
-        </el-form-item>
-      </el-form>
+        <!-- 宠物信息 -->
+        <div class="pet-info" v-if="selectedPet">
+          <h3>宠物信息</h3>
+          <div class="pet-header">
+            <div class="pet-avatar-container">
+              <div class="pet-avatar" v-if="selectedPet.avatarUrl">
+                <img :src="selectedPet.avatarUrl" />
+              </div>
+              <div class="pet-avatar default-avatar" v-else>
+                <PawPrint :size="60" />
+              </div>
+              <h4 class="pet-name">{{ selectedPet.petName }}</h4>
+            </div>
+          </div>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="宠物品种">
+              {{ selectedPet.petBreed }}
+            </el-descriptions-item>
+            <el-descriptions-item label="宠物年龄">
+              {{ selectedPet.petAge }}岁
+            </el-descriptions-item>
+            <el-descriptions-item label="宠物性别">
+              {{ selectedPet.petGender === 'MALE' ? '公' : '母' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="宠物体重">
+              {{ selectedPet.petWeight }}kg
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -357,6 +393,14 @@ const transportTypes = [
   }
 ]
 
+// 选中的宠物信息
+const selectedPet = ref(null)
+
+// 处理宠物选择变化
+const handlePetChange = (petId) => {
+  selectedPet.value = pets.value.find(pet => pet.petId === petId)
+}
+
 // 提交订单
 const submitOrder = async () => {
   if (!orderFormRef.value) return
@@ -409,13 +453,18 @@ onMounted(() => {
 <style scoped>
 .order-form-page {
   padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-  /* background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%); */
   min-height: 100vh;
 }
 
+.form-layout {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .form-container {
+  flex: 1;
   background: white;
   padding: 2.5rem;
   border-radius: 16px;
@@ -423,30 +472,97 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.form-container:hover {
+.info-sidebar {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.company-info,
+.pet-info {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.company-info:hover,
+.pet-info:hover {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
-.form-title {
-  text-align: center;
-  margin-bottom: 2.5rem;
+.company-info h3,
+.pet-info h3 {
+  margin-bottom: 1.5rem;
   color: #303133;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 600;
   position: relative;
-  padding-bottom: 1rem;
+  padding-bottom: 0.8rem;
 }
 
-.form-title::after {
+.company-info h3::after,
+.pet-info h3::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
+  left: 0;
+  width: 40px;
   height: 3px;
   background: linear-gradient(90deg, #409EFF, #67C23A);
   border-radius: 3px;
+}
+
+.pet-header {
+  margin-bottom: 1.5rem;
+}
+
+.pet-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.pet-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.pet-avatar:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-avatar.default-avatar {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-avatar.default-avatar svg {
+  color: #909399;
+}
+
+.pet-name {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #303133;
+  font-weight: 600;
+  text-align: center;
 }
 
 .pet-option {
@@ -462,29 +578,6 @@ onMounted(() => {
   background-color: #f5f7fa;
 }
 
-.pet-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f7fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.pet-avatar:hover {
-  transform: scale(1.05);
-}
-
-.pet-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .pet-avatar.default-avatar svg {
   color: #909399;
 }
@@ -492,39 +585,6 @@ onMounted(() => {
 .order-form {
   max-width: 600px;
   margin: 0 auto;
-}
-
-.company-info {
-  margin-bottom: 2.5rem;
-  padding: 2rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.company-info:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-}
-
-.company-info h3 {
-  margin-bottom: 1.5rem;
-  color: #303133;
-  font-size: 1.4rem;
-  font-weight: 600;
-  position: relative;
-  padding-bottom: 0.8rem;
-}
-
-.company-info h3::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(90deg, #409EFF, #67C23A);
-  border-radius: 3px;
 }
 
 .company-header {
