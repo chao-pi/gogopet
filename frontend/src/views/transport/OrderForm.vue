@@ -154,8 +154,14 @@
                   </svg>
                 </span>
               </el-button>
-              <el-button type="primary" class="submit-btn" @click="handleSubmit">
-                <span class="btn-text">提交订单</span>
+              <el-button 
+                type="primary" 
+                class="submit-btn" 
+                @click="handleSubmit"
+                :loading="isSubmitting"
+                :disabled="isSubmitting"
+              >
+                <span class="btn-text">{{ isSubmitting ? '创建订单中...' : '提交订单' }}</span>
                 <span class="btn-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14"></path>
@@ -257,6 +263,19 @@
       :close-on-click-modal="false"
     >
       <div class="payment-info">
+        <div class="order-info">
+          <h3>订单信息</h3>
+          <p><strong>运输方式：</strong>{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
+            orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</p>
+          <p><strong>出发地：</strong>{{ orderData.startProvince }}{{ orderData.startCity }}{{ orderData.startDistrict }}{{ orderData.startLocation }}</p>
+          <p><strong>目的地：</strong>{{ orderData.endProvince }}{{ orderData.endCity }}{{ orderData.endDistrict }}{{ orderData.endLocation }}</p>
+          <p><strong>宠物信息：</strong></p>
+          <ul>
+            <li v-for="pet in selectedPets" :key="pet.petId">
+              {{ pet.petName }} ({{ pet.petType }})
+            </li>
+          </ul>
+        </div>
         <div class="qr-code">
           <img :src="paymentQRCode" alt="支付二维码" />
         </div>
@@ -267,7 +286,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handlePaymentCancel">取消</el-button>
-          <el-button type="primary" @click="handlePaymentConfirm">确认支付</el-button>
+          <el-button type="primary" @click="handlePaymentConfirm">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -568,13 +587,17 @@ const confirmDialogVisible = ref(false)
 const paymentDialogVisible = ref(false)
 const paymentQRCode = ref('')
 const orderData = ref(null)
+const isSubmitting = ref(false)
 
 // 修改提交订单方法
 const handleSubmit = async () => {
   try {
     // 验证表单
-  if (!orderFormRef.value) return
+    if (!orderFormRef.value) return
     await orderFormRef.value.validate()
+    
+    // 设置提交状态
+    isSubmitting.value = true
     
     // 构建完整的起始地址
     const startFullAddress = [
@@ -618,11 +641,21 @@ const handleSubmit = async () => {
       petIds: selectedPets.value.map(pet => pet.petId)
     }
     
-    // 显示确认框
-    confirmDialogVisible.value = true
+    // 创建订单
+    const response = await createOrder(orderData.value)
+    orderData.value = response.data
+    
+    // 获取支付二维码
+    const qrResponse = await getPaymentQRCode(orderData.value.orderId)
+    paymentQRCode.value = qrResponse.data
+    
+    // 显示支付框
+    paymentDialogVisible.value = true
   } catch (error) {
-    console.error('表单验证失败:', error)
-    ElMessage.error('请填写完整的订单信息')
+    console.error('创建订单失败:', error)
+    ElMessage.error('创建订单失败，请重试')
+  } finally {
+    isSubmitting.value = false
   }
 }
 
@@ -673,8 +706,8 @@ const handlePaymentConfirm = async () => {
     // 关闭支付框
     paymentDialogVisible.value = false
     
-    // 调用支付接口
-    await payOrder(orderData.value.orderId)
+    // 更新订单状态为待接单
+    await updateOrderStatus(orderData.value.orderId, 'W')
     
     ElMessage.success('支付成功，等待接单')
     router.push('/order/list')
@@ -1247,8 +1280,39 @@ onMounted(() => {
   padding: 20px;
 }
 
+.order-info {
+  text-align: left;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.order-info h3 {
+  margin-bottom: 15px;
+  color: #303133;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-info p {
+  margin: 8px 0;
+  color: #606266;
+  line-height: 1.5;
+}
+
+.order-info ul {
+  margin: 8px 0;
+  padding-left: 20px;
+  color: #606266;
+}
+
 .qr-code {
   margin: 20px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .qr-code img {
@@ -1263,6 +1327,7 @@ onMounted(() => {
 .amount h3 {
   color: #f56c6c;
   font-size: 24px;
+  font-weight: 600;
 }
 
 .form-buttons {
