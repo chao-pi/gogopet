@@ -53,6 +53,7 @@
               collapse-tags-tooltip
               placeholder="请选择要托运的宠物（可选择多只）"
               @change="handlePetsChange"
+              :disabled="isFormDisabled"
             >
               <el-option
                 v-for="pet in pets"
@@ -80,6 +81,7 @@
               type="datetime"
               placeholder="请选择运输时间"
               :disabled-date="disabledDate"
+              :disabled="isFormDisabled"
             />
           </el-form-item>
 
@@ -92,9 +94,10 @@
               placeholder="请选择省市区"
               style="width: 100%"
               @change="handleStartAreaChange"
+              :disabled="isFormDisabled"
             />
             <el-form-item prop="startLocation" style="margin-top: 10px">
-              <el-input v-model="orderForm.startLocation" placeholder="请输入详细地址" />
+              <el-input v-model="orderForm.startLocation" placeholder="请输入详细地址" :disabled="isFormDisabled" />
             </el-form-item>
           </el-form-item>
 
@@ -107,9 +110,10 @@
               placeholder="请选择省市区"
               style="width: 100%"
               @change="handleEndAreaChange"
+              :disabled="isFormDisabled"
             />
             <el-form-item prop="endLocation" style="margin-top: 10px">
-              <el-input v-model="orderForm.endLocation" placeholder="请输入详细地址" />
+              <el-input v-model="orderForm.endLocation" placeholder="请输入详细地址" :disabled="isFormDisabled" />
             </el-form-item>
           </el-form-item>
 
@@ -121,7 +125,7 @@
                 :key="type.id"
                 class="transport-type-option"
                 :class="{ 'selected': orderForm.transportMethod === type.id }"
-                @click="orderForm.transportMethod = type.id"
+                @click="!isFormDisabled && (orderForm.transportMethod = type.id)"
               >
                 <div class="transport-icon-container">
                   <component :is="type.icon" class="transport-icon" :size="32" />
@@ -139,13 +143,14 @@
               type="textarea"
               :rows="3"
               placeholder="请输入特殊要求或备注信息"
+              :disabled="isFormDisabled"
             />
           </el-form-item>
 
           <!-- 提交按钮 -->
           <el-form-item>
             <div class="form-buttons">
-              <el-button class="cancel-btn" @click="cancelOrder">
+              <el-button class="cancel-btn" @click="cancelOrder" :disabled="isFormDisabled">
                 <span class="btn-text">取消</span>
                 <span class="btn-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -159,7 +164,7 @@
                 class="submit-btn" 
                 @click="handleSubmit"
                 :loading="isSubmitting"
-                :disabled="isSubmitting"
+                :disabled="isFormDisabled"
               >
                 <span class="btn-text">{{ isSubmitting ? '创建订单中...' : '提交订单' }}</span>
                 <span class="btn-icon">
@@ -588,16 +593,17 @@ const paymentDialogVisible = ref(false)
 const paymentQRCode = ref('')
 const orderData = ref(null)
 const isSubmitting = ref(false)
+const isFormDisabled = ref(false)
 
 // 修改提交订单方法
 const handleSubmit = async () => {
+  if (!orderFormRef.value) return
+  
   try {
-    // 验证表单
-    if (!orderFormRef.value) return
-    await orderFormRef.value.validate()
-    
-    // 设置提交状态
     isSubmitting.value = true
+    isFormDisabled.value = true
+    
+    await orderFormRef.value.validate()
     
     // 构建完整的起始地址
     const startFullAddress = [
@@ -681,6 +687,7 @@ const handleSubmit = async () => {
     ElMessage.error('创建订单失败，请重试')
   } finally {
     isSubmitting.value = false
+    isFormDisabled.value = false
   }
 }
 
@@ -739,113 +746,6 @@ const handlePaymentConfirm = async () => {
   } catch (error) {
     console.error('支付失败:', error)
     ElMessage.error('支付失败，请重试')
-  }
-}
-
-// 提交订单
-const submitOrder = async () => {
-  try {
-    // 确保运输方式有值
-    if (!orderForm.value.transportMethod) {
-      orderForm.value.transportMethod = 'SPECIAL'
-    }
-
-    // 验证运输方式是否合法
-    const validTransportMethods = ['SPECIAL', 'SHARE', 'AIR']
-    if (!validTransportMethods.includes(orderForm.value.transportMethod)) {
-      ElMessage.error('无效的运输方式')
-      return
-    }
-
-    // 构建完整的起始地址
-    const startFullAddress = [
-      getAreaName(orderForm.value.startProvince),
-      getAreaName(orderForm.value.startCity),
-      getAreaName(orderForm.value.startDistrict),
-      orderForm.value.startLocation
-    ].filter(Boolean).join('')
-    
-    // 构建完整的目的地址
-    const endFullAddress = [
-      getAreaName(orderForm.value.endProvince),
-      getAreaName(orderForm.value.endCity),
-      getAreaName(orderForm.value.endDistrict),
-      orderForm.value.endLocation
-    ].filter(Boolean).join('')
-
-    console.log('起始地址:', startFullAddress)
-    console.log('目的地址:', endFullAddress)
-    
-    // 获取起始地经纬度
-    const startLocation = await getLocation(startFullAddress)
-    
-    // 获取目的地经纬度
-    const endLocation = await getLocation(endFullAddress)
-    
-    // 计算实际距离
-    const distance = await calculateDistance(startLocation, endLocation)
-    
-    // 计算基础价格
-    const basePrice = distance * companyInfo.value.transportPricePerKm
-    
-    // 根据运输方式计算额外费用
-    let additionalFee = 0
-    switch (orderForm.value.transportMethod) {
-      case 'SPECIAL':
-        additionalFee = basePrice * 0.3 // 专车额外30%费用
-        break
-      case 'AIR':
-        additionalFee = basePrice * 0.4 // 空运额外40%费用
-        break
-      case 'SHARE':
-        additionalFee = basePrice * 0.1 // 拼车额外10%费用
-        break
-    }
-    
-    // 计算总价格
-    const totalPrice = basePrice + additionalFee
-
-    // 构建订单数据
-    const orderData = {
-      ...orderForm.value,
-      startProvince: getAreaName(orderForm.value.startProvince),
-      startCity: getAreaName(orderForm.value.startCity),
-      startDistrict: getAreaName(orderForm.value.startDistrict),
-      startLocation: orderForm.value.startLocation,
-      startLatitude: startLocation.latitude,
-      startLongitude: startLocation.longitude,
-      endProvince: getAreaName(orderForm.value.endProvince),
-      endCity: getAreaName(orderForm.value.endCity),
-      endDistrict: getAreaName(orderForm.value.endDistrict),
-      endLocation: orderForm.value.endLocation,
-      endLatitude: endLocation.latitude,
-      endLongitude: endLocation.longitude,
-      userId: userStore.userInfo.id,
-      companyId: route.query.companyId,
-      price: totalPrice,
-      distance: distance.toString(),
-      transportMethod: orderForm.value.transportMethod,
-      transportTime: orderForm.value.transportTime ? new Date(orderForm.value.transportTime).toISOString() : null,
-      petIds: selectedPets.value.map(pet => pet.petId),
-      startTime: new Date().toISOString(), // 订单创建时间
-      endTime: null, // 运输完成时间，初始为null
-      completeTime: null, // 订单完成时间，初始为null
-      orderStatus: 'P', // 订单状态：P-待支付
-      deliveryStatus: 'P' // 运输状态：P-待接单
-    }
-
-    console.log('提交订单数据:', orderData)
-
-    const response = await createOrder(orderData)
-    if (response.code === 200) {
-    ElMessage.success('订单创建成功')
-      router.push('/order/list')
-    } else {
-      ElMessage.error(response.message || '订单创建失败')
-    }
-  } catch (error) {
-      console.error('创建订单失败:', error)
-    ElMessage.error(error.message || '创建订单失败，请稍后重试')
   }
 }
 
