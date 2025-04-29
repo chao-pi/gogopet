@@ -571,7 +571,7 @@ onMounted(() => {
 }
 
 .pet-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -582,14 +582,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .pet-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 12px;
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
@@ -614,7 +614,7 @@ onMounted(() => {
 
 .pet-name {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #303133;
   font-weight: 600;
   text-align: center;
@@ -623,14 +623,14 @@ onMounted(() => {
 :deep(.el-descriptions) {
   width: 100%;
   background: white;
-  padding: 1rem;
+  padding: 0.8rem;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 :deep(.el-descriptions__label) {
-  width: 100px;
+  width: 80px;
   color: #606266;
   font-weight: 500;
 }
@@ -640,36 +640,52 @@ onMounted(() => {
 }
 
 .pet-switch {
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  padding: 0.8rem 0;
+  gap: 1.2rem;
+  padding: 0.6rem 0;
   border-top: 1px solid #ebeef5;
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%); */
+  border-radius: 0 0 12px 12px;
 }
 
 .pet-counter {
-  font-size: 0.9rem;
-  color: #909399;
+  font-size: 0.8rem;
+  color: #606266;
   font-weight: 500;
-  min-width: 60px;
+  min-width: 50px;
   text-align: center;
+  background: white;
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 :deep(.el-button.is-circle) {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-button.is-circle:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 :deep(.el-button.is-circle svg) {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+  color: #409EFF;
 }
 
 .order-form {
@@ -691,8 +707,10 @@ onMounted(() => {
 }
 
 .company-logo {
-  width: 100%;
-  height: 180px;
+  /* width: 100%; */
+  /* height: 180px; */
+  width: 80%;
+  height: 140px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -900,7 +918,7 @@ onMounted(() => {
 .pets-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .pet-card {
