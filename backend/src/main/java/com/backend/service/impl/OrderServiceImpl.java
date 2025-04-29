@@ -69,6 +69,43 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             updateTimeField.setAccessible(true);
             updateTimeField.set(order, LocalDateTime.now());
             
+            // 设置开始时间
+            Field startTimeField = Order.class.getDeclaredField("startTime");
+            startTimeField.setAccessible(true);
+            startTimeField.set(order, LocalDateTime.now());
+            
+            // 设置结束时间和完成时间为null
+            Field endTimeField = Order.class.getDeclaredField("endTime");
+            endTimeField.setAccessible(true);
+            endTimeField.set(order, null);
+            
+            Field completeTimeField = Order.class.getDeclaredField("completeTime");
+            completeTimeField.setAccessible(true);
+            completeTimeField.set(order, null);
+            
+            // 计算距离并设置
+            Field startLatitudeField = Order.class.getDeclaredField("startLatitude");
+            startLatitudeField.setAccessible(true);
+            double startLatitude = ((BigDecimal) startLatitudeField.get(order)).doubleValue();
+            
+            Field startLongitudeField = Order.class.getDeclaredField("startLongitude");
+            startLongitudeField.setAccessible(true);
+            double startLongitude = ((BigDecimal) startLongitudeField.get(order)).doubleValue();
+            
+            Field endLatitudeField = Order.class.getDeclaredField("endLatitude");
+            endLatitudeField.setAccessible(true);
+            double endLatitude = ((BigDecimal) endLatitudeField.get(order)).doubleValue();
+            
+            Field endLongitudeField = Order.class.getDeclaredField("endLongitude");
+            endLongitudeField.setAccessible(true);
+            double endLongitude = ((BigDecimal) endLongitudeField.get(order)).doubleValue();
+            
+            double distance = calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
+            
+            Field distanceField = Order.class.getDeclaredField("distance");
+            distanceField.setAccessible(true);
+            distanceField.set(order, BigDecimal.valueOf(distance));
+            
             System.out.println("Final order data: " + order); // 添加日志
             
             save(order);
@@ -183,5 +220,29 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         Random random = new Random();
         int randomNum = random.nextInt(90000) + 10000; // 生成5位随机数
         return timestamp + String.valueOf(randomNum);
+    }
+
+    /**
+     * 计算两点之间的距离（单位：公里）
+     * 使用Haversine公式计算球面距离
+     * @param lat1 起点纬度
+     * @param lon1 起点经度
+     * @param lat2 终点纬度
+     * @param lon2 终点经度
+     * @return 距离（公里）
+     */
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // 地球半径（公里）
+        
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        
+        return R * c;
     }
 } 
