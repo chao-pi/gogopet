@@ -507,18 +507,23 @@ onMounted(() => {
 
 <style scoped>
 .order-form-page {
-  padding: 2rem;
+  padding: 1rem;
   min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-layout {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
-.company-sidebar {
+.company-sidebar,
+.pet-sidebar {
   width: 320px;
   flex-shrink: 0;
 }
@@ -531,11 +536,125 @@ onMounted(() => {
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  min-width: 400px;
 }
 
-.pet-sidebar {
-  width: 320px;
-  flex-shrink: 0;
+/* 响应式布局 */
+@media screen and (max-width: 1200px) {
+  .form-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .company-sidebar,
+  .pet-sidebar {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 600px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .order-form-page {
+    padding: 0.5rem;
+  }
+
+  .form-layout {
+    gap: 0.5rem;
+  }
+
+  .company-sidebar,
+  .pet-sidebar,
+  .form-container {
+    padding: 1rem;
+  }
+
+  .transport-types {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 确保表单内容在小屏幕上也能正常显示 */
+:deep(.el-form) {
+  width: 100%;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+:deep(.el-input),
+:deep(.el-select),
+:deep(.el-cascader),
+:deep(.el-date-picker) {
+  width: 100%;
+}
+
+:deep(.el-textarea__inner) {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 确保卡片内容在小屏幕上也能正常显示 */
+.company-info,
+.pet-info {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.company-logo-container,
+.pet-avatar-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.company-logo,
+.pet-avatar {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/* 确保按钮在小屏幕上也能正常显示 */
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  margin-right: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+:deep(.submit-btn),
+:deep(.cancel-btn) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+  .form-buttons {
+    gap: 0.5rem;
+  }
+  
+  :deep(.submit-btn),
+  :deep(.cancel-btn) {
+    padding: 0.6rem 1rem;
+    min-width: 90px;
+  }
 }
 
 .company-info,
@@ -1014,53 +1133,6 @@ onMounted(() => {
 
 :deep(.el-select-dropdown__item.hover) {
   background-color: #f5f7fa;
-}
-
-.form-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end; /* 将按钮右对齐 */
-  margin-top: 1rem;
-  margin-right: 0;
-  padding-right: 0;
-  width: 100%; /* 确保容器占满可用宽度 */
-}
-
-:deep(.submit-btn),
-:deep(.cancel-btn) {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-:deep(.submit-btn) {
-  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
-  border: none;
-  color: white;
-}
-
-:deep(.submit-btn:hover) {
-  background: linear-gradient(135deg, #66b1ff 0%, #409EFF 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-:deep(.cancel-btn) {
-  background: white;
-  border: 1px solid #dcdfe6;
-  color: #606266;
-}
-
-:deep(.cancel-btn:hover) {
-  color: #409EFF;
-  border-color: #c6e2ff;
-  background-color: #ecf5ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
 }
 
 .btn-icon {
