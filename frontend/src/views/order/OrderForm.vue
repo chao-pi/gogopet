@@ -73,23 +73,14 @@
             </el-select>
           </el-form-item>
 
-          <!-- 运输方式 -->
-          <el-form-item label="运输方式" prop="transportMethod">
-            <div class="transport-types">
-              <div 
-                v-for="type in transportTypes" 
-                :key="type.id"
-                class="transport-type-option"
-                :class="{ 'selected': orderForm.transportMethod === type.id }"
-                @click="orderForm.transportMethod = type.id"
-              >
-                <div class="transport-icon-container">
-                  <component :is="type.icon" class="transport-icon" :size="32" />
-                </div>
-                <h4 class="transport-name">{{ type.name }}</h4>
-                <p class="transport-desc">{{ type.description }}</p>
-              </div>
-            </div>
+          <!-- 运输时间 -->
+          <el-form-item label="运输时间" prop="transportTime">
+            <el-date-picker
+              v-model="orderForm.transportTime"
+              type="datetime"
+              placeholder="请选择运输时间"
+              :disabled-date="disabledDate"
+            />
           </el-form-item>
 
           <!-- 起始地点 -->
@@ -122,24 +113,24 @@
             </el-form-item>
           </el-form-item>
 
-          <!-- 运输时间 -->
-          <el-form-item label="运输时间" prop="transportTime">
-            <el-date-picker
-              v-model="orderForm.transportTime"
-              type="datetime"
-              placeholder="请选择运输时间"
-              :disabled-date="disabledDate"
-            />
+          <!-- 运输方式 -->
+          <el-form-item label="运输方式" prop="transportMethod">
+            <div class="transport-types">
+              <div 
+                v-for="type in transportTypes" 
+                :key="type.id"
+                class="transport-type-option"
+                :class="{ 'selected': orderForm.transportMethod === type.id }"
+                @click="orderForm.transportMethod = type.id"
+              >
+                <div class="transport-icon-container">
+                  <component :is="type.icon" class="transport-icon" :size="32" />
+                </div>
+                <h4 class="transport-name">{{ type.name }}</h4>
+                <p class="transport-desc">{{ type.description }}</p>
+              </div>
+            </div>
           </el-form-item>
-
-          <!-- 联系人信息 -->
-          <!-- <el-form-item label="联系人" prop="receiver">
-            <el-input v-model="orderForm.receiver" placeholder="请输入联系人姓名" />
-          </el-form-item>
-
-          <el-form-item label="联系电话" prop="phone">
-            <el-input v-model="orderForm.phone" placeholder="请输入联系电话" />
-          </el-form-item> -->
 
           <!-- 备注信息 -->
           <el-form-item label="备注" prop="remark">
