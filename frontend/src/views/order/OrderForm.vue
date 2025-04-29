@@ -956,34 +956,64 @@ onMounted(() => {
 .pet-option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  gap: 0.8rem;
+  padding: 0 0.8rem;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .pet-option:hover {
   background-color: #f5f7fa;
 }
 
-.pet-avatar.default-avatar svg {
-  color: #909399;
-}
-
-:deep(.el-select) {
-  width: 100%;
-}
-
-:deep(.el-select__tags) {
-  flex-wrap: nowrap;
+.pet-option .pet-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
-:deep(.el-select__tags-text) {
-  max-width: 100px;
+.pet-option .pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-option .pet-avatar.default-avatar {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-option .pet-avatar.default-avatar svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pet-option span {
+  font-size: 0.9rem;
+  color: #303133;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+:deep(.el-select-dropdown__item) {
+  height: 48px !important;
+  line-height: 48px !important;
+  padding: 0 !important;
+}
+
+:deep(.el-select-dropdown__item.selected) {
+  background-color: #f5f7fa;
+  color: #409EFF;
+}
+
+:deep(.el-select-dropdown__item.hover) {
+  background-color: #f5f7fa;
 }
 
 .form-buttons {
