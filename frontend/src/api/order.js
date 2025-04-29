@@ -48,4 +48,22 @@ export function confirmOrder(orderId) {
     url: `/order/confirm/${orderId}`,
     method: 'post'
   })
+}
+
+// 获取支付二维码
+export function getPaymentQRCode(orderId) {
+  return request({
+    url: '/order/payment/qrcode',
+    method: 'post',
+    params: { orderId }
+  })
+}
+
+// 更新订单状态
+export function updateOrderStatus(orderId, status) {
+  return request({
+    url: '/order/status/update',
+    method: 'post',
+    params: { orderId, status }
+  })
 } 

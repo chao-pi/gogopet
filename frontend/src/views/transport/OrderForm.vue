@@ -154,7 +154,7 @@
                   </svg>
                 </span>
               </el-button>
-              <el-button type="primary" class="submit-btn" @click="submitOrder">
+              <el-button type="primary" class="submit-btn" @click="handleSubmit">
                 <span class="btn-text">提交订单</span>
                 <span class="btn-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -219,6 +219,58 @@
         </div>
       </div>
     </div>
+
+    <!-- 确认框 -->
+    <el-dialog
+      v-model="confirmDialogVisible"
+      title="确认订单信息"
+      width="50%"
+      :close-on-click-modal="false"
+    >
+      <div class="confirm-info">
+        <h3>订单基本信息</h3>
+        <p><strong>运输方式：</strong>{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
+          orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</p>
+        <p><strong>出发地：</strong>{{ orderData.startProvince }}{{ orderData.startCity }}{{ orderData.startDistrict }}{{ orderData.startLocation }}</p>
+        <p><strong>目的地：</strong>{{ orderData.endProvince }}{{ orderData.endCity }}{{ orderData.endDistrict }}{{ orderData.endLocation }}</p>
+        <p><strong>宠物信息：</strong></p>
+        <ul>
+          <li v-for="pet in selectedPets" :key="pet.petId">
+            {{ pet.petName }} ({{ pet.petType }})
+          </li>
+        </ul>
+        <p><strong>备注：</strong>{{ orderData.orderRemark || '无' }}</p>
+  </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="confirmDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirm">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 支付框 -->
+    <el-dialog
+      v-model="paymentDialogVisible"
+      title="支付订单"
+      width="30%"
+      :close-on-click-modal="false"
+    >
+      <div class="payment-info">
+        <div class="qr-code">
+          <img :src="paymentQRCode" alt="支付二维码" />
+        </div>
+        <div class="amount">
+          <h3>支付金额：¥{{ orderData.price }}</h3>
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handlePaymentCancel">取消</el-button>
+          <el-button type="primary" @click="handlePaymentConfirm">确认支付</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -229,7 +281,7 @@ import { ElMessage } from 'element-plus'
 import { Location, Money, MapLocation } from '@element-plus/icons-vue'
 import { Building2, PawPrint, Car, Truck, Plane, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { getPets } from '@/api/pet.js'
-import { createOrder } from '@/api/order.js'
+import { createOrder, getPaymentQRCode, updateOrderStatus } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
 import { useUserStore } from '@/stores/user.js'
 import { regionData } from 'element-china-area-data'
@@ -424,7 +476,7 @@ const getLocation = async (address) => {
     
     if (data.status === '1' && data.geocodes && data.geocodes.length > 0) {
       const location = data.geocodes[0].location.split(',')
-      return {
+    return {
         latitude: location[1],
         longitude: location[0],
         formattedAddress: data.geocodes[0].formatted_address
@@ -511,6 +563,130 @@ const handlePetsChange = (petIds) => {
   currentPetIndex.value = 0 // 重置索引
 }
 
+// 添加新的响应式变量
+const confirmDialogVisible = ref(false)
+const paymentDialogVisible = ref(false)
+const paymentQRCode = ref('')
+const orderData = ref(null)
+
+// 修改提交订单方法
+const handleSubmit = async () => {
+  try {
+    // 验证表单
+    if (!orderFormRef.value) return
+    await orderFormRef.value.validate()
+    
+    // 构建完整的起始地址
+    const startFullAddress = [
+      getAreaName(orderForm.value.startProvince),
+      getAreaName(orderForm.value.startCity),
+      getAreaName(orderForm.value.startDistrict),
+      orderForm.value.startLocation
+    ].filter(Boolean).join('')
+    
+    // 构建完整的目的地址
+    const endFullAddress = [
+      getAreaName(orderForm.value.endProvince),
+      getAreaName(orderForm.value.endCity),
+      getAreaName(orderForm.value.endDistrict),
+      orderForm.value.endLocation
+    ].filter(Boolean).join('')
+
+    // 获取起始地经纬度
+    const startLocation = await getLocation(startFullAddress)
+    
+    // 获取目的地经纬度
+    const endLocation = await getLocation(endFullAddress)
+    
+    // 初始化订单数据
+    orderData.value = {
+      ...orderForm.value,
+      userId: userStore.userInfo.id,
+      companyId: route.query.companyId,
+      transportMethod: orderForm.value.transportMethod || 'SPECIAL',
+      startProvince: getAreaName(orderForm.value.startProvince),
+      startCity: getAreaName(orderForm.value.startCity),
+      startDistrict: getAreaName(orderForm.value.startDistrict),
+      endProvince: getAreaName(orderForm.value.endProvince),
+      endCity: getAreaName(orderForm.value.endCity),
+      endDistrict: getAreaName(orderForm.value.endDistrict),
+      startLatitude: startLocation.latitude,
+      startLongitude: startLocation.longitude,
+      endLatitude: endLocation.latitude,
+      endLongitude: endLocation.longitude,
+      price: 0, // 将在 handleConfirm 中计算
+      petIds: selectedPets.value.map(pet => pet.petId)
+    }
+    
+    // 显示确认框
+    confirmDialogVisible.value = true
+  } catch (error) {
+    console.error('表单验证失败:', error)
+    ElMessage.error('请填写完整的订单信息')
+  }
+}
+
+// 确认订单处理方法
+const handleConfirm = async () => {
+  try {
+    // 关闭确认框
+    confirmDialogVisible.value = false
+    
+    // 计算距离和价格
+    const response = await createOrder({
+      ...orderData.value,
+      petIds: selectedPets.value.map(pet => pet.petId)
+    })
+    
+    // 更新订单数据
+    orderData.value = response.data
+    
+    // 获取支付二维码
+    const qrResponse = await getPaymentQRCode(orderData.value.orderId)
+    paymentQRCode.value = qrResponse.data
+    
+    // 显示支付框
+    paymentDialogVisible.value = true
+  } catch (error) {
+    console.error('创建订单失败:', error)
+    ElMessage.error('创建订单失败，请重试')
+  }
+}
+
+// 支付取消处理方法
+const handlePaymentCancel = async () => {
+  try {
+    // 关闭支付框
+    paymentDialogVisible.value = false
+    
+    // 更新订单状态为待支付
+    await updateOrderStatus(orderData.value.orderId, 'P')
+    
+    ElMessage.info('订单已创建，请及时支付')
+    router.push('/order/list')
+  } catch (error) {
+    console.error('更新订单状态失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
+// 支付确认处理方法
+const handlePaymentConfirm = async () => {
+  try {
+    // 关闭支付框
+    paymentDialogVisible.value = false
+    
+    // 更新订单状态为待接单
+    await updateOrderStatus(orderData.value.orderId, 'W')
+    
+    ElMessage.success('支付成功，等待接单')
+    router.push('/order/list')
+  } catch (error) {
+    console.error('更新订单状态失败:', error)
+    ElMessage.error('操作失败，请重试')
+  }
+}
+
 // 提交订单
 const submitOrder = async () => {
   try {
@@ -544,7 +720,7 @@ const submitOrder = async () => {
 
     console.log('起始地址:', startFullAddress)
     console.log('目的地址:', endFullAddress)
-
+    
     // 获取起始地经纬度
     const startLocation = await getLocation(startFullAddress)
     
@@ -607,13 +783,13 @@ const submitOrder = async () => {
 
     const response = await createOrder(orderData)
     if (response.code === 200) {
-      ElMessage.success('订单创建成功')
+    ElMessage.success('订单创建成功')
       router.push('/order/list')
     } else {
       ElMessage.error(response.message || '订单创建失败')
     }
   } catch (error) {
-    console.error('创建订单失败:', error)
+      console.error('创建订单失败:', error)
     ElMessage.error(error.message || '创建订单失败，请稍后重试')
   }
 }
@@ -1267,5 +1443,47 @@ onMounted(() => {
 
 .btn-text {
   font-size: 0.95rem;
+}
+
+.confirm-info {
+  padding: 20px;
+}
+
+.confirm-info h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.confirm-info p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.confirm-info ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.payment-info {
+  text-align: center;
+  padding: 20px;
+}
+
+.qr-code {
+  margin: 20px 0;
+}
+
+.qr-code img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.amount {
+  margin-top: 20px;
+}
+
+.amount h3 {
+  color: #f56c6c;
+  font-size: 24px;
 }
 </style> 

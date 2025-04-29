@@ -56,4 +56,18 @@ public class OrderController {
         boolean result = orderService.updateOrderStatus(orderId, "C"); // 已完成
         return Result.success(result);
     }
+
+    @PostMapping("/payment/qrcode")
+    public Result<String> getPaymentQRCode(@RequestParam String orderId) {
+        // 这里应该调用支付服务生成二维码
+        // 为了演示，我们返回一个模拟的二维码URL
+        String qrCodeUrl = "https://example.com/payment/qrcode/" + orderId;
+        return Result.success(qrCodeUrl);
+    }
+
+    @PostMapping("/status/update")
+    public Result<Boolean> updateOrderStatus(@RequestParam String orderId, @RequestParam String status) {
+        boolean success = orderService.updateOrderStatus(orderId, status);
+        return Result.success(success);
+    }
 } 

@@ -9,7 +9,12 @@ public interface OrderService extends IService<Order> {
     // 创建订单
     Order createOrder(Order order);
     
-    // 更新订单状态
+    /**
+     * 更新订单状态
+     * @param orderId 订单ID
+     * @param status 新状态
+     * @return 是否更新成功
+     */
     boolean updateOrderStatus(String orderId, String status);
     
     // 获取订单详情

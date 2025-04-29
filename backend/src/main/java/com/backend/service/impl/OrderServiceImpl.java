@@ -156,16 +156,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateOrderStatus(String orderId, String status) {
-        if (orderId == null) {
-            throw new RuntimeException("订单ID不能为空");
-        }
-        if (status == null) {
-            throw new RuntimeException("订单状态不能为空");
+        if (orderId == null || status == null) {
+            return false;
         }
         
         Order order = getById(orderId);
         if (order == null) {
-            throw new RuntimeException("订单不存在");
+            return false;
         }
         
         // 检查状态转换是否合法
