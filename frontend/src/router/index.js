@@ -7,7 +7,7 @@ import Register from '@/views/auth/Register.vue'
 import Profile from '@/views/user/Profile.vue'
 import Pets from '@/views/user/Pets.vue'
 import Transport from '@/views/transport/Transport.vue'
-import OrderForm from '@/views/order/OrderForm.vue'
+import OrderForm from '@/views/transport/OrderForm.vue'
 
 const routes = [
   {
