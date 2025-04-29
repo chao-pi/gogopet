@@ -51,7 +51,7 @@
               multiple
               collapse-tags
               collapse-tags-tooltip
-              placeholder="请选择要托运的宠物"
+              placeholder="请选择要托运的宠物（可选择多只）"
               @change="handlePetsChange"
             >
               <el-option
