@@ -561,13 +561,13 @@ const submitOrder = async () => {
     let additionalFee = 0
     switch (orderForm.value.transportMethod) {
       case 'SPECIAL':
-        additionalFee = basePrice * 0.5 // 专车额外50%费用
+        additionalFee = basePrice * 0.3 // 专车额外30%费用
         break
       case 'AIR':
-        additionalFee = basePrice * 0.8 // 空运额外80%费用
+        additionalFee = basePrice * 0.4 // 空运额外40%费用
         break
       case 'SHARE':
-        additionalFee = basePrice * 0.2 // 拼车额外20%费用
+        additionalFee = basePrice * 0.1 // 拼车额外10%费用
         break
     }
     
