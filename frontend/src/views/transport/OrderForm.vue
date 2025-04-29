@@ -242,8 +242,8 @@
         <h3>订单基本信息</h3>
         <p><strong>运输方式：</strong>{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
           orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</p>
-        <p><strong>出发地：</strong>{{ orderData.startProvince }}{{ orderData.startCity }}{{ orderData.startDistrict }}{{ orderData.startLocation }}</p>
-        <p><strong>目的地：</strong>{{ orderData.endProvince }}{{ orderData.endCity }}{{ orderData.endDistrict }}{{ orderData.endLocation }}</p>
+        <p><strong>出发地：</strong>{{ getAreaName(orderData.startProvince) }}{{ getAreaName(orderData.startCity) }}{{ getAreaName(orderData.startDistrict) }}{{ orderData.startLocation }}</p>
+        <p><strong>目的地：</strong>{{ getAreaName(orderData.endProvince) }}{{ getAreaName(orderData.endCity) }}{{ getAreaName(orderData.endDistrict) }}{{ orderData.endLocation }}</p>
         <p><strong>宠物信息：</strong></p>
         <ul>
           <li v-for="pet in selectedPets" :key="pet.petId">
@@ -272,8 +272,8 @@
           <h3>订单信息</h3>
           <p><strong>运输方式：</strong>{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
             orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</p>
-          <p><strong>出发地：</strong>{{ orderData.startProvince }}{{ orderData.startCity }}{{ orderData.startDistrict }}{{ orderData.startLocation }}</p>
-          <p><strong>目的地：</strong>{{ orderData.endProvince }}{{ orderData.endCity }}{{ orderData.endDistrict }}{{ orderData.endLocation }}</p>
+          <p><strong>出发地：</strong>{{ getAreaName(orderData.startProvince) }}{{ getAreaName(orderData.startCity) }}{{ getAreaName(orderData.startDistrict) }}{{ orderData.startLocation }}</p>
+          <p><strong>目的地：</strong>{{ getAreaName(orderData.endProvince) }}{{ getAreaName(orderData.endCity) }}{{ getAreaName(orderData.endDistrict) }}{{ orderData.endLocation }}</p>
           <p><strong>宠物信息：</strong></p>
           <ul>
             <li v-for="pet in selectedPets" :key="pet.petId">
@@ -282,7 +282,7 @@
           </ul>
         </div>
         <div class="qr-code">
-          <img :src="paymentQRCode" alt="支付二维码" />
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=gogopet:payment:{{ orderData.orderId }}" alt="支付二维码" style="width: 200px; height: 200px; object-fit: contain;" />
         </div>
         <div class="amount">
           <h3>支付金额：¥{{ orderData.price.toFixed(2) }}</h3>
@@ -476,13 +476,37 @@ const handleEndAreaChange = (value) => {
 // 获取地区名称
 const getAreaName = (code) => {
   if (!code) return ''
-  const province = areaOptions.find(p => p.value === code)
-  if (!province) return code
-  const city = province.children?.find(c => c.value === code)
-  if (!city) return province.label
-  const district = city.children?.find(d => d.value === code)
-  if (!district) return `${province.label}${city.label}`
-  return `${province.label}${city.label}${district.label}`
+  
+  // 遍历所有省份
+  for (const province of areaOptions) {
+    // 如果找到匹配的省份
+    if (province.value === code) {
+      return province.label
+    }
+    
+    // 遍历该省份下的所有城市
+    if (province.children) {
+      for (const city of province.children) {
+        // 如果找到匹配的城市
+        if (city.value === code) {
+          return city.label
+        }
+        
+        // 遍历该城市下的所有区县
+        if (city.children) {
+          for (const district of city.children) {
+            // 如果找到匹配的区县
+            if (district.value === code) {
+              return district.label
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // 如果没有找到匹配的地区，返回原始编码
+  return code
 }
 
 // 获取经纬度
@@ -678,7 +702,15 @@ const handleSubmit = async () => {
     
     // 获取支付二维码
     const qrResponse = await getPaymentQRCode(orderData.value.orderId)
-    paymentQRCode.value = qrResponse.data
+    console.log('二维码响应:', qrResponse) // 添加调试信息
+    if (qrResponse.data) {
+      paymentQRCode.value = qrResponse.data
+      console.log('二维码URL:', paymentQRCode.value) // 添加调试信息
+    } else {
+      console.error('未获取到二维码数据')
+      ElMessage.error('获取支付二维码失败')
+      return
+    }
     
     // 显示支付框
     paymentDialogVisible.value = true
@@ -1233,16 +1265,21 @@ onMounted(() => {
 }
 
 .qr-code {
-  margin: 20px 0;
+  margin: 20px auto;
   padding: 15px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
 }
 
 .qr-code img {
-  max-width: 200px;
-  max-height: 200px;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
 }
 
 .amount {
