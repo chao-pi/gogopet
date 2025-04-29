@@ -247,7 +247,7 @@
         <p><strong>宠物信息：</strong></p>
         <ul>
           <li v-for="pet in selectedPets" :key="pet.petId">
-            {{ pet.petName }} ({{ pet.petType }})
+            {{ pet.petName }} ({{ pet.petBreed }})
           </li>
         </ul>
         <p><strong>备注：</strong>{{ orderData.orderRemark || '无' }}</p>
@@ -277,7 +277,7 @@
           <p><strong>宠物信息：</strong></p>
           <ul>
             <li v-for="pet in selectedPets" :key="pet.petId">
-              {{ pet.petName }} ({{ pet.petType }})
+              {{ pet.petName }} ({{ pet.petBreed }})
             </li>
           </ul>
         </div>
