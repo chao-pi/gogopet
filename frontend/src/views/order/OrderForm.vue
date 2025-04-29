@@ -164,32 +164,49 @@
         <div class="pet-info" v-if="selectedPets.length > 0">
           <h3>宠物信息</h3>
           <div class="pets-list">
-            <div v-for="pet in selectedPets" :key="pet.petId" class="pet-card">
+            <div class="pet-card">
               <div class="pet-header">
                 <div class="pet-avatar-container">
-                  <div class="pet-avatar" v-if="pet.avatarUrl">
-                    <img :src="pet.avatarUrl" />
+                  <div class="pet-avatar" v-if="currentPet.avatarUrl">
+                    <img :src="currentPet.avatarUrl" />
                   </div>
                   <div class="pet-avatar default-avatar" v-else>
                     <PawPrint :size="60" />
                   </div>
-                  <h4 class="pet-name">{{ pet.petName }}</h4>
+                  <h4 class="pet-name">{{ currentPet.petName }}</h4>
                 </div>
               </div>
               <el-descriptions :column="1" border>
                 <el-descriptions-item label="宠物品种">
-                  {{ pet.petBreed }}
+                  {{ currentPet.petBreed }}
                 </el-descriptions-item>
                 <el-descriptions-item label="宠物年龄">
-                  {{ pet.petAge }}岁
+                  {{ currentPet.petAge }}岁
                 </el-descriptions-item>
                 <el-descriptions-item label="宠物性别">
-                  {{ pet.petGender === 'MALE' ? '公' : '母' }}
+                  {{ currentPet.petGender === 'MALE' ? '公' : '母' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="宠物体重">
-                  {{ pet.petWeight }}kg
+                  {{ currentPet.petWeight }}kg
                 </el-descriptions-item>
               </el-descriptions>
+              <div class="pet-switch" v-if="selectedPets.length > 1">
+                <el-button 
+                  type="primary" 
+                  circle 
+                  @click="switchPet('prev')"
+                  :icon="ChevronLeft"
+                >
+                </el-button>
+                <span class="pet-counter">{{ currentPetIndex + 1 }}/{{ selectedPets.length }}</span>
+                <el-button 
+                  type="primary" 
+                  circle 
+                  @click="switchPet('next')"
+                  :icon="ChevronRight"
+                >
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -199,11 +216,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Location, Money, MapLocation } from '@element-plus/icons-vue'
-import { Building2, PawPrint, Car, Truck, Plane } from 'lucide-vue-next'
+import { Building2, PawPrint, Car, Truck, Plane, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { getPets } from '@/api/pet.js'
 import { createOrder } from '@/api/order.js'
 import { getCompanyCardById } from '@/api/company.js'
@@ -409,9 +426,27 @@ const transportTypes = [
 // 选中的宠物信息
 const selectedPets = ref([])
 
+// 当前显示的宠物索引
+const currentPetIndex = ref(0)
+
+// 当前显示的宠物
+const currentPet = computed(() => {
+  return selectedPets.value[currentPetIndex.value] || {}
+})
+
+// 切换宠物
+const switchPet = (direction) => {
+  if (direction === 'next') {
+    currentPetIndex.value = (currentPetIndex.value + 1) % selectedPets.value.length
+  } else {
+    currentPetIndex.value = (currentPetIndex.value - 1 + selectedPets.value.length) % selectedPets.value.length
+  }
+}
+
 // 处理宠物选择变化
 const handlePetsChange = (petIds) => {
   selectedPets.value = pets.value.filter(pet => petIds.includes(pet.petId))
+  currentPetIndex.value = 0 // 重置索引
 }
 
 // 提交订单
@@ -838,6 +873,8 @@ onMounted(() => {
   padding: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+  position: relative;
+  min-height: 400px;
 }
 
 .pet-card:hover {
@@ -909,5 +946,39 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.pet-switch {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.pet-counter {
+  font-size: 0.9rem;
+  color: #909399;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+:deep(.el-button.is-circle) {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.el-button.is-circle svg) {
+  width: 20px;
+  height: 20px;
 }
 </style> 
