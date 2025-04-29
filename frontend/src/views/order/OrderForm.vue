@@ -1,7 +1,39 @@
 <template>
   <div class="order-form-page">
     <div class="form-layout">
-      <!-- 左侧表单 -->
+      <!-- 左侧：托运公司信息 -->
+      <div class="company-sidebar">
+        <div class="company-info" v-if="companyInfo">
+          <h3>托运公司信息</h3>
+          <div class="company-header">
+            <div class="company-logo-container">
+              <div class="company-logo" v-if="companyInfo.logoUrl">
+                <img :src="companyInfo.logoUrl" />
+              </div>
+              <div class="company-logo default-logo" v-else>
+                <Building2 :size="60" />
+              </div>
+              <h4 class="company-name">{{ companyInfo.companyName }}</h4>
+            </div>
+          </div>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="公司地址">
+              <el-icon><Location /></el-icon>
+              {{ companyInfo.address }}
+            </el-descriptions-item>
+            <el-descriptions-item label="托运价格">
+              <el-icon><Money /></el-icon>
+              {{ companyInfo.transportPricePerKm }} 元/公里
+            </el-descriptions-item>
+            <el-descriptions-item label="服务区域">
+              <el-icon><MapLocation /></el-icon>
+              {{ getServiceAreaText(companyInfo.serviceArea) }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+      </div>
+
+      <!-- 中间：订单表单 -->
       <div class="form-container">
         <h2 class="form-title">填写订单信息</h2>
         
@@ -13,8 +45,15 @@
           class="order-form"
         >
           <!-- 宠物信息 -->
-          <el-form-item label="选择宠物" prop="petId">
-            <el-select v-model="orderForm.petId" placeholder="请选择要托运的宠物" @change="handlePetChange">
+          <el-form-item label="选择宠物" prop="petIds">
+            <el-select
+              v-model="orderForm.petIds"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              placeholder="请选择要托运的宠物"
+              @change="handlePetsChange"
+            >
               <el-option
                 v-for="pet in pets"
                 :key="pet.petId"
@@ -120,66 +159,39 @@
         </el-form>
       </div>
 
-      <!-- 右侧信息 -->
-      <div class="info-sidebar">
-        <!-- 托运公司信息 -->
-        <div class="company-info" v-if="companyInfo">
-          <h3>托运公司信息</h3>
-          <div class="company-header">
-            <div class="company-logo-container">
-              <div class="company-logo" v-if="companyInfo.logoUrl">
-                <img :src="companyInfo.logoUrl" />
-              </div>
-              <div class="company-logo default-logo" v-else>
-                <Building2 :size="60" />
-              </div>
-              <h4 class="company-name">{{ companyInfo.companyName }}</h4>
-            </div>
-          </div>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="公司地址">
-              <el-icon><Location /></el-icon>
-              {{ companyInfo.address }}
-            </el-descriptions-item>
-            <el-descriptions-item label="托运价格">
-              <el-icon><Money /></el-icon>
-              {{ companyInfo.transportPricePerKm }} 元/公里
-            </el-descriptions-item>
-            <el-descriptions-item label="服务区域">
-              <el-icon><MapLocation /></el-icon>
-              {{ getServiceAreaText(companyInfo.serviceArea) }}
-            </el-descriptions-item>
-          </el-descriptions>
-        </div>
-
-        <!-- 宠物信息 -->
-        <div class="pet-info" v-if="selectedPet">
+      <!-- 右侧：宠物信息 -->
+      <div class="pet-sidebar">
+        <div class="pet-info" v-if="selectedPets.length > 0">
           <h3>宠物信息</h3>
-          <div class="pet-header">
-            <div class="pet-avatar-container">
-              <div class="pet-avatar" v-if="selectedPet.avatarUrl">
-                <img :src="selectedPet.avatarUrl" />
+          <div class="pets-list">
+            <div v-for="pet in selectedPets" :key="pet.petId" class="pet-card">
+              <div class="pet-header">
+                <div class="pet-avatar-container">
+                  <div class="pet-avatar" v-if="pet.avatarUrl">
+                    <img :src="pet.avatarUrl" />
+                  </div>
+                  <div class="pet-avatar default-avatar" v-else>
+                    <PawPrint :size="60" />
+                  </div>
+                  <h4 class="pet-name">{{ pet.petName }}</h4>
+                </div>
               </div>
-              <div class="pet-avatar default-avatar" v-else>
-                <PawPrint :size="60" />
-              </div>
-              <h4 class="pet-name">{{ selectedPet.petName }}</h4>
+              <el-descriptions :column="1" border>
+                <el-descriptions-item label="宠物品种">
+                  {{ pet.petBreed }}
+                </el-descriptions-item>
+                <el-descriptions-item label="宠物年龄">
+                  {{ pet.petAge }}岁
+                </el-descriptions-item>
+                <el-descriptions-item label="宠物性别">
+                  {{ pet.petGender === 'MALE' ? '公' : '母' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="宠物体重">
+                  {{ pet.petWeight }}kg
+                </el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="宠物品种">
-              {{ selectedPet.petBreed }}
-            </el-descriptions-item>
-            <el-descriptions-item label="宠物年龄">
-              {{ selectedPet.petAge }}岁
-            </el-descriptions-item>
-            <el-descriptions-item label="宠物性别">
-              {{ selectedPet.petGender === 'MALE' ? '公' : '母' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="宠物体重">
-              {{ selectedPet.petWeight }}kg
-            </el-descriptions-item>
-          </el-descriptions>
         </div>
       </div>
     </div>
@@ -206,7 +218,7 @@ const pets = ref([])
 const companyInfo = ref(null)
 
 const orderForm = ref({
-  petId: '',
+  petIds: [],
   transportMethod: 'SPECIAL',
   startProvince: '',
   startCity: '',
@@ -227,8 +239,9 @@ const orderForm = ref({
 })
 
 const orderFormRules = {
-  petId: [
-    { required: true, message: '请选择要托运的宠物', trigger: 'change' }
+  petIds: [
+    { required: true, message: '请选择要托运的宠物', trigger: 'change' },
+    { type: 'array', min: 1, message: '至少选择一只宠物', trigger: 'change' }
   ],
   transportMethod: [
     { required: true, message: '请选择运输方式', trigger: 'change' }
@@ -394,11 +407,11 @@ const transportTypes = [
 ]
 
 // 选中的宠物信息
-const selectedPet = ref(null)
+const selectedPets = ref([])
 
 // 处理宠物选择变化
-const handlePetChange = (petId) => {
-  selectedPet.value = pets.value.find(pet => pet.petId === petId)
+const handlePetsChange = (petIds) => {
+  selectedPets.value = pets.value.filter(pet => petIds.includes(pet.petId))
 }
 
 // 提交订单
@@ -459,12 +472,18 @@ onMounted(() => {
 .form-layout {
   display: flex;
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.company-sidebar {
+  width: 320px;
+  flex-shrink: 0;
 }
 
 .form-container {
   flex: 1;
+  min-width: 0;
   background: white;
   padding: 2.5rem;
   border-radius: 16px;
@@ -472,11 +491,9 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.info-sidebar {
-  width: 360px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.pet-sidebar {
+  width: 320px;
+  flex-shrink: 0;
 }
 
 .company-info,
@@ -486,6 +503,8 @@ onMounted(() => {
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  position: sticky;
+  top: 2rem;
 }
 
 .company-info:hover,
@@ -805,5 +824,90 @@ onMounted(() => {
 
 :deep(.el-radio) {
   display: none;
+}
+
+.pets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pet-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.pet-header {
+  margin-bottom: 1rem;
+}
+
+.pet-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pet-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.pet-avatar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-avatar.default-avatar {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-avatar.default-avatar svg {
+  color: #909399;
+}
+
+.pet-name {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #303133;
+  font-weight: 600;
+  text-align: center;
+}
+
+:deep(.el-select) {
+  width: 100%;
+}
+
+:deep(.el-select__tags) {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+:deep(.el-select__tags-text) {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style> 
