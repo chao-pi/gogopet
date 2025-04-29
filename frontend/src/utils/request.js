@@ -16,6 +16,21 @@ request.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    
+    // 添加详细的请求日志
+    console.log('请求配置:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data
+    })
+    
+    // 如果是创建订单的请求，特别记录transportMethod
+    if (config.url === '/order/create' && config.method === 'post') {
+      console.log('创建订单请求数据:', config.data)
+      console.log('运输方式:', config.data.transportMethod)
+    }
+    
     return config
   },
   error => {

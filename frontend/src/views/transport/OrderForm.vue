@@ -268,7 +268,14 @@ const orderFormRules = {
     { type: 'array', min: 1, message: '至少选择一只宠物', trigger: 'change' }
   ],
   transportMethod: [
-    { required: true, message: '请选择运输方式', trigger: 'change' }
+    { required: true, message: '请选择运输方式', trigger: 'change' },
+    { validator: (rule, value, callback) => {
+      if (!value || !['SPECIAL', 'SHARE', 'AIR'].includes(value)) {
+        callback(new Error('请选择有效的运输方式'))
+      } else {
+        callback()
+      }
+    }, trigger: 'change' }
   ],
   startProvince: [
     { required: true, message: '请选择起始省份', trigger: 'change' }
@@ -394,16 +401,16 @@ const handleEndAreaChange = (value) => {
 const getLocation = async (address) => {
   try {
     // 这里需要调用地图API获取经纬度
-    // 暂时返回空值，后续实现
+    // 暂时返回默认值，后续实现
     return {
-      latitude: '',
-      longitude: ''
+      latitude: '0.00',
+      longitude: '0.00'
     }
   } catch (error) {
     console.error('获取经纬度失败:', error)
     return {
-      latitude: '',
-      longitude: ''
+      latitude: '0.00',
+      longitude: '0.00'
     }
   }
 }
@@ -461,6 +468,18 @@ const submitOrder = async () => {
   if (!orderFormRef.value) return
   
   try {
+    // 确保transportMethod有值，如果没有则设置为默认值
+    if (!orderForm.value.transportMethod) {
+      orderForm.value.transportMethod = 'SPECIAL'
+    }
+    
+    // 验证运输方式是否合法
+    const validTransportMethods = ['SPECIAL', 'SHARE', 'AIR']
+    if (!validTransportMethods.includes(orderForm.value.transportMethod)) {
+      ElMessage.error('请选择有效的运输方式')
+      return
+    }
+    
     await orderFormRef.value.validate()
     
     // 获取起始地经纬度
@@ -473,6 +492,29 @@ const submitOrder = async () => {
       `${orderForm.value.endProvince}${orderForm.value.endCity}${orderForm.value.endDistrict}${orderForm.value.endLocation}`
     )
     
+    // 计算距离（这里需要调用地图API计算实际距离，暂时使用固定值）
+    const distance = 100 // 单位：公里
+    
+    // 计算基础价格
+    const basePrice = distance * companyInfo.value.transportPricePerKm
+    
+    // 根据运输方式计算额外费用
+    let additionalFee = 0
+    switch (orderForm.value.transportMethod) {
+      case 'SPECIAL':
+        additionalFee = basePrice * 0.5 // 专车额外50%费用
+        break
+      case 'AIR':
+        additionalFee = basePrice * 0.8 // 空运额外80%费用
+        break
+      case 'SHARE':
+        additionalFee = basePrice * 0.2 // 拼车额外20%费用
+        break
+    }
+    
+    // 计算总价格
+    const totalPrice = basePrice + additionalFee
+    
     const orderData = {
       ...orderForm.value,
       startLatitude: startLocation.latitude,
@@ -480,8 +522,18 @@ const submitOrder = async () => {
       endLatitude: endLocation.latitude,
       endLongitude: endLocation.longitude,
       userId: userStore.userInfo.id,
-      companyId: route.query.companyId
+      companyId: route.query.companyId,
+      price: totalPrice,
+      distance: distance.toString(),
+      transportMethod: orderForm.value.transportMethod,
+      transportTime: orderForm.value.transportTime ? new Date(orderForm.value.transportTime).toISOString() : null
     }
+    
+    // 添加详细的日志
+    console.log('订单表单数据:', orderForm.value)
+    console.log('运输方式:', orderForm.value.transportMethod)
+    console.log('处理后的订单数据:', orderData)
+    console.log('最终运输方式:', orderData.transportMethod)
     
     await createOrder(orderData)
     ElMessage.success('订单创建成功')
@@ -544,10 +596,10 @@ onMounted(() => {
   .form-layout {
     flex-direction: column;
     align-items: center;
-  }
+}
 
   .company-sidebar,
-  .pet-sidebar {
+.pet-sidebar {
     width: 100%;
     max-width: 600px;
   }

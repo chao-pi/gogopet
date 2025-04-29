@@ -55,6 +55,16 @@ public class OrderDTO {
     private String deliveryStatus;
 
     /**
+     * 运输方式
+     * SPECIAL-专车托运
+     * SHARE-拼车托运
+     * AIR-空运托运
+     */
+    @NotNull(message = "运输方式不能为空")
+    @Size(max = 10, message = "运输方式长度不能超过10个字符")
+    private String transportMethod;
+
+    /**
      * 开始时间
      */
     private Date startTime;

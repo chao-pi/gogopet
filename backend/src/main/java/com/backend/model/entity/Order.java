@@ -3,7 +3,10 @@ package com.backend.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,53 +16,144 @@ import java.time.LocalDateTime;
  * 对应数据库表 t_order
  */
 @Data
-@TableName("`order`")
+@Getter
+@Setter
+@TableName("t_order")
 public class Order {
     /**
      * 订单ID，唯一标识符
      */
-    @TableId(type = IdType.AUTO)
-    private Long id;
+    @TableId(type = IdType.ASSIGN_ID)
+    private String orderId;
 
     /**
      * 用户ID，关联用户表，表示下单用户
      */
-    private Long userId;
+    private String userId;
 
     /**
-     * 宠物ID，关联宠物表，表示下单的宠物
+     * 公司ID，关联公司表，表示接单的公司
      */
-    private Long petId;
+    private String companyId;
 
     /**
-     * 订单金额，单位：元
+     * 订单状态：P-待支付，W-待接单，T-进行中，C-已完成，X-已取消
      */
-    private BigDecimal amount;
+    private String orderStatus;
 
     /**
-     * 订单状态
-     * 0-待支付
-     * 1-已支付
-     * 2-已发货
-     * 3-已完成
-     * 4-已取消
+     * 宠物状态：N-正常，A-异常
      */
-    private Integer status;
+    private String petStatus;
 
     /**
-     * 订单地址
+     * 运输方式
+     * SPECIAL-专车托运
+     * SHARE-拼车托运
+     * AIR-空运托运
      */
-    private String address;
+    @TableField("transport_method")
+    private String transportMethod;
 
     /**
-     * 用户电话
+     * 起始省份
      */
-    private String phone;
+    private String startProvince;
 
     /**
-     * 收货人
+     * 起始城市
      */
-    private String receiver;
+    private String startCity;
+
+    /**
+     * 起始区县
+     */
+    private String startDistrict;
+
+    /**
+     * 起始详细地址
+     */
+    private String startLocation;
+
+    /**
+     * 起始地纬度
+     */
+    private BigDecimal startLatitude;
+
+    /**
+     * 起始地经度
+     */
+    private BigDecimal startLongitude;
+
+    /**
+     * 目的省份
+     */
+    private String endProvince;
+
+    /**
+     * 目的城市
+     */
+    private String endCity;
+
+    /**
+     * 目的区县
+     */
+    private String endDistrict;
+
+    /**
+     * 目的详细地址
+     */
+    private String endLocation;
+
+    /**
+     * 目的地纬度
+     */
+    private BigDecimal endLatitude;
+
+    /**
+     * 目的地经度
+     */
+    private BigDecimal endLongitude;
+
+    /**
+     * 托运开始时间
+     */
+    private LocalDateTime startTime;
+
+    /**
+     * 托运结束时间
+     */
+    private LocalDateTime endTime;
+
+    /**
+     * 订单完成时间
+     */
+    private LocalDateTime completeTime;
+
+    /**
+     * 运输距离，单位：公里
+     */
+    private BigDecimal distance;
+
+    /**
+     * 订单价格，单位：元
+     */
+    private BigDecimal price;
+
+    /**
+     * 订单备注，用户特殊要求
+     */
+    private String orderRemark;
+
+    /**
+     * 用户评分，1-5分
+     */
+    private BigDecimal rating;
+
+    /**
+     * 用户评价内容
+     */
+    private String ratingComment;
 
     /**
      * 创建时间
@@ -70,4 +164,13 @@ public class Order {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 运输方式枚举
+     */
+    public static class TransportMethod {
+        public static final String SPECIAL = "SPECIAL";
+        public static final String SHARE = "SHARE";
+        public static final String AIR = "AIR";
+    }
 } 
