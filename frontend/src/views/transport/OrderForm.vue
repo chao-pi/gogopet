@@ -397,21 +397,69 @@ const handleEndAreaChange = (value) => {
   }
 }
 
+// 获取地区名称
+const getAreaName = (code) => {
+  if (!code) return ''
+  const province = areaOptions.find(p => p.value === code)
+  if (!province) return code
+  const city = province.children?.find(c => c.value === code)
+  if (!city) return province.label
+  const district = city.children?.find(d => d.value === code)
+  if (!district) return `${province.label}${city.label}`
+  return `${province.label}${city.label}${district.label}`
+}
+
 // 获取经纬度
 const getLocation = async (address) => {
   try {
-    // 这里需要调用地图API获取经纬度
-    // 暂时返回默认值，后续实现
-    return {
-      latitude: '0.00',
-      longitude: '0.00'
+    // 这里使用高德地图API进行地址解析
+    const apiKey = '1bafd5bd7575abdf3e63dca161765613'
+    const formattedAddress = address.replace(/\s+/g, '') // 移除所有空格
+    console.log('正在解析地址:', formattedAddress)
+    
+    const response = await fetch(`https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(formattedAddress)}&key=${apiKey}`)
+    const data = await response.json()
+    
+    console.log('高德地图API返回数据:', data)
+    
+    if (data.status === '1' && data.geocodes && data.geocodes.length > 0) {
+      const location = data.geocodes[0].location.split(',')
+      return {
+        latitude: location[1],
+        longitude: location[0],
+        formattedAddress: data.geocodes[0].formatted_address
+      }
+    } else {
+      console.error('地址解析失败，错误信息:', data.info || '未知错误')
+      throw new Error(`无法获取地址的经纬度: ${data.info || '未知错误'}`)
     }
   } catch (error) {
     console.error('获取经纬度失败:', error)
-    return {
-      latitude: '0.00',
-      longitude: '0.00'
+    throw error
+  }
+}
+
+// 计算两点之间的距离（使用高德地图API）
+const calculateDistance = async (startLocation, endLocation) => {
+  try {
+    // 这里使用高德地图API计算距离
+    // 注意：需要替换成你的高德地图API Key
+    const apiKey = '1bafd5bd7575abdf3e63dca161765613'
+    const response = await fetch(
+      `https://restapi.amap.com/v3/distance?origins=${startLocation.longitude},${startLocation.latitude}&destination=${endLocation.longitude},${endLocation.latitude}&key=${apiKey}`
+    )
+    const data = await response.json()
+    
+    if (data.status === '1' && data.results && data.results.length > 0) {
+      // 返回距离（单位：公里）
+      return data.results[0].distance / 1000
+    } else {
+      console.error('距离计算失败:', data)
+      throw new Error('无法计算距离')
     }
+  } catch (error) {
+    console.error('计算距离失败:', error)
+    throw error
   }
 }
 
@@ -478,18 +526,33 @@ const submitOrder = async () => {
       return
     }
 
+    // 构建完整的起始地址
+    const startFullAddress = [
+      getAreaName(orderForm.value.startProvince),
+      getAreaName(orderForm.value.startCity),
+      getAreaName(orderForm.value.startDistrict),
+      orderForm.value.startLocation
+    ].filter(Boolean).join('')
+    
+    // 构建完整的目的地址
+    const endFullAddress = [
+      getAreaName(orderForm.value.endProvince),
+      getAreaName(orderForm.value.endCity),
+      getAreaName(orderForm.value.endDistrict),
+      orderForm.value.endLocation
+    ].filter(Boolean).join('')
+
+    console.log('起始地址:', startFullAddress)
+    console.log('目的地址:', endFullAddress)
+
     // 获取起始地经纬度
-    const startLocation = await getLocation(
-      `${orderForm.value.startProvince}${orderForm.value.startCity}${orderForm.value.startDistrict}${orderForm.value.startLocation}`
-    )
+    const startLocation = await getLocation(startFullAddress)
     
     // 获取目的地经纬度
-    const endLocation = await getLocation(
-      `${orderForm.value.endProvince}${orderForm.value.endCity}${orderForm.value.endDistrict}${orderForm.value.endLocation}`
-    )
+    const endLocation = await getLocation(endFullAddress)
     
-    // 计算距离（这里需要调用地图API计算实际距离，暂时使用固定值）
-    const distance = 100 // 单位：公里
+    // 计算实际距离
+    const distance = await calculateDistance(startLocation, endLocation)
     
     // 计算基础价格
     const basePrice = distance * companyInfo.value.transportPricePerKm
@@ -514,15 +577,15 @@ const submitOrder = async () => {
     // 构建订单数据
     const orderData = {
       ...orderForm.value,
-      startProvince: orderForm.value.startProvince,
-      startCity: orderForm.value.startCity,
-      startDistrict: orderForm.value.startDistrict,
+      startProvince: getAreaName(orderForm.value.startProvince),
+      startCity: getAreaName(orderForm.value.startCity),
+      startDistrict: getAreaName(orderForm.value.startDistrict),
       startLocation: orderForm.value.startLocation,
       startLatitude: startLocation.latitude,
       startLongitude: startLocation.longitude,
-      endProvince: orderForm.value.endProvince,
-      endCity: orderForm.value.endCity,
-      endDistrict: orderForm.value.endDistrict,
+      endProvince: getAreaName(orderForm.value.endProvince),
+      endCity: getAreaName(orderForm.value.endCity),
+      endDistrict: getAreaName(orderForm.value.endDistrict),
       endLocation: orderForm.value.endLocation,
       endLatitude: endLocation.latitude,
       endLongitude: endLocation.longitude,
@@ -532,7 +595,12 @@ const submitOrder = async () => {
       distance: distance.toString(),
       transportMethod: orderForm.value.transportMethod,
       transportTime: orderForm.value.transportTime ? new Date(orderForm.value.transportTime).toISOString() : null,
-      petIds: selectedPets.value.map(pet => pet.petId)
+      petIds: selectedPets.value.map(pet => pet.petId),
+      startTime: new Date().toISOString(), // 订单创建时间
+      endTime: null, // 运输完成时间，初始为null
+      completeTime: null, // 订单完成时间，初始为null
+      orderStatus: 'P', // 订单状态：P-待支付
+      deliveryStatus: 'P' // 运输状态：P-待接单
     }
 
     console.log('提交订单数据:', orderData)
@@ -546,7 +614,7 @@ const submitOrder = async () => {
     }
   } catch (error) {
     console.error('创建订单失败:', error)
-    ElMessage.error('创建订单失败，请稍后重试')
+    ElMessage.error(error.message || '创建订单失败，请稍后重试')
   }
 }
 
