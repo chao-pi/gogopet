@@ -621,6 +621,29 @@ const handleSubmit = async () => {
     // 获取目的地经纬度
     const endLocation = await getLocation(endFullAddress)
     
+    // 计算实际距离
+    const distance = await calculateDistance(startLocation, endLocation)
+    
+    // 计算基础价格
+    const basePrice = distance * companyInfo.value.transportPricePerKm
+    
+    // 根据运输方式计算额外费用
+    let additionalFee = 0
+    switch (orderForm.value.transportMethod) {
+      case 'SPECIAL':
+        additionalFee = basePrice * 0.3 // 专车额外30%费用
+        break
+      case 'AIR':
+        additionalFee = basePrice * 0.4 // 空运额外40%费用
+        break
+      case 'SHARE':
+        additionalFee = basePrice * 0.1 // 拼车额外10%费用
+        break
+    }
+    
+    // 计算总价格
+    const totalPrice = basePrice + additionalFee
+    
     // 初始化订单数据
     orderData.value = {
       ...orderForm.value,
@@ -637,7 +660,9 @@ const handleSubmit = async () => {
       startLongitude: startLocation.longitude,
       endLatitude: endLocation.latitude,
       endLongitude: endLocation.longitude,
-      price: 0, // 将在 handleConfirm 中计算
+      price: totalPrice,
+      distance: distance.toString(),
+      orderRemark: orderForm.value.remark,
       petIds: selectedPets.value.map(pet => pet.petId)
     }
     
