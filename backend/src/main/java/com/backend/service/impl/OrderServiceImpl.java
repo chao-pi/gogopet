@@ -1,7 +1,11 @@
 package com.backend.service.impl;
 
 import com.backend.model.entity.Order;
+import com.backend.model.entity.OrderPet;
+import com.backend.model.entity.OrderTracking;
 import com.backend.mapper.OrderMapper;
+import com.backend.mapper.OrderPetMapper;
+import com.backend.mapper.OrderTrackingMapper;
 import com.backend.service.OrderService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +19,14 @@ import java.lang.reflect.Field;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
+
+    private final OrderPetMapper orderPetMapper;
+    private final OrderTrackingMapper orderTrackingMapper;
+
+    public OrderServiceImpl(OrderPetMapper orderPetMapper, OrderTrackingMapper orderTrackingMapper) {
+        this.orderPetMapper = orderPetMapper;
+        this.orderTrackingMapper = orderTrackingMapper;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -109,6 +121,32 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             System.out.println("Final order data: " + order); // 添加日志
             
             save(order);
+            
+            // 创建订单宠物关联记录
+            if (order.getPetIds() != null && !order.getPetIds().isEmpty()) {
+                for (String petId : order.getPetIds()) {
+                    OrderPet orderPet = new OrderPet();
+                    orderPet.setOrderPetId(generateOrderId()); // 使用相同的ID生成方法
+                    orderPet.setOrderId(orderId);
+                    orderPet.setPetId(petId);
+                    orderPet.setCreateTime(LocalDateTime.now());
+                    orderPetMapper.insert(orderPet);
+                }
+            }
+            
+            // 创建订单追踪记录
+            OrderTracking orderTracking = new OrderTracking();
+            orderTracking.setTrackingId(generateOrderId()); // 使用相同的ID生成方法
+            orderTracking.setOrderId(orderId);
+            orderTracking.setLocation(order.getStartLocation());
+            orderTracking.setLatitude(order.getStartLatitude());
+            orderTracking.setLongitude(order.getStartLongitude());
+            orderTracking.setStatus("T"); // 运输中
+            orderTracking.setCreateTime(LocalDateTime.now());
+            orderTracking.setUpdateFrequency(30); // 默认30分钟更新一次
+            orderTracking.setLastUpdateTime(LocalDateTime.now());
+            orderTrackingMapper.insert(orderTracking);
+            
             return order;
         } catch (Exception e) {
             throw new RuntimeException("创建订单失败: " + e.getMessage(), e);

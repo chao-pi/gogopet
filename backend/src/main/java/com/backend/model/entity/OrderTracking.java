@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
-import java.util.Date;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 订单追踪实体类
@@ -64,7 +64,7 @@ public class OrderTracking {
      * 预计到达时间，仅供参考
      */
     @TableField("estimated_arrival_time")
-    private Date estimatedArrivalTime;
+    private LocalDateTime estimatedArrivalTime;
 
     /**
      * 更新时间间隔（分钟）
@@ -76,11 +76,11 @@ public class OrderTracking {
      * 最后更新时间
      */
     @TableField("last_update_time")
-    private Date lastUpdateTime;
+    private LocalDateTime lastUpdateTime;
 
     /**
      * 创建时间
      */
     @TableField("create_time")
-    private Date createTime;
+    private LocalDateTime createTime;
 } 

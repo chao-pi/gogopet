@@ -1,9 +1,7 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 /**
@@ -16,7 +14,6 @@ public class OrderPet {
     /**
      * 订单宠物关联ID
      */
-    @TableId("order_pet_id")
     private String orderPetId;
 
     /**

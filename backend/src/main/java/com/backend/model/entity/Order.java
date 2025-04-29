@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 订单实体类
@@ -154,6 +155,9 @@ public class Order {
      * 用户评价内容
      */
     private String ratingComment;
+
+    @TableField(exist = false)
+    private List<String> petIds;
 
     /**
      * 创建时间
