@@ -144,8 +144,26 @@
 
           <!-- 提交按钮 -->
           <el-form-item>
-            <el-button type="primary" @click="submitOrder">提交订单</el-button>
-            <el-button @click="cancelOrder">取消</el-button>
+            <div class="form-buttons">
+              <el-button class="cancel-btn" @click="cancelOrder">
+                <span class="btn-text">取消</span>
+                <span class="btn-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                  </svg>
+                </span>
+              </el-button>
+              <el-button type="primary" class="submit-btn" @click="submitOrder">
+                <span class="btn-text">提交订单</span>
+                <span class="btn-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </span>
+              </el-button>
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -509,7 +527,7 @@ onMounted(() => {
   flex: 1;
   min-width: 0;
   background: white;
-  padding: 2.5rem;
+  padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -760,9 +778,14 @@ onMounted(() => {
   color: #409EFF;
 }
 
+:deep(.el-form-item) {
+  margin-bottom: 1rem;
+}
+
 :deep(.el-form-item__label) {
   font-weight: 500;
   color: #606266;
+  padding-bottom: 0.5rem;
 }
 
 :deep(.el-input__inner),
@@ -961,5 +984,62 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end; /* 将按钮右对齐 */
+  margin-top: 1rem;
+  margin-right: 0;
+  padding-right: 0;
+  width: 100%; /* 确保容器占满可用宽度 */
+}
+
+:deep(.submit-btn),
+:deep(.cancel-btn) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+:deep(.submit-btn) {
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  border: none;
+  color: white;
+}
+
+:deep(.submit-btn:hover) {
+  background: linear-gradient(135deg, #66b1ff 0%, #409EFF 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+:deep(.cancel-btn) {
+  background: white;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+}
+
+:deep(.cancel-btn:hover) {
+  color: #409EFF;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-text {
+  font-size: 0.95rem;
 }
 </style> 
