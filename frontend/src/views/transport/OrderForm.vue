@@ -1267,13 +1267,17 @@ onMounted(() => {
 }
 
 :deep(.el-dialog) {
-  max-height: 90vh !important;
-  display: flex;
-  flex-direction: column;
-  margin-top: 5vh !important;
-  border-radius: 16px !important;
-  overflow: hidden !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  margin: 0 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 90vh;
+  width: 90% !important;
+  max-width: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 :deep(.el-dialog__header) {
@@ -1292,9 +1296,7 @@ onMounted(() => {
 }
 
 :deep(.el-dialog__body) {
-  max-height: calc(85vh - 120px) !important;
-  overflow-y: auto !important;
-  padding: 0 !important;
+  padding: 0;
   background: #f8f9fa;
 }
 
@@ -1489,14 +1491,21 @@ onMounted(() => {
 .payment-info {
   text-align: center;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .order-info {
   text-align: left;
-  margin-bottom: 20px;
   padding: 15px;
   background: #f5f7fa;
   border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .order-info h3 {
@@ -1511,6 +1520,7 @@ onMounted(() => {
   color: #606266;
   line-height: 1.5;
   font-size: 15px;
+  word-break: break-all;
 }
 
 .order-info ul {
@@ -1518,10 +1528,10 @@ onMounted(() => {
   padding-left: 20px;
   color: #606266;
   font-size: 15px;
+  word-break: break-all;
 }
 
 .qr-code {
-  margin: 20px auto;
   padding: 15px;
   background: white;
   border-radius: 8px;
@@ -1530,22 +1540,83 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   width: fit-content;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .qr-code img {
   width: 200px;
   height: 200px;
   object-fit: contain;
+  max-width: 100%;
 }
 
 .amount {
-  margin-top: 20px;
+  margin-top: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .amount h3 {
   color: #f56c6c;
   font-size: 24px;
   font-weight: 600;
+  word-break: break-all;
+}
+
+/* 响应式布局调整 */
+@media screen and (max-width: 768px) {
+  :deep(.el-dialog) {
+    width: 95% !important;
+  }
+
+  .payment-info {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .order-info {
+    padding: 12px;
+  }
+
+  .order-info h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .order-info p,
+  .order-info ul {
+    font-size: 14px;
+  }
+
+  .qr-code {
+    padding: 12px;
+  }
+
+  .qr-code img {
+    width: 180px;
+    height: 180px;
+  }
+
+  .amount h3 {
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  :deep(.el-dialog) {
+    width: 98% !important;
+  }
+
+  .payment-info {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .qr-code img {
+    width: 160px;
+    height: 160px;
+  }
 }
 
 .form-buttons {
