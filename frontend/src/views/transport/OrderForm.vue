@@ -235,28 +235,75 @@
     <el-dialog
       v-model="confirmDialogVisible"
       title="确认订单信息"
-      width="50%"
+      width="45%"
       :close-on-click-modal="false"
+      class="confirm-dialog"
+      :show-close="false"
     >
       <div class="confirm-info">
-        <h3>订单基本信息</h3>
-        <p><strong>运输方式：</strong>{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
-          orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</p>
-        <p><strong>出发地：</strong>{{ getAreaName(orderData.startProvince) }}{{ getAreaName(orderData.startCity) }}{{ getAreaName(orderData.startDistrict) }}{{ orderData.startLocation }}</p>
-        <p><strong>目的地：</strong>{{ getAreaName(orderData.endProvince) }}{{ getAreaName(orderData.endCity) }}{{ getAreaName(orderData.endDistrict) }}{{ orderData.endLocation }}</p>
-        <p><strong>宠物信息：</strong></p>
-        <ul>
-          <li v-for="pet in selectedPets" :key="pet.petId">
-            {{ pet.petName }} ({{ pet.petBreed }})
-          </li>
-        </ul>
-        <p><strong>备注：</strong>{{ orderData.orderRemark || '无' }}</p>
-  </div>
+        <div class="confirm-header">
+          <div class="header-left">
+            <h3>订单基本信息</h3>
+            <div class="order-status">待支付</div>
+          </div>
+          <el-icon class="close-icon" @click="confirmDialogVisible = false"><Close /></el-icon>
+        </div>
+        <div class="info-section">
+          <div class="info-item">
+            <el-icon class="info-icon"><Van /></el-icon>
+            <div class="info-content">
+              <span class="info-label">运输方式</span>
+              <span class="info-value">{{ orderData.transportMethod === 'SPECIAL' ? '专车托运' : 
+                orderData.transportMethod === 'SHARE' ? '拼车托运' : '空运托运' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <el-icon class="info-icon"><Location /></el-icon>
+            <div class="info-content">
+              <span class="info-label">出发地</span>
+              <span class="info-value">{{ getAreaName(orderData.startProvince) }}{{ getAreaName(orderData.startCity) }}{{ getAreaName(orderData.startDistrict) }}{{ orderData.startLocation }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <el-icon class="info-icon"><Location /></el-icon>
+            <div class="info-content">
+              <span class="info-label">目的地</span>
+              <span class="info-value">{{ getAreaName(orderData.endProvince) }}{{ getAreaName(orderData.endCity) }}{{ getAreaName(orderData.endDistrict) }}{{ orderData.endLocation }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <el-icon class="info-icon"><PawPrint /></el-icon>
+            <div class="info-content">
+              <span class="info-label">宠物信息</span>
+              <div class="pets-list">
+                <div v-for="pet in selectedPets" :key="pet.petId" class="pet-item">
+                  <span class="pet-name">{{ pet.petName }}</span>
+                  <span class="pet-breed">({{ pet.petBreed }})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="info-item">
+            <el-icon class="info-icon"><ChatDotRound /></el-icon>
+            <div class="info-content">
+              <span class="info-label">备注</span>
+              <span class="info-value">{{ orderData.orderRemark || '无' }}</span>
+            </div>
+          </div>
+          <div class="info-item price-item">
+            <el-icon class="info-icon"><Money /></el-icon>
+            <div class="info-content">
+              <span class="info-label">支付金额</span>
+              <span class="price-value">¥{{ orderData.price.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="confirmDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleConfirm">确定</el-button>
-        </span>
+        <div class="dialog-footer">
+          <el-button class="cancel-btn" @click="confirmDialogVisible = false">取消</el-button>
+          <el-button type="primary" class="confirm-btn" @click="handleConfirm">确定</el-button>
+        </div>
       </template>
     </el-dialog>
 
@@ -302,7 +349,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Location, Money, MapLocation } from '@element-plus/icons-vue'
+import { Location, Money, MapLocation, Van, Close, ChatDotRound } from '@element-plus/icons-vue'
 import { Building2, PawPrint, Car, Truck, Plane, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { getPets } from '@/api/pet.js'
 import { createOrder, getPaymentQRCode, updateOrderStatus } from '@/api/order.js'
@@ -1213,23 +1260,196 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
+.confirm-dialog {
+  border-radius: 16px;
+  overflow: hidden;
+  max-height: 90vh;
+}
+
+:deep(.el-dialog) {
+  max-height: 90vh !important;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5vh !important;
+}
+
+:deep(.el-dialog__body) {
+  max-height: calc(85vh - 120px) !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+}
+
+:deep(.el-dialog__header) {
+  margin: 0 !important;
+  padding: 16px !important;
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  color: white;
+}
+
+:deep(.el-dialog__title) {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 12px 16px !important;
+  border-top: 1px solid #ebeef5;
+  background: white;
+}
+
 .confirm-info {
-  padding: 20px;
+  padding: 16px;
 }
 
-.confirm-info h3 {
-  margin-bottom: 15px;
-  color: #333;
+.confirm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ebeef5;
 }
 
-.confirm-info p {
-  margin: 8px 0;
-  line-height: 1.5;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.confirm-info ul {
-  margin: 8px 0;
-  padding-left: 20px;
+.close-icon {
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.close-icon:hover {
+  transform: rotate(90deg);
+}
+
+.confirm-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #303133;
+  font-weight: 600;
+}
+
+.order-status {
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background: #f0f9ff;
+  transform: translateX(4px);
+}
+
+.info-icon {
+  font-size: 16px;
+  color: #409EFF;
+  margin-top: 2px;
+}
+
+.info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  color: #606266;
+  font-size: 13px;
+}
+
+.info-value {
+  color: #303133;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pet-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pet-name {
+  font-weight: 500;
+  color: #303133;
+  font-size: 13px;
+}
+
+.pet-breed {
+  color: #909399;
+  font-size: 12px;
+}
+
+.price-item {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #ebeef5;
+  background: white !important;
+}
+
+.price-value {
+  color: #f56c6c;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancel-btn {
+  background: #f5f7fa;
+  border: none;
+  color: #606266;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  border: none;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 13px;
 }
 
 .payment-info {
