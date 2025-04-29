@@ -285,7 +285,7 @@
           <img :src="paymentQRCode" alt="支付二维码" />
         </div>
         <div class="amount">
-          <h3>支付金额：¥{{ orderData.price }}</h3>
+          <h3>支付金额：¥{{ orderData.price.toFixed(2) }}</h3>
         </div>
       </div>
       <template #footer>
