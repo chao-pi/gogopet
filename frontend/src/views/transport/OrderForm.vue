@@ -465,23 +465,19 @@ const handlePetsChange = (petIds) => {
 
 // 提交订单
 const submitOrder = async () => {
-  if (!orderFormRef.value) return
-  
   try {
-    // 确保transportMethod有值，如果没有则设置为默认值
+    // 确保运输方式有值
     if (!orderForm.value.transportMethod) {
       orderForm.value.transportMethod = 'SPECIAL'
     }
-    
+
     // 验证运输方式是否合法
     const validTransportMethods = ['SPECIAL', 'SHARE', 'AIR']
     if (!validTransportMethods.includes(orderForm.value.transportMethod)) {
-      ElMessage.error('请选择有效的运输方式')
+      ElMessage.error('无效的运输方式')
       return
     }
-    
-    await orderFormRef.value.validate()
-    
+
     // 获取起始地经纬度
     const startLocation = await getLocation(
       `${orderForm.value.startProvince}${orderForm.value.startCity}${orderForm.value.startDistrict}${orderForm.value.startLocation}`
@@ -514,11 +510,20 @@ const submitOrder = async () => {
     
     // 计算总价格
     const totalPrice = basePrice + additionalFee
-    
+
+    // 构建订单数据
     const orderData = {
       ...orderForm.value,
+      startProvince: orderForm.value.startProvince,
+      startCity: orderForm.value.startCity,
+      startDistrict: orderForm.value.startDistrict,
+      startLocation: orderForm.value.startLocation,
       startLatitude: startLocation.latitude,
       startLongitude: startLocation.longitude,
+      endProvince: orderForm.value.endProvince,
+      endCity: orderForm.value.endCity,
+      endDistrict: orderForm.value.endDistrict,
+      endLocation: orderForm.value.endLocation,
       endLatitude: endLocation.latitude,
       endLongitude: endLocation.longitude,
       userId: userStore.userInfo.id,
@@ -526,23 +531,22 @@ const submitOrder = async () => {
       price: totalPrice,
       distance: distance.toString(),
       transportMethod: orderForm.value.transportMethod,
-      transportTime: orderForm.value.transportTime ? new Date(orderForm.value.transportTime).toISOString() : null
+      transportTime: orderForm.value.transportTime ? new Date(orderForm.value.transportTime).toISOString() : null,
+      petIds: selectedPets.value.map(pet => pet.petId)
     }
-    
-    // 添加详细的日志
-    console.log('订单表单数据:', orderForm.value)
-    console.log('运输方式:', orderForm.value.transportMethod)
-    console.log('处理后的订单数据:', orderData)
-    console.log('最终运输方式:', orderData.transportMethod)
-    
-    await createOrder(orderData)
-    ElMessage.success('订单创建成功')
-    router.push('/orders')
+
+    console.log('提交订单数据:', orderData)
+
+    const response = await createOrder(orderData)
+    if (response.code === 200) {
+      ElMessage.success('订单创建成功')
+      router.push('/order/list')
+    } else {
+      ElMessage.error(response.message || '订单创建失败')
+    }
   } catch (error) {
-    if (error !== 'cancel') {
-      console.error('创建订单失败:', error)
-      ElMessage.error('创建订单失败')
-    }
+    console.error('创建订单失败:', error)
+    ElMessage.error('创建订单失败，请稍后重试')
   }
 }
 
