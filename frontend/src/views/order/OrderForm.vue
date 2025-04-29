@@ -133,13 +133,13 @@
           </el-form-item>
 
           <!-- 联系人信息 -->
-          <el-form-item label="联系人" prop="receiver">
+          <!-- <el-form-item label="联系人" prop="receiver">
             <el-input v-model="orderForm.receiver" placeholder="请输入联系人姓名" />
           </el-form-item>
 
           <el-form-item label="联系电话" prop="phone">
             <el-input v-model="orderForm.phone" placeholder="请输入联系电话" />
-          </el-form-item>
+          </el-form-item> -->
 
           <!-- 备注信息 -->
           <el-form-item label="备注" prop="remark">
