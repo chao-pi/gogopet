@@ -155,4 +155,9 @@ public class OrderDTO {
      */
     @Size(max = 1, message = "支付状态长度必须为1个字符")
     private String paymentStatus;
+
+    /**
+     * 订单备注，用户特殊要求
+     */
+    private String orderRemark;
 } 

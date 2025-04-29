@@ -6,6 +6,9 @@ import com.backend.model.entity.OrderTracking;
 import com.backend.mapper.OrderMapper;
 import com.backend.mapper.OrderPetMapper;
 import com.backend.mapper.OrderTrackingMapper;
+import com.backend.mapper.UserMapper;
+import com.backend.mapper.CompanyMapper;
+import com.backend.mapper.PetMapper;
 import com.backend.service.OrderService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,17 +18,26 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
-import java.lang.reflect.Field;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
     private final OrderPetMapper orderPetMapper;
     private final OrderTrackingMapper orderTrackingMapper;
+    private final UserMapper userMapper;
+    private final CompanyMapper companyMapper;
+    private final PetMapper petMapper;
 
-    public OrderServiceImpl(OrderPetMapper orderPetMapper, OrderTrackingMapper orderTrackingMapper) {
+    public OrderServiceImpl(OrderPetMapper orderPetMapper, 
+                          OrderTrackingMapper orderTrackingMapper,
+                          UserMapper userMapper,
+                          CompanyMapper companyMapper,
+                          PetMapper petMapper) {
         this.orderPetMapper = orderPetMapper;
         this.orderTrackingMapper = orderTrackingMapper;
+        this.userMapper = userMapper;
+        this.companyMapper = companyMapper;
+        this.petMapper = petMapper;
     }
 
     @Override
@@ -36,115 +48,111 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         
         try {
-            // 验证运输方式
-            Field transportMethodField = Order.class.getDeclaredField("transportMethod");
-            transportMethodField.setAccessible(true);
-            String transportMethod = (String) transportMethodField.get(order);
+            // 1. 验证用户信息
+            if (order.getUserId() == null || userMapper.selectById(order.getUserId()) == null) {
+                throw new RuntimeException("用户ID无效或用户不存在");
+            }
             
-            System.out.println("Received transport method: " + transportMethod); // 添加日志
+            // 2. 验证公司信息
+            if (order.getCompanyId() == null || companyMapper.selectById(order.getCompanyId()) == null) {
+                throw new RuntimeException("公司ID无效或公司不存在");
+            }
             
+            // 3. 验证运输方式
+            String transportMethod = order.getTransportMethod();
             if (transportMethod == null || transportMethod.trim().isEmpty()) {
-                System.out.println("Transport method is empty"); // 添加日志
                 throw new RuntimeException("运输方式不能为空");
             }
             
             transportMethod = transportMethod.trim();
-            System.out.println("Trimmed transport method: " + transportMethod); // 添加日志
-            
             if (!Order.TransportMethod.SPECIAL.equals(transportMethod) && 
                 !Order.TransportMethod.SHARE.equals(transportMethod) && 
                 !Order.TransportMethod.AIR.equals(transportMethod)) {
-                System.out.println("Invalid transport method: " + transportMethod); // 添加日志
                 throw new RuntimeException("非法的运输方式，必须是SPECIAL(专车)、SHARE(拼车)或AIR(空运)");
             }
             
-            // 生成订单ID
-            String orderId = generateOrderId();
-            Field orderIdField = Order.class.getDeclaredField("orderId");
-            orderIdField.setAccessible(true);
-            orderIdField.set(order, orderId);
+            // 4. 验证宠物信息
+            if (order.getPetIds() != null && !order.getPetIds().isEmpty()) {
+                for (String petId : order.getPetIds()) {
+                    if (petMapper.selectById(petId) == null) {
+                        throw new RuntimeException("宠物ID无效或宠物不存在: " + petId);
+                    }
+                }
+            }
             
-            // 设置初始状态
-            Field orderStatusField = Order.class.getDeclaredField("orderStatus");
-            orderStatusField.setAccessible(true);
-            orderStatusField.set(order, "P"); // 待支付
+            // 5. 验证价格信息
+            if (order.getPrice() == null || order.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException("订单价格必须大于0");
+            }
             
-            Field petStatusField = Order.class.getDeclaredField("petStatus");
-            petStatusField.setAccessible(true);
-            petStatusField.set(order, "N"); // 正常
+            // 6. 验证地理位置信息
+            if (order.getStartLatitude() == null || order.getStartLongitude() == null ||
+                order.getEndLatitude() == null || order.getEndLongitude() == null) {
+                throw new RuntimeException("起点和终点位置信息不能为空");
+            }
             
-            Field createTimeField = Order.class.getDeclaredField("createTime");
-            createTimeField.setAccessible(true);
-            createTimeField.set(order, LocalDateTime.now());
+            // 7. 生成订单ID
+            order.setOrderId(generateOrderId());
             
-            Field updateTimeField = Order.class.getDeclaredField("updateTime");
-            updateTimeField.setAccessible(true);
-            updateTimeField.set(order, LocalDateTime.now());
+            // 8. 设置初始状态
+            order.setOrderStatus("P"); // 待支付
+            order.setPetStatus("N"); // 正常
             
-            // 设置开始时间
-            Field startTimeField = Order.class.getDeclaredField("startTime");
-            startTimeField.setAccessible(true);
-            startTimeField.set(order, LocalDateTime.now());
+            // 9. 设置时间相关字段
+            LocalDateTime now = LocalDateTime.now();
+            order.setCreateTime(now);
+            order.setUpdateTime(now);
+            order.setStartTime(now);
+            order.setEndTime(null);
+            order.setCompleteTime(null);
             
-            // 设置结束时间和完成时间为null
-            Field endTimeField = Order.class.getDeclaredField("endTime");
-            endTimeField.setAccessible(true);
-            endTimeField.set(order, null);
+            // 10. 计算距离
+            double distance = calculateDistance(
+                order.getStartLatitude().doubleValue(),
+                order.getStartLongitude().doubleValue(),
+                order.getEndLatitude().doubleValue(),
+                order.getEndLongitude().doubleValue()
+            );
+            order.setDistance(BigDecimal.valueOf(distance));
             
-            Field completeTimeField = Order.class.getDeclaredField("completeTime");
-            completeTimeField.setAccessible(true);
-            completeTimeField.set(order, null);
+            // 11. 处理订单备注
+            if (order.getOrderRemark() != null) {
+                System.out.println("原始订单备注: " + order.getOrderRemark());
+                order.setOrderRemark(order.getOrderRemark().trim());
+                System.out.println("处理后的订单备注: " + order.getOrderRemark());
+            } else {
+                System.out.println("订单备注为空");
+            }
             
-            // 计算距离并设置
-            Field startLatitudeField = Order.class.getDeclaredField("startLatitude");
-            startLatitudeField.setAccessible(true);
-            double startLatitude = ((BigDecimal) startLatitudeField.get(order)).doubleValue();
-            
-            Field startLongitudeField = Order.class.getDeclaredField("startLongitude");
-            startLongitudeField.setAccessible(true);
-            double startLongitude = ((BigDecimal) startLongitudeField.get(order)).doubleValue();
-            
-            Field endLatitudeField = Order.class.getDeclaredField("endLatitude");
-            endLatitudeField.setAccessible(true);
-            double endLatitude = ((BigDecimal) endLatitudeField.get(order)).doubleValue();
-            
-            Field endLongitudeField = Order.class.getDeclaredField("endLongitude");
-            endLongitudeField.setAccessible(true);
-            double endLongitude = ((BigDecimal) endLongitudeField.get(order)).doubleValue();
-            
-            double distance = calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
-            
-            Field distanceField = Order.class.getDeclaredField("distance");
-            distanceField.setAccessible(true);
-            distanceField.set(order, BigDecimal.valueOf(distance));
-            
-            System.out.println("Final order data: " + order); // 添加日志
-            
+            // 12. 保存订单
+            System.out.println("保存订单前的完整数据: " + order);
             save(order);
+            System.out.println("订单保存成功，订单ID: " + order.getOrderId());
             
-            // 创建订单宠物关联记录
+            // 13. 创建订单宠物关联记录
             if (order.getPetIds() != null && !order.getPetIds().isEmpty()) {
                 for (String petId : order.getPetIds()) {
                     OrderPet orderPet = new OrderPet();
-                    orderPet.setOrderPetId(generateOrderId()); // 使用相同的ID生成方法
-                    orderPet.setOrderId(orderId);
+                    orderPet.setOrderPetId(generateOrderId());
+                    orderPet.setOrderId(order.getOrderId());
                     orderPet.setPetId(petId);
-                    orderPet.setCreateTime(LocalDateTime.now());
+                    orderPet.setCreateTime(now);
                     orderPetMapper.insert(orderPet);
                 }
             }
             
-            // 创建订单追踪记录
+            // 14. 创建订单追踪记录
             OrderTracking orderTracking = new OrderTracking();
-            orderTracking.setTrackingId(generateOrderId()); // 使用相同的ID生成方法
-            orderTracking.setOrderId(orderId);
+            orderTracking.setTrackingId(generateOrderId());
+            orderTracking.setOrderId(order.getOrderId());
             orderTracking.setLocation(order.getStartLocation());
             orderTracking.setLatitude(order.getStartLatitude());
             orderTracking.setLongitude(order.getStartLongitude());
             orderTracking.setStatus("T"); // 运输中
-            orderTracking.setCreateTime(LocalDateTime.now());
+            orderTracking.setCreateTime(now);
             orderTracking.setUpdateFrequency(30); // 默认30分钟更新一次
-            orderTracking.setLastUpdateTime(LocalDateTime.now());
+            orderTracking.setLastUpdateTime(now);
+            orderTracking.setRemark(order.getOrderRemark()); // 设置订单备注
             orderTrackingMapper.insert(orderTracking);
             
             return order;
