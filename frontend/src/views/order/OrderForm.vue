@@ -164,49 +164,47 @@
         <div class="pet-info" v-if="selectedPets.length > 0">
           <h3>宠物信息</h3>
           <div class="pets-list">
-            <div class="pet-card">
-              <div class="pet-header">
-                <div class="pet-avatar-container">
-                  <div class="pet-avatar" v-if="currentPet.avatarUrl">
-                    <img :src="currentPet.avatarUrl" />
-                  </div>
-                  <div class="pet-avatar default-avatar" v-else>
-                    <PawPrint :size="60" />
-                  </div>
-                  <h4 class="pet-name">{{ currentPet.petName }}</h4>
+            <div class="pet-header">
+              <div class="pet-avatar-container">
+                <div class="pet-avatar" v-if="currentPet.avatarUrl">
+                  <img :src="currentPet.avatarUrl" />
                 </div>
+                <div class="pet-avatar default-avatar" v-else>
+                  <PawPrint :size="60" />
+                </div>
+                <h4 class="pet-name">{{ currentPet.petName }}</h4>
               </div>
-              <el-descriptions :column="1" border>
-                <el-descriptions-item label="宠物品种">
-                  {{ currentPet.petBreed }}
-                </el-descriptions-item>
-                <el-descriptions-item label="宠物年龄">
-                  {{ currentPet.petAge }}岁
-                </el-descriptions-item>
-                <el-descriptions-item label="宠物性别">
-                  {{ currentPet.petGender === 'MALE' ? '公' : '母' }}
-                </el-descriptions-item>
-                <el-descriptions-item label="宠物体重">
-                  {{ currentPet.petWeight }}kg
-                </el-descriptions-item>
-              </el-descriptions>
-              <div class="pet-switch" v-if="selectedPets.length > 1">
-                <el-button 
-                  type="primary" 
-                  circle 
-                  @click="switchPet('prev')"
-                  :icon="ChevronLeft"
-                >
-                </el-button>
-                <span class="pet-counter">{{ currentPetIndex + 1 }}/{{ selectedPets.length }}</span>
-                <el-button 
-                  type="primary" 
-                  circle 
-                  @click="switchPet('next')"
-                  :icon="ChevronRight"
-                >
-                </el-button>
-              </div>
+            </div>
+            <el-descriptions :column="1" border>
+              <el-descriptions-item label="宠物品种">
+                {{ currentPet.petBreed }}
+              </el-descriptions-item>
+              <el-descriptions-item label="宠物年龄">
+                {{ currentPet.petAge }}岁
+              </el-descriptions-item>
+              <el-descriptions-item label="宠物性别">
+                {{ currentPet.petGender === 'MALE' ? '公' : '母' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="宠物体重">
+                {{ currentPet.petWeight }}kg
+              </el-descriptions-item>
+            </el-descriptions>
+            <div class="pet-switch" v-if="selectedPets.length > 1">
+              <el-button 
+                type="primary" 
+                circle 
+                @click="switchPet('prev')"
+                :icon="ChevronLeft"
+              >
+              </el-button>
+              <span class="pet-counter">{{ currentPetIndex + 1 }}/{{ selectedPets.length }}</span>
+              <el-button 
+                type="primary" 
+                circle 
+                @click="switchPet('next')"
+                :icon="ChevronRight"
+              >
+              </el-button>
             </div>
           </div>
         </div>
@@ -534,12 +532,15 @@ onMounted(() => {
 .company-info,
 .pet-info {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   position: sticky;
   top: 2rem;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
 }
 
 .company-info:hover,
@@ -570,28 +571,28 @@ onMounted(() => {
 }
 
 .pet-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .pet-avatar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
 }
 
 .pet-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
-}
-
-.pet-avatar:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .pet-avatar img {
@@ -613,27 +614,62 @@ onMounted(() => {
 
 .pet-name {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #303133;
   font-weight: 600;
   text-align: center;
 }
 
-.pet-option {
+:deep(.el-descriptions) {
+  width: 100%;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+:deep(.el-descriptions__label) {
+  width: 100px;
+  color: #606266;
+  font-weight: 500;
+}
+
+:deep(.el-descriptions__content) {
+  color: #303133;
+}
+
+.pet-switch {
+  margin-top: 0.5rem;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid #ebeef5;
 }
 
-.pet-option:hover {
-  background-color: #f5f7fa;
-}
-
-.pet-avatar.default-avatar svg {
+.pet-counter {
+  font-size: 0.9rem;
   color: #909399;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+:deep(.el-button.is-circle) {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.el-button.is-circle svg) {
+  width: 20px;
+  height: 20px;
 }
 
 .order-form {
@@ -864,17 +900,20 @@ onMounted(() => {
 .pets-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .pet-card {
   background: white;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   position: relative;
   min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .pet-card:hover {
@@ -882,54 +921,21 @@ onMounted(() => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.pet-header {
-  margin-bottom: 1rem;
-}
-
-.pet-avatar-container {
+.pet-option {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-}
-
-.pet-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
-.pet-avatar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.pet-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pet-avatar.default-avatar {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pet-option:hover {
+  background-color: #f5f7fa;
 }
 
 .pet-avatar.default-avatar svg {
   color: #909399;
-}
-
-.pet-name {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #303133;
-  font-weight: 600;
-  text-align: center;
 }
 
 :deep(.el-select) {
@@ -946,39 +952,5 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.pet-switch {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 0 1.5rem;
-}
-
-.pet-counter {
-  font-size: 0.9rem;
-  color: #909399;
-  font-weight: 500;
-  min-width: 60px;
-  text-align: center;
-}
-
-:deep(.el-button.is-circle) {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-:deep(.el-button.is-circle svg) {
-  width: 20px;
-  height: 20px;
 }
 </style> 
