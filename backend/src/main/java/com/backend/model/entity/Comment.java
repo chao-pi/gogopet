@@ -1,7 +1,8 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import java.util.Date;
@@ -16,20 +17,32 @@ public class Comment {
     /**
      * 评论ID，唯一标识符
      */
-    @TableId("comment_id")
+    @TableId(value = "comment_id", type = IdType.ASSIGN_ID)
     private String commentId;
 
     /**
-     * 公司ID，关联被评论的公司
+     * 帖子ID，关联帖子
      */
-    @TableField("company_id")
-    private String companyId;
+    @TableField("post_id")
+    private String postId;
 
     /**
-     * 用户ID，关联评论人
+     * 用户ID，关联评论者
      */
     @TableField("user_id")
     private String userId;
+
+    /**
+     * 评论者用户名
+     */
+    @TableField(exist = false)
+    private String userName;
+
+    /**
+     * 评论者头像
+     */
+    @TableField(exist = false)
+    private String userAvatar;
 
     /**
      * 评论内容
@@ -38,10 +51,16 @@ public class Comment {
     private String commentContent;
 
     /**
-     * 评分，1-5分
+     * 父评论ID，用于回复功能
      */
-    @TableField("rating")
-    private Integer rating;
+    @TableField("parent_id")
+    private String parentId;
+
+    /**
+     * 评论状态：0-已删除，1-正常
+     */
+    @TableField("comment_status")
+    private Integer commentStatus;
 
     /**
      * 创建时间

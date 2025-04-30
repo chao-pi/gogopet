@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
+import Community from '../views/Community.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/community',
+    name: 'Community',
+    component: Community
   },
   {
     path: '/error/:code',
