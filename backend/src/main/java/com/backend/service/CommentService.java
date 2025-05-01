@@ -1,35 +1,27 @@
 package com.backend.service;
 
 import com.backend.model.entity.Comment;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import java.util.List;
-
-/**
- * 评论服务接口
- */
 public interface CommentService extends IService<Comment> {
     /**
-     * 根据公司ID获取评论列表
-     *
-     * @param companyId 公司ID
-     * @return 评论列表
+     * 创建评论
      */
-    List<Comment> getCommentsByCompanyId(String companyId);
+    String createComment(Comment comment);
 
     /**
-     * 添加评论
-     *
-     * @param comment 评论信息
-     * @return 是否添加成功
+     * 分页获取帖子的评论列表
      */
-    boolean addComment(Comment comment);
+    Page<Comment> getCommentList(String postId, int page, int size);
 
     /**
      * 删除评论
-     *
-     * @param commentId 评论ID
-     * @return 是否删除成功
      */
     boolean deleteComment(String commentId);
+
+    /**
+     * 获取评论的回复列表
+     */
+    Page<Comment> getReplyList(String commentId, int page, int size);
 } 

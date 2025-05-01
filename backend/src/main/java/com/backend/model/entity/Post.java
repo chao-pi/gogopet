@@ -1,10 +1,12 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 帖子实体类
@@ -16,7 +18,7 @@ public class Post {
     /**
      * 帖子ID，唯一标识符
      */
-    @TableId("post_id")
+    @TableId(value = "post_id", type = IdType.ASSIGN_ID)
     private String postId;
 
     /**
@@ -26,16 +28,52 @@ public class Post {
     private String userId;
 
     /**
+     * 发帖人用户名
+     */
+    @TableField(exist = false)
+    private String userName;
+
+    /**
+     * 发帖人头像
+     */
+    @TableField(exist = false)
+    private String userAvatar;
+
+    /**
+     * 帖子标题
+     */
+    @TableField("post_title")
+    private String postTitle;
+
+    /**
      * 帖子内容
      */
     @TableField("post_content")
     private String postContent;
 
     /**
+     * 帖子图片URL列表，以逗号分隔
+     */
+    @TableField("post_images")
+    private String postImages;
+
+    /**
+     * 点赞数量
+     */
+    @TableField("post_likes")
+    private Integer postLikes;
+
+    /**
      * 评论数量
      */
     @TableField("post_comment")
     private Integer postComment;
+
+    /**
+     * 帖子状态：0-已删除，1-正常
+     */
+    @TableField("post_status")
+    private Integer postStatus;
 
     /**
      * 创建时间

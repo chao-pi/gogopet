@@ -25,7 +25,8 @@ request.interceptors.request.use(
       url: config.url,
       method: config.method,
       headers: config.headers,
-      data: config.data
+      data: config.data,
+      params: config.params
     })
     
     // 如果是创建订单的请求，特别记录transportMethod
@@ -37,7 +38,7 @@ request.interceptors.request.use(
     return config
   },
   error => {
-    console.error('请求错误:', error)
+    console.error('请求错误：', error)
     return Promise.reject(error)
   }
 )
@@ -45,17 +46,25 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
-    // 打印响应数据
-    console.log('响应数据:', response.data)
-    // 返回响应数据
+    console.log('收到响应:', response)
     return response.data
   },
   error => {
-    console.error('响应错误:', error)
+    console.error('响应错误：', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    })
+    
+    // 处理不同类型的错误
     if (error.response) {
       switch (error.response.status) {
+        case 400:
+          ElMessage.error('请求参数错误')
+          break
         case 401:
           // token无效或过期，清除用户信息并跳转到登录页
+          ElMessage.error('未授权，请重新登录')
           localStorage.removeItem('token')
           localStorage.removeItem('userInfo')
           router.push('/login')
@@ -67,13 +76,15 @@ request.interceptors.response.use(
           ElMessage.error('请求的资源不存在')
           break
         case 500:
-          ElMessage.error('服务器错误')
+          ElMessage.error('服务器内部错误')
           break
         default:
           ElMessage.error(error.response.data?.message || '请求失败')
       }
+    } else if (error.request) {
+      ElMessage.error('服务器无响应')
     } else {
-      ElMessage.error('网络错误，请检查网络连接')
+      ElMessage.error('请求配置错误')
     }
     return Promise.reject(error)
   }

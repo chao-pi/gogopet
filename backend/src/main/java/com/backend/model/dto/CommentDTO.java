@@ -24,6 +24,12 @@ public class CommentDTO {
     private String companyId;
 
     /**
+     * 帖子ID，关联被评论的帖子
+     */
+    @Size(min = 1, max = 18, message = "帖子ID长度必须在1-18个字符之间")
+    private String postId;
+
+    /**
      * 用户ID，关联评论用户
      */
     @Size(min = 18, max = 18, message = "用户ID长度必须为18个字符")

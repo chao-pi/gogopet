@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Error from '../views/base/Error.vue'
+import Error from '@/views/base/Error.vue'
 import Home from '@/views/base/Home.vue'
 import About from '@/views/base/About.vue'
 import Login from '@/views/auth/Login.vue'
@@ -8,6 +8,7 @@ import Profile from '@/views/user/Profile.vue'
 import Pets from '@/views/user/Pets.vue'
 import Transport from '@/views/transport/Transport.vue'
 import OrderForm from '@/views/transport/OrderForm.vue'
+import Community from '@/views/Community.vue'
 
 const routes = [
   {
@@ -52,6 +53,11 @@ const routes = [
     name: 'OrderForm',
     component: OrderForm,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/community',
+    name: 'Community',
+    component: Community
   },
   {
     path: '/error/:code',
