@@ -95,7 +95,7 @@
             <p>"服务非常专业，我的猫咪安全到达，全程可以查看位置，很放心！"</p>
           </div>
           <div class="testimonial-author">
-            <img src="@/assets/images/avatar1.jpg" alt="用户头像" class="author-avatar">
+            <img src="../../assets/images/defaults/avatar1.jpg" alt="用户头像" class="author-avatar">
             <div class="author-info">
               <h4>张小姐</h4>
               <p>上海</p>
@@ -107,7 +107,7 @@
             <p>"客服态度很好，运输过程很顺利，我的狗狗一点都没有不适，非常满意！"</p>
           </div>
           <div class="testimonial-author">
-            <img src="@/assets/images/avatar2.jpg" alt="用户头像" class="author-avatar">
+            <img src="../../assets/images/defaults/avatar2.jpg" alt="用户头像" class="author-avatar">
             <div class="author-info">
               <h4>李先生</h4>
               <p>北京</p>
@@ -136,7 +136,7 @@
           </div>
         </div>
         <div class="contact-image">
-          <img src="@/assets/images/contact.jpg" alt="联系我们">
+          <img src="../../assets/images/backgrounds/contact.jpg" alt="联系我们">
         </div>
       </div>
     </div>
@@ -150,7 +150,7 @@
 
 /* 横幅样式 */
 .banner {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('@/assets/images/banner.jpg');
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('@/assets/images/backgrounds/banner.jpg');
   background-size: cover;
   background-position: center;
   height: 60vh;

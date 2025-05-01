@@ -56,8 +56,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 配置请求授权策略
                 .authorizeHttpRequests(auth -> auth
-                        // 放行认证接口和错误页面
-                        .requestMatchers("/api/auth/**", "/error", "/test").permitAll()
+                        // 放行认证接口、错误页面和上传文件
+                        .requestMatchers("/api/auth/**", "/error", "/test", "/uploads/**", "/api/chat/**", "/ws/**").permitAll()
                         // 其他请求都需要认证
                         .anyRequest().authenticated()
                 )

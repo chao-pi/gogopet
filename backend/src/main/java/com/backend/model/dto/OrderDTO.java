@@ -6,6 +6,7 @@ import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 订单数据传输对象
@@ -19,10 +20,10 @@ public class OrderDTO {
     private String orderId;
 
     /**
-     * 宠物ID，关联托运的宠物
+     * 宠物ID列表，关联托运的宠物
      */
-    @Size(min = 18, max = 18, message = "宠物ID长度必须为18个字符")
-    private String petId;
+    @NotNull(message = "宠物ID列表不能为空")
+    private List<String> petIds;
 
     /**
      * 用户ID，关联下单用户
@@ -55,6 +56,84 @@ public class OrderDTO {
     private String deliveryStatus;
 
     /**
+     * 运输方式
+     * SPECIAL-专车托运
+     * SHARE-拼车托运
+     * AIR-空运托运
+     */
+    @NotNull(message = "运输方式不能为空")
+    @Size(max = 10, message = "运输方式长度不能超过10个字符")
+    private String transportMethod;
+
+    /**
+     * 起始省份
+     */
+    @NotNull(message = "起始省份不能为空")
+    private String startProvince;
+
+    /**
+     * 起始城市
+     */
+    @NotNull(message = "起始城市不能为空")
+    private String startCity;
+
+    /**
+     * 起始区县
+     */
+    @NotNull(message = "起始区县不能为空")
+    private String startDistrict;
+
+    /**
+     * 起始详细地址
+     */
+    @NotNull(message = "起始详细地址不能为空")
+    private String startLocation;
+
+    /**
+     * 起始地纬度
+     */
+    private BigDecimal startLatitude;
+
+    /**
+     * 起始地经度
+     */
+    private BigDecimal startLongitude;
+
+    /**
+     * 目的省份
+     */
+    @NotNull(message = "目的省份不能为空")
+    private String endProvince;
+
+    /**
+     * 目的城市
+     */
+    @NotNull(message = "目的城市不能为空")
+    private String endCity;
+
+    /**
+     * 目的区县
+     */
+    @NotNull(message = "目的区县不能为空")
+    private String endDistrict;
+
+    /**
+     * 目的详细地址
+     */
+    @NotNull(message = "目的详细地址不能为空")
+    private String endLocation;
+
+    /**
+     * 目的地纬度
+     */
+    private BigDecimal endLatitude;
+
+    /**
+     * 目的地经度
+     */
+    private BigDecimal endLongitude;
+
+    /**
      * 开始时间
      */
     private Date startTime;
@@ -63,18 +142,6 @@ public class OrderDTO {
      * 结束时间
      */
     private Date endTime;
-
-    /**
-     * 起始地点
-     */
-    @Size(max = 255, message = "起始地点长度不能超过255个字符")
-    private String startLocation;
-
-    /**
-     * 目的地点
-     */
-    @Size(max = 255, message = "目的地点长度不能超过255个字符")
-    private String endLocation;
 
     /**
      * 订单价格，单位：元
@@ -88,4 +155,9 @@ public class OrderDTO {
      */
     @Size(max = 1, message = "支付状态长度必须为1个字符")
     private String paymentStatus;
+
+    /**
+     * 订单备注，用户特殊要求
+     */
+    private String orderRemark;
 } 

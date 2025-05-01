@@ -1,11 +1,14 @@
 package com.backend.service.impl;
 
 import com.backend.mapper.UserMapper;
+import com.backend.mapper.CompanyMapper;
 import com.backend.model.dto.UserDTO;
 import com.backend.model.dto.RegisterDTO;
 import com.backend.model.dto.LoginDTO;
 import com.backend.model.dto.LoginResultDTO;
+import com.backend.model.dto.ChangePasswordDTO;
 import com.backend.model.entity.User;
+import com.backend.model.entity.Company;
 import com.backend.service.UserService;
 import com.backend.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +24,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private CompanyMapper companyMapper;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -50,6 +56,19 @@ public class UserServiceImpl implements UserService {
         // 设置用户ID和加密密码
         user.setUserId(generateUserId());
         user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
+
+        // 如果是托运公司用户，创建公司记录
+        if ("C".equals(userRegisterDTO.getUserType())) {
+            Company company = new Company();
+            String companyId = generateUserId();
+            company.setCompanyId(companyId);
+            company.setCompanyIntro("暂无介绍");
+            company.setCompanyLocal(userRegisterDTO.getUserAddress());
+            companyMapper.insert(company);
+            
+            // 关联公司ID到用户
+            user.setCompanyId(companyId);
+        }
 
         // 保存用户
         userMapper.insert(user);
@@ -103,8 +122,8 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
 
-        // 生成 JWT Token，使用用户名而不是用户ID
-        String token = jwtUtil.generateToken(user.getUserName());
+        // 生成 JWT Token，使用用户ID而不是用户名
+        String token = jwtUtil.generateToken(user.getUserId());
 
         // 返回结果
         LoginResultDTO result = new LoginResultDTO();
@@ -128,13 +147,22 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO updateUserInfo(UserDTO userDTO) {
+        // 添加日志输出
+        System.out.println("更新用户信息，用户ID: " + userDTO.getUserId());
+        
         User user = userMapper.selectById(userDTO.getUserId());
         if (user == null) {
+            System.out.println("用户不存在，用户ID: " + userDTO.getUserId());
             throw new RuntimeException("用户不存在");
         }
 
-        BeanUtils.copyProperties(userDTO, user);
-        userMapper.update(user);
+        // 更新用户信息
+        user.setUserName(userDTO.getUserName());
+        user.setUserAddress(userDTO.getUserAddress());
+        
+        // 执行更新
+        int result = userMapper.update(user);
+        System.out.println("更新结果: " + result);
 
         return userDTO;
     }
@@ -148,5 +176,45 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.deleteById(userId);
+    }
+
+    @Override
+    @Transactional
+    public boolean changePassword(ChangePasswordDTO changePasswordDTO) {
+        // 验证新密码和确认密码是否一致
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new RuntimeException("新密码和确认密码不一致");
+        }
+
+        // 查询用户
+        User user = userMapper.selectById(changePasswordDTO.getUserId());
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 验证旧密码
+        boolean passwordMatches = false;
+        try {
+            // 尝试使用 BCrypt 验证
+            passwordMatches = passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword());
+            
+            // 如果密码不匹配且不是 BCrypt 格式，尝试直接比较
+            if (!passwordMatches && !user.getPassword().startsWith("$2a$")) {
+                passwordMatches = changePasswordDTO.getOldPassword().equals(user.getPassword());
+            }
+        } catch (Exception e) {
+            // 如果 BCrypt 验证失败，尝试直接比较
+            passwordMatches = changePasswordDTO.getOldPassword().equals(user.getPassword());
+        }
+
+        if (!passwordMatches) {
+            throw new RuntimeException("旧密码错误");
+        }
+
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        int result = userMapper.update(user);
+
+        return result > 0;
     }
 }

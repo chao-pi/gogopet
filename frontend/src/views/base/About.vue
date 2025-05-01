@@ -37,7 +37,7 @@
             </div>
           </div>
           <div class="overview-image">
-            <img src="@/assets/images/about-overview.jpg" alt="项目概述">
+            <img src="../../assets/images/backgrounds/about-overview.jpg" alt="项目概述">
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@
               </ul>
             </div>
             <div class="feature-image">
-              <img src="@/assets/images/feature-user.jpg" alt="用户管理">
+              <img src="../../assets/images/ui/feature-user.jpg" alt="用户管理">
             </div>
           </div>
 
@@ -78,7 +78,7 @@
               </ul>
             </div>
             <div class="feature-image">
-              <img src="@/assets/images/feature-tracking.jpg" alt="托运追踪">
+              <img src="../../assets/images/ui/feature-tracking.jpg" alt="托运追踪">
             </div>
           </div>
 
@@ -95,7 +95,7 @@
               </ul>
             </div>
             <div class="feature-image">
-              <img src="@/assets/images/feature-social.jpg" alt="社交互动">
+              <img src="../../assets/images/ui/feature-social.jpg" alt="社交互动">
             </div>
           </div>
 
@@ -112,7 +112,7 @@
               </ul>
             </div>
             <div class="feature-image">
-              <img src="@/assets/images/feature-service.jpg" alt="智能客服">
+              <img src="../../assets/images/ui/feature-service.jpg" alt="智能客服">
             </div>
           </div>
         </div>
@@ -169,17 +169,17 @@
         <h2 class="section-title">我们的团队</h2>
         <div class="team-grid">
           <div class="team-member">
-            <img src="@/assets/images/team1.jpg" alt="团队成员">
+            <img src="../../assets/images/defaults/team1.jpg" alt="团队成员">
             <h4>张明</h4>
             <p>技术总监</p>
           </div>
           <div class="team-member">
-            <img src="@/assets/images/team2.jpg" alt="团队成员">
+            <img src="../../assets/images/defaults/team2.jpg" alt="团队成员">
             <h4>李华</h4>
             <p>产品经理</p>
           </div>
           <div class="team-member">
-            <img src="@/assets/images/team3.jpg" alt="团队成员">
+            <img src="../../assets/images/defaults/team3.jpg" alt="团队成员">
             <h4>王芳</h4>
             <p>UI设计师</p>
           </div>
@@ -196,7 +196,7 @@
 
 /* 横幅样式 */
 .banner {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('@/assets/images/about-banner.jpg');
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('@/assets/images/backgrounds/about-banner.jpg');
   background-size: cover;
   background-position: center;
   height: 60vh;

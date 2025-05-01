@@ -15,11 +15,11 @@ export const useUserStore = defineStore('user', () => {
       if (info) {
         // 确保用户信息包含必要的字段
         const userData = {
-          id: info.id || info.userId,
+          id: info.userId || info.id,  // 优先使用 userId
           userName: info.userName,
           userType: info.userType,
           userAddress: info.userAddress,
-          pictureUrl: info.pictureUrl || null
+          avatarUrl: info.avatarUrl || null  // 使用 avatarUrl 而不是 pictureUrl
         }
         console.log('处理后的用户数据:', userData)
         userInfo.value = userData
