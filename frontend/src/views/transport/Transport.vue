@@ -165,10 +165,10 @@
             <el-input
               v-model="userInput"
               placeholder="请输入您的问题"
-              @keyup.enter="sendMessage"
+              @keyup.enter.prevent="handleSendMessage"
             >
               <template #append>
-                <el-button @click="sendMessage">发送</el-button>
+                <el-button type="link" @click.prevent="handleSendMessage" class="send-button">发送</el-button>
               </template>
             </el-input>
           </div>
@@ -188,6 +188,7 @@ import { Search, OfficeBuilding,
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 import { useRouter } from 'vue-router'
+import { sendMessage as sendChatMessage, getHistory } from '@/api/chat'
 
 const router = useRouter()
 
@@ -281,23 +282,37 @@ const handleQuickQuestion = (question) => {
   }, 500)
 }
 
-const sendMessage = () => {
+const handleSendMessage = async () => {
   if (!userInput.value.trim()) return
   
-  chatMessages.value.push({
-    type: 'user',
-    content: userInput.value
-  })
-  
-  // 模拟AI回复
-  setTimeout(() => {
+  loading.value = true
+  try {
+    // 先添加用户消息
     chatMessages.value.push({
-      type: 'assistant',
-      content: '这是关于"' + userInput.value + '"的回复...'
+      type: 'user',
+      content: userInput.value
     })
-  }, 500)
-  
-  userInput.value = ''
+    
+    const response = await sendChatMessage(userInput.value, '')
+    console.log('发送消息响应:', response)
+    
+    if (response && response.content) {
+      // 添加AI回复
+      chatMessages.value.push({
+        type: 'assistant',
+        content: response.content
+      })
+    } else {
+      throw new Error('无效的响应格式')
+    }
+    
+    userInput.value = ''
+  } catch (error) {
+    console.error('发送消息失败:', error)
+    ElMessage.error(error.response?.data?.message || '发送消息失败，请重试')
+  } finally {
+    loading.value = false
+  }
 }
 
 const viewCompanyDetail = (companyId) => {
@@ -759,5 +774,22 @@ const clearFilters = () => {
 .clear-filter-btn:not(:disabled):active {
   background: #d3d4d6;
   border-color: #b1b3b8;
+}
+
+.send-button {
+  color: #409eff;
+  padding: 0 15px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.send-button:hover {
+  color: #66b1ff;
 }
 </style> 

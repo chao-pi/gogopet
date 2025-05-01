@@ -188,4 +188,4 @@ CREATE TABLE IF NOT EXISTS chat_message (
     create_time DATETIME NOT NULL COMMENT '消息创建时间',
     session_id VARCHAR(64) NOT NULL COMMENT '会话ID，用于区分不同用户的对话',
     INDEX idx_session_id (session_id) COMMENT '会话ID索引，用于优化查询性能'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='智能助手聊天消息表'; 
+) COMMENT='智能助手聊天消息表'; 

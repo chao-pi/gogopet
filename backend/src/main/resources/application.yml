@@ -23,3 +23,9 @@ jwt:
 upload:
   path: uploads
   url-prefix: http://localhost:8080/uploads
+
+# DeepSeek API配置
+deepseek:
+  api:
+    key: sk-2ce4505522d1410893479f4a57335474
+    url: https://api.deepseek.com/v1/chat/completions

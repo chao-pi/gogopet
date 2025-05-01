@@ -5,7 +5,10 @@ import router from '@/router'
 // 创建axios实例
 const request = axios.create({
   baseURL: 'http://localhost:8080/api',
-  timeout: 5000
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 // 请求拦截器
@@ -42,7 +45,9 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
-    // 直接返回响应数据
+    // 打印响应数据
+    console.log('响应数据:', response.data)
+    // 返回响应数据
     return response.data
   },
   error => {
