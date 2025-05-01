@@ -155,7 +155,7 @@
             </el-button>
           </div>
 
-          <div class="chat-area">
+          <div class="chat-area" ref="chatArea">
             <div v-for="(message, index) in chatMessages" :key="index" class="message" :class="message.type">
               {{ message.content }}
             </div>
@@ -179,7 +179,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Search, OfficeBuilding, 
   Van, 
   Location, 
@@ -306,19 +306,21 @@ const handleSearch = () => {
   console.log('搜索:', searchQuery.value)
 }
 
-const handleQuickQuestion = (question) => {
-  // 添加用户消息
-  chatMessages.value.push({
-    type: 'user',
-    content: question.text
-  })
-  
-  // 添加预设回答
-  chatMessages.value.push({
-    type: 'assistant',
-    content: quickAnswers[question.id] || '抱歉，暂时没有相关问题的预设回答。'
+const chatArea = ref(null)
+
+// 滚动到底部的方法
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (chatArea.value) {
+      chatArea.value.scrollTop = chatArea.value.scrollHeight
+    }
   })
 }
+
+// 监听消息变化
+watch(chatMessages, () => {
+  scrollToBottom()
+}, { deep: true })
 
 const handleSendMessage = async () => {
   if (!userInput.value.trim()) return
@@ -351,6 +353,20 @@ const handleSendMessage = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleQuickQuestion = (question) => {
+  // 添加用户消息
+  chatMessages.value.push({
+    type: 'user',
+    content: question.text
+  })
+  
+  // 添加预设回答
+  chatMessages.value.push({
+    type: 'assistant',
+    content: quickAnswers[question.id] || '抱歉，暂时没有相关问题的预设回答。'
+  })
 }
 
 const viewCompanyDetail = (companyId) => {
@@ -748,6 +764,7 @@ const clearFilters = () => {
   background: #f9f9f9;
   border-radius: 8px;
   border: 1px solid #ebeef5;
+  scroll-behavior: smooth; /* 添加平滑滚动效果 */
 }
 
 .message {
