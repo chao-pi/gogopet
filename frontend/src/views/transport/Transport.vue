@@ -143,7 +143,7 @@
         </div>
 
         <div class="assistant-content">
-          <div class="quick-questions">
+          <!-- <div class="quick-questions">
             <h4>快速问答</h4>
             <el-button 
               v-for="question in quickQuestions" 
@@ -153,7 +153,7 @@
             >
               {{ question.text }}
             </el-button>
-          </div>
+          </div> -->
 
           <div class="chat-area" ref="chatArea">
             <div v-for="(message, index) in chatMessages" :key="index" class="message" :class="message.type">
