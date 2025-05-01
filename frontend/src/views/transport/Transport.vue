@@ -479,6 +479,16 @@ const bookService = (companyId) => {
 onMounted(() => {
   loadCompanies()
   connectWebSocket()
+  // 添加欢迎消息
+  chatMessages.value.push({
+    type: 'assistant',
+    content: '👋 您好！我是您的宠物托运智能助手。我可以帮您：\n\n' +
+             '1️⃣ 解答宠物托运相关问题\n' +
+             '2️⃣ 推荐合适的托运公司\n' +
+             '3️⃣ 提供托运注意事项\n' +
+             '4️⃣ 协助处理托运订单\n\n' +
+             '请问有什么可以帮您的吗？'
+  })
 })
 
 // 组件卸载时断开连接
@@ -982,6 +992,15 @@ const clearFilters = () => {
   margin-right: auto;
   border-bottom-left-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.8;
+}
+
+.message.assistant:first-child {
+  background: linear-gradient(135deg, #f6f8ff 0%, #ffffff 100%);
+  border-left: 4px solid #409eff;
+  padding-left: 20px;
 }
 
 .input-area {
