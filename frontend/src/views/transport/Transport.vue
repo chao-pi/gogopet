@@ -219,6 +219,8 @@ const userInput = ref('')
 const chatMessages = ref([])
 const stompClient = ref(null)
 const sessionId = ref('')
+const isTyping = ref(false)
+const isFirstConnection = ref(true)
 
 // 快速问题列表
 const quickQuestions = ref([
@@ -266,9 +268,6 @@ const quickAnswers = {
 7. 联系方式：确保能及时联系到主人
 建议提前准备，避免临时办理延误行程`
 }
-
-// 添加打字状态
-const isTyping = ref(false)
 
 // 过滤后的公司列表
 const filteredCompanies = computed(() => {
@@ -357,28 +356,39 @@ const connectWebSocket = () => {
       heartbeatOutgoing: 4000,
       onStompError: (frame) => {
         console.error('STOMP 错误:', frame)
-        ElMessage.error('聊天服务连接失败，正在重试...')
+        if (isFirstConnection.value) {
+          ElMessage.error('聊天服务连接失败，正在重试...')
+        }
       },
       onWebSocketClose: () => {
         console.log('WebSocket 连接关闭')
-        ElMessage.warning('聊天服务连接断开，正在重连...')
+        if (isFirstConnection.value) {
+          ElMessage.warning('聊天服务连接断开，正在重连...')
+        }
       },
       onWebSocketError: (event) => {
         console.error('WebSocket 错误:', event)
-        ElMessage.error('聊天服务连接错误，正在重试...')
+        if (isFirstConnection.value) {
+          ElMessage.error('聊天服务连接错误，正在重试...')
+        }
       }
     })
 
     stompClient.value.onConnect = () => {
       console.log('WebSocket 连接成功')
-      ElMessage.success('已连接到聊天服务')
+      if (isFirstConnection.value) {
+        ElMessage.success('已连接到聊天服务')
+        isFirstConnection.value = false
+      }
       stompClient.value.subscribe('/topic/public', onMessageReceived)
     }
 
     stompClient.value.activate()
   } catch (error) {
     console.error('WebSocket 初始化失败:', error)
-    ElMessage.error('聊天服务初始化失败，请刷新页面重试')
+    if (isFirstConnection.value) {
+      ElMessage.error('聊天服务初始化失败，请刷新页面重试')
+    }
   }
 }
 
@@ -480,21 +490,23 @@ onMounted(() => {
   loadCompanies()
   connectWebSocket()
   // 添加欢迎消息
-  chatMessages.value.push({
-    type: 'assistant',
-    content: '👋 您好！我是您的宠物托运智能助手。我可以帮您：\n\n' +
-             '1️⃣ 解答宠物托运相关问题\n' +
-             '2️⃣ 推荐合适的托运公司\n' +
-             '3️⃣ 提供托运注意事项\n' +
-             '4️⃣ 协助处理托运订单\n\n' +
-             '请问有什么可以帮您的吗？'
-  })
+  if (chatMessages.value.length === 0) {
+    chatMessages.value.push({
+      type: 'assistant',
+      content: '👋 您好！我是您的宠物托运智能助手。我可以帮您：\n\n' +
+               '1️⃣ 解答宠物托运相关问题\n' +
+               '2️⃣ 推荐合适的托运公司\n' +
+               '3️⃣ 提供托运注意事项\n' +
+               '4️⃣ 协助处理托运订单\n\n' +
+               '请问有什么可以帮您的吗？'
+    })
+  }
 })
 
-// 组件卸载时断开连接
+// 组件卸载时只取消订阅，不关闭连接
 onUnmounted(() => {
   if (stompClient.value && stompClient.value.connected) {
-    stompClient.value.deactivate()
+    stompClient.value.unsubscribe('/topic/public')
   }
 })
 
