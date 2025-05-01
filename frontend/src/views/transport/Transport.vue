@@ -148,7 +148,7 @@
             <el-button 
               v-for="question in quickQuestions" 
               :key="question.id"
-              type="text"
+              type="default"
               @click="handleQuickQuestion(question)"
             >
               {{ question.text }}
@@ -168,7 +168,7 @@
               @keyup.enter.prevent="handleSendMessage"
             >
               <template #append>
-                <el-button type="link" @click.prevent="handleSendMessage" class="send-button">发送</el-button>
+                <el-button type="default" @click.prevent="handleSendMessage" class="send-button">发送</el-button>
               </template>
             </el-input>
           </div>
@@ -179,7 +179,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { Search, OfficeBuilding, 
   Van, 
   Location, 
@@ -189,6 +189,8 @@ import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 import { useRouter } from 'vue-router'
 import { sendMessage as sendChatMessage, getHistory } from '@/api/chat'
+import SockJS from 'sockjs-client'
+import { Client } from '@stomp/stompjs'
 
 const router = useRouter()
 
@@ -207,6 +209,8 @@ const error = ref(null)
 // 智能助手状态
 const userInput = ref('')
 const chatMessages = ref([])
+const stompClient = ref(null)
+const sessionId = ref('')
 
 // 快速问题列表
 const quickQuestions = ref([
@@ -322,36 +326,108 @@ watch(chatMessages, () => {
   scrollToBottom()
 }, { deep: true })
 
-const handleSendMessage = async () => {
-  if (!userInput.value.trim()) return
-  
-  loading.value = true
+// 连接 WebSocket
+const connectWebSocket = () => {
   try {
-    // 先添加用户消息
-    chatMessages.value.push({
-      type: 'user',
-      content: userInput.value
+    const socket = new SockJS('/ws', null, {
+      transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+      timeout: 5000,
+      debug: true
     })
     
-    const response = await sendChatMessage(userInput.value, '')
-    console.log('发送消息响应:', response)
-    
-    if (response && response.content) {
-      // 添加AI回复
-      chatMessages.value.push({
-        type: 'assistant',
-        content: response.content
-      })
-    } else {
-      throw new Error('无效的响应格式')
+    stompClient.value = new Client({
+      webSocketFactory: () => socket,
+      connectHeaders: {},
+      debug: function (str) {
+        console.log('STOMP:', str)
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      onStompError: (frame) => {
+        console.error('STOMP 错误:', frame)
+        ElMessage.error('聊天服务连接失败，正在重试...')
+      },
+      onWebSocketClose: () => {
+        console.log('WebSocket 连接关闭')
+        ElMessage.warning('聊天服务连接断开，正在重连...')
+      },
+      onWebSocketError: (event) => {
+        console.error('WebSocket 错误:', event)
+        ElMessage.error('聊天服务连接错误，正在重试...')
+      }
+    })
+
+    stompClient.value.onConnect = () => {
+      console.log('WebSocket 连接成功')
+      ElMessage.success('已连接到聊天服务')
+      stompClient.value.subscribe('/topic/public', onMessageReceived)
     }
-    
+
+    stompClient.value.activate()
+  } catch (error) {
+    console.error('WebSocket 初始化失败:', error)
+    ElMessage.error('聊天服务初始化失败，请刷新页面重试')
+  }
+}
+
+// 处理接收到的消息
+const onMessageReceived = (payload) => {
+  try {
+    const message = JSON.parse(payload.body)
+    if (message.type === 'CHAT') {
+      if (message.role === 'user') {
+        chatMessages.value.push({
+          type: 'user',
+          content: message.content
+        })
+      } else if (message.role === 'assistant') {
+        // 如果是新的 AI 消息，添加新消息
+        if (chatMessages.value.length === 0 || 
+            chatMessages.value[chatMessages.value.length - 1].type !== 'assistant') {
+          chatMessages.value.push({
+            type: 'assistant',
+            content: message.content
+          })
+        } else {
+          // 如果是正在接收的 AI 消息，更新最后一条消息
+          chatMessages.value[chatMessages.value.length - 1].content = message.content
+        }
+      }
+    } else if (message.type === 'SYSTEM') {
+      ElMessage.error(message.content)
+    }
+  } catch (error) {
+    console.error('消息处理错误:', error)
+  }
+}
+
+// 发送消息
+const handleSendMessage = () => {
+  if (!userInput.value.trim()) return
+  
+  if (!stompClient.value || !stompClient.value.connected) {
+    ElMessage.error('WebSocket 未连接，请刷新页面重试')
+    return
+  }
+
+  try {
+    const message = {
+      type: 'CHAT',
+      content: userInput.value,
+      sessionId: sessionId.value,
+      role: 'user'
+    }
+
+    stompClient.value.publish({
+      destination: '/app/chat.send',
+      body: JSON.stringify(message)
+    })
+
     userInput.value = ''
   } catch (error) {
     console.error('发送消息失败:', error)
-    ElMessage.error(error.response?.data?.message || '发送消息失败，请重试')
-  } finally {
-    loading.value = false
+    ElMessage.error('发送消息失败，请重试')
   }
 }
 
@@ -385,6 +461,14 @@ const bookService = (companyId) => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadCompanies()
+  connectWebSocket()
+})
+
+// 组件卸载时断开连接
+onUnmounted(() => {
+  if (stompClient.value && stompClient.value.connected) {
+    stompClient.value.deactivate()
+  }
 })
 
 const hasActiveFilters = computed(() => {

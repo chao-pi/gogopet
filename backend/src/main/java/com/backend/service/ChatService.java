@@ -18,4 +18,12 @@ public interface ChatService {
      * @return 历史消息列表
      */
     List<ChatMessage> getHistory(String sessionId);
+
+    /**
+     * 保存消息
+     * @param content 消息内容
+     * @param sessionId 会话ID
+     * @param role 角色
+     */
+    void saveMessage(String content, String sessionId, String role);
 } 

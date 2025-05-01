@@ -21,29 +21,35 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatMessage sendMessage(String message, String sessionId) {
         // 保存用户消息
-        ChatMessage userMessage = new ChatMessage();
-        userMessage.setRole("user");
-        userMessage.setContent(message);
-        userMessage.setCreateTime(LocalDateTime.now());
-        userMessage.setSessionId(sessionId);
-        chatMessageMapper.insert(userMessage);
+        saveMessage(message, sessionId, "user");
 
         // 获取AI响应
         String aiResponse = deepSeekUtil.getResponse(message);
 
         // 保存AI响应
+        saveMessage(aiResponse, sessionId, "assistant");
+
+        // 返回AI消息
         ChatMessage aiMessage = new ChatMessage();
         aiMessage.setRole("assistant");
         aiMessage.setContent(aiResponse);
         aiMessage.setCreateTime(LocalDateTime.now());
         aiMessage.setSessionId(sessionId);
-        chatMessageMapper.insert(aiMessage);
-
         return aiMessage;
     }
 
     @Override
     public List<ChatMessage> getHistory(String sessionId) {
         return chatMessageMapper.selectBySessionId(sessionId);
+    }
+
+    @Override
+    public void saveMessage(String content, String sessionId, String role) {
+        ChatMessage message = new ChatMessage();
+        message.setRole(role);
+        message.setContent(content);
+        message.setCreateTime(LocalDateTime.now());
+        message.setSessionId(sessionId);
+        chatMessageMapper.insert(message);
     }
 } 
