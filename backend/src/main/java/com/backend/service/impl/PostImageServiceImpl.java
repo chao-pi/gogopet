@@ -19,8 +19,8 @@ public class PostImageServiceImpl implements PostImageService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    @Value("${upload.url}")
-    private String uploadUrl;
+    @Value("${upload.url-prefix}")
+    private String uploadUrlPrefix;
 
     @Autowired
     private PostImageMapper postImageMapper;
@@ -33,18 +33,19 @@ public class PostImageServiceImpl implements PostImageService {
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String filename = UUID.randomUUID().toString() + extension;
 
-            // 创建上传目录
-            File uploadDir = new File(uploadPath);
+            // 创建帖子图片上传目录
+            String postImagePath = uploadPath + File.separator + "posts";
+            File uploadDir = new File(postImagePath);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
 
             // 保存文件
-            File destFile = new File(uploadPath + File.separator + filename);
+            File destFile = new File(postImagePath + File.separator + filename);
             file.transferTo(destFile);
 
             // 生成图片URL
-            String imageUrl = uploadUrl + "/" + filename;
+            String imageUrl = uploadUrlPrefix + "/posts/" + filename;
 
             // 保存图片信息到数据库
             PostImage postImage = new PostImage();

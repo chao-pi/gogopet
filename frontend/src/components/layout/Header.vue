@@ -10,11 +10,8 @@
       <!-- 中间导航菜单 -->
       <nav class="nav-section">
         <router-link to="/" class="nav-link">首页</router-link>
-<<<<<<< HEAD
         <router-link to="/transport" class="nav-link">宠物托运</router-link>
-=======
         <router-link to="/community" class="nav-link">社区交流</router-link>
->>>>>>> origin/post-comment
         <router-link to="/about" class="nav-link">关于我们</router-link>
       </nav>
 
