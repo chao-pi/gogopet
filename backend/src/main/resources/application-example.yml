@@ -3,14 +3,9 @@ spring:
     name: backend
   datasource:
     url: jdbc:mysql://localhost:3306/gogopet?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
+    username: [your_mysql_username]
+    password: [your_mysql_password]
     driver-class-name: com.mysql.cj.jdbc.Driver
-#  sql:
-#    init:
-#      mode: always
-#      schema-locations: classpath:sql/DB_by_cursor.sql
-#      continue-on-error: true
   servlet:
     multipart:
       max-file-size: 10MB
@@ -27,5 +22,5 @@ upload:
 # DeepSeek API配置
 deepseek:
   api:
-    key: sk-2ce4505522d1410893479f4a57335474
+    key: [your_deepseek_api_key]
     url: https://api.deepseek.com/v1/chat/completions
