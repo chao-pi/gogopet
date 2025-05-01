@@ -159,6 +159,11 @@
             <div v-for="(message, index) in chatMessages" :key="index" class="message" :class="message.type">
               {{ message.content }}
             </div>
+            <div v-if="isTyping" class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
 
           <div class="input-area">
@@ -168,7 +173,9 @@
               @keyup.enter.prevent="handleSendMessage"
             >
               <template #append>
-                <el-button type="default" @click.prevent="handleSendMessage" class="send-button">发送</el-button>
+                <el-button type="default" @click.prevent="handleSendMessage" class="send-button">
+                  <el-icon><Position /></el-icon>
+                </el-button>
               </template>
             </el-input>
           </div>
@@ -184,7 +191,8 @@ import { Search, OfficeBuilding,
   Van, 
   Location, 
   Money, 
-  House } from '@element-plus/icons-vue'
+  House,
+  Position } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getAllCompanyCards } from '@/api/company'
 import { useRouter } from 'vue-router'
@@ -258,6 +266,9 @@ const quickAnswers = {
 7. 联系方式：确保能及时联系到主人
 建议提前准备，避免临时办理延误行程`
 }
+
+// 添加打字状态
+const isTyping = ref(false)
 
 // 过滤后的公司列表
 const filteredCompanies = computed(() => {
@@ -371,7 +382,7 @@ const connectWebSocket = () => {
   }
 }
 
-// 处理接收到的消息
+// 修改消息处理函数
 const onMessageReceived = (payload) => {
   try {
     const message = JSON.parse(payload.body)
@@ -382,6 +393,7 @@ const onMessageReceived = (payload) => {
           content: message.content
         })
       } else if (message.role === 'assistant') {
+        isTyping.value = true
         // 如果是新的 AI 消息，添加新消息
         if (chatMessages.value.length === 0 || 
             chatMessages.value[chatMessages.value.length - 1].type !== 'assistant') {
@@ -393,6 +405,11 @@ const onMessageReceived = (payload) => {
           // 如果是正在接收的 AI 消息，更新最后一条消息
           chatMessages.value[chatMessages.value.length - 1].content = message.content
         }
+        
+        // 如果消息结束，关闭打字状态
+        if (message.content.endsWith('。') || message.content.endsWith('！') || message.content.endsWith('？')) {
+          isTyping.value = false
+        }
       }
     } else if (message.type === 'SYSTEM') {
       ElMessage.error(message.content)
@@ -402,12 +419,12 @@ const onMessageReceived = (payload) => {
   }
 }
 
-// 发送消息
+// 修改发送消息函数
 const handleSendMessage = () => {
   if (!userInput.value.trim()) return
   
   if (!stompClient.value || !stompClient.value.connected) {
-    ElMessage.error('WebSocket 未连接，请刷新页面重试')
+    ElMessage.error('聊天服务未连接，请刷新页面重试')
     return
   }
 
@@ -791,98 +808,275 @@ const clearFilters = () => {
 }
 
 .ai-assistant-panel {
-  width: 300px;
-  min-width: 300px;
-  max-width: 300px;
+  width: 350px;
+  min-width: 350px;
+  max-width: 350px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   position: sticky;
   top: 20px;
   height: fit-content;
   border: 1px solid #ebeef5;
+  transition: all 0.3s ease;
+}
+
+.ai-assistant-panel:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .assistant-header {
-  padding: 15px;
-  background: #f5f7fa;
+  padding: 20px;
+  background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
   border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .assistant-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  color: #333;
+  font-size: 1.2rem;
+  color: white;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.assistant-header h3::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
 }
 
 .assistant-content {
-  padding: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .quick-questions {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .quick-questions h4 {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   font-size: 1rem;
-  color: #666;
+  color: #606266;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-questions h4::before {
+  content: '💡';
+  font-size: 1.2em;
 }
 
 .quick-questions .el-button {
   width: 100%;
   text-align: left;
-  padding: 8px 15px;
-  margin-bottom: 5px;
-  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #f5f7fa;
+  border: 1px solid #e4e7ed;
+  color: #606266;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.quick-questions .el-button:hover {
+  background: #ecf5ff;
+  border-color: #409eff;
+  color: #409eff;
+  transform: translateX(4px);
 }
 
 .chat-area {
-  height: 300px;
+  height: 400px;
   overflow-y: auto;
   margin-bottom: 20px;
-  padding: 10px;
+  padding: 16px;
   background: #f9f9f9;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #ebeef5;
-  scroll-behavior: smooth; /* 添加平滑滚动效果 */
+  scroll-behavior: smooth;
+}
+
+.chat-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chat-area::-webkit-scrollbar-thumb {
+  background: #c0c4cc;
+  border-radius: 3px;
+}
+
+.chat-area::-webkit-scrollbar-thumb:hover {
+  background: #909399;
 }
 
 .message {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  max-width: 80%;
-  font-size: 0.9rem;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 85%;
+  font-size: 0.95rem;
   line-height: 1.5;
+  position: relative;
+  animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .message.user {
-  background: #e3f2fd;
-  color: #1a73e8;
+  background: #ecf5ff;
+  color: #409eff;
   margin-left: auto;
+  border-bottom-right-radius: 4px;
 }
 
 .message.assistant {
-  background: #f5f5f5;
-  color: #333;
+  background: white;
+  color: #303133;
   margin-right: auto;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .input-area {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  position: relative;
 }
 
 .input-area .el-input {
-  border-radius: 20px;
+  border-radius: 12px;
 }
 
-.input-area .el-button {
-  border-radius: 20px;
+.input-area .el-input :deep(.el-input__wrapper) {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dcdfe6;
+  transition: all 0.3s ease;
+  background-color: white;
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.input-area .el-input :deep(.el-input__wrapper:hover) {
+  border-color: #409eff;
+  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.1);
+}
+
+.input-area .el-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+}
+
+.send-button {
+  color: #409eff;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.send-button:hover {
+  color: #66b1ff;
+  transform: scale(1.05);
+}
+
+.send-button:active {
+  transform: scale(0.95);
+}
+
+/* 添加打字机效果 */
+.message.assistant {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 添加加载动画 */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background: #409eff;
+  border-radius: 50%;
+  animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 .clear-filter-btn {
@@ -913,22 +1107,5 @@ const clearFilters = () => {
 .clear-filter-btn:not(:disabled):active {
   background: #d3d4d6;
   border-color: #b1b3b8;
-}
-
-.send-button {
-  color: #409eff;
-  padding: 0 15px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.send-button:hover {
-  color: #66b1ff;
 }
 </style> 
