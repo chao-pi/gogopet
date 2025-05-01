@@ -1,12 +1,14 @@
 package com.backend.service.impl;
 
 import com.backend.mapper.UserMapper;
+import com.backend.mapper.CompanyMapper;
 import com.backend.model.dto.UserDTO;
 import com.backend.model.dto.RegisterDTO;
 import com.backend.model.dto.LoginDTO;
 import com.backend.model.dto.LoginResultDTO;
 import com.backend.model.dto.ChangePasswordDTO;
 import com.backend.model.entity.User;
+import com.backend.model.entity.Company;
 import com.backend.service.UserService;
 import com.backend.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +24,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private CompanyMapper companyMapper;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -51,6 +56,19 @@ public class UserServiceImpl implements UserService {
         // 设置用户ID和加密密码
         user.setUserId(generateUserId());
         user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
+
+        // 如果是托运公司用户，创建公司记录
+        if ("C".equals(userRegisterDTO.getUserType())) {
+            Company company = new Company();
+            String companyId = generateUserId();
+            company.setCompanyId(companyId);
+            company.setCompanyIntro("暂无介绍");
+            company.setCompanyLocal(userRegisterDTO.getUserAddress());
+            companyMapper.insert(company);
+            
+            // 关联公司ID到用户
+            user.setCompanyId(companyId);
+        }
 
         // 保存用户
         userMapper.insert(user);

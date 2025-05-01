@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -102,7 +102,7 @@ public class PictureServiceImpl implements PictureService {
                     }
                     // 更新图片信息
                     picture.setPictureUrl(urlPrefix + "/avatars/" + fileName);
-                    picture.setUploadTime(new Date());
+                    picture.setUploadTime(LocalDateTime.now());
                     System.out.println("更新图片记录");
                     pictureMapper.update(picture);
                 } else {
@@ -141,7 +141,7 @@ public class PictureServiceImpl implements PictureService {
         picture.setPictureUsage("A"); // A-头像
         picture.setPictureUrl(urlPrefix + "/avatars/" + fileName);
         picture.setUserId(userId);
-        picture.setUploadTime(new Date());
+        picture.setUploadTime(LocalDateTime.now());
         return picture;
     }
 } 

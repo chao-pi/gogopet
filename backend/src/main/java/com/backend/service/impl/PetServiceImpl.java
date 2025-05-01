@@ -6,6 +6,7 @@ import com.backend.model.dto.PetDTO;
 import com.backend.model.entity.Pet;
 import com.backend.model.entity.Picture;
 import com.backend.service.PetService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,22 +29,22 @@ import java.util.UUID;
  * 宠物服务实现类
  */
 @Service
-public class PetServiceImpl implements PetService {
+public class PetServiceImpl extends ServiceImpl<PetMapper, Pet> implements PetService {
 
-    @Autowired
-    private PetMapper petMapper;
-
-    @Autowired
-    private PictureMapper pictureMapper;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final PictureMapper pictureMapper;
+    private final ResourceLoader resourceLoader;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     @Value("${upload.url-prefix}")
     private String urlPrefix;
+
+    @Autowired
+    public PetServiceImpl(PictureMapper pictureMapper, ResourceLoader resourceLoader) {
+        this.pictureMapper = pictureMapper;
+        this.resourceLoader = resourceLoader;
+    }
 
     @Override
     @Transactional
@@ -57,16 +58,11 @@ public class PetServiceImpl implements PetService {
         // 设置宠物ID和时间
         String petId = UUID.randomUUID().toString().replace("-", "").substring(0, 18);
         pet.setPetId(petId);
-        pet.setPetBreed(petDTO.getPetBreed());
-        pet.setPetWeight(petDTO.getPetWeight());
-        pet.setPetHealthStatus(petDTO.getPetHealthStatus());
-        pet.setPetAge(petDTO.getPetAge());
-        pet.setPetGender(petDTO.getPetGender());
-        pet.setCreateTime(new Date());
-        pet.setUpdateTime(new Date());
+        pet.setCreateTime(LocalDateTime.now());
+        pet.setUpdateTime(LocalDateTime.now());
 
         // 保存宠物信息
-        petMapper.insert(pet);
+        save(pet);
         System.out.println("宠物信息保存成功，ID: " + petId);
 
         // 返回宠物信息
@@ -80,7 +76,7 @@ public class PetServiceImpl implements PetService {
         System.out.println("开始更新宠物信息，ID: " + petDTO.getPetId());
 
         // 检查宠物是否存在
-        Pet pet = petMapper.selectById(petDTO.getPetId());
+        Pet pet = getById(petDTO.getPetId());
         if (pet == null) {
             System.out.println("宠物不存在，ID: " + petDTO.getPetId());
             throw new RuntimeException("宠物不存在");
@@ -88,28 +84,20 @@ public class PetServiceImpl implements PetService {
 
         // 更新宠物信息
         BeanUtils.copyProperties(petDTO, pet);
-        pet.setUpdateTime(new Date());
-        petMapper.update(pet);
+        pet.setUpdateTime(LocalDateTime.now());
+        updateById(pet);
         System.out.println("宠物信息更新成功");
 
         return petDTO;
     }
 
     @Override
-    @Transactional
-    public void deletePet(String petId) {
-        System.out.println("开始删除宠物，ID: " + petId);
-
-        // 检查宠物是否存在
-        Pet pet = petMapper.selectById(petId);
-        if (pet == null) {
-            System.out.println("宠物不存在，ID: " + petId);
-            throw new RuntimeException("宠物不存在");
-        }
-
-        // 删除宠物信息
-        petMapper.deleteById(petId);
-        System.out.println("宠物删除成功");
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deletePet(String petId) {
+        // 先删除相关的图片记录
+        pictureMapper.deleteByPetId(petId);
+        // 再删除宠物记录
+        return removeById(petId);
     }
 
     @Override
@@ -117,7 +105,7 @@ public class PetServiceImpl implements PetService {
         System.out.println("查询宠物信息，ID: " + petId);
 
         // 查询宠物信息
-        Pet pet = petMapper.selectById(petId);
+        Pet pet = getById(petId);
         if (pet == null) {
             System.out.println("宠物不存在，ID: " + petId);
             throw new RuntimeException("宠物不存在");
@@ -134,7 +122,7 @@ public class PetServiceImpl implements PetService {
         System.out.println("查询用户的宠物列表，用户ID: " + userId);
 
         // 查询用户的所有宠物
-        List<Pet> pets = petMapper.selectByUserId(userId);
+        List<Pet> pets = baseMapper.selectByUserId(userId);
         List<PetDTO> petDTOs = new ArrayList<>();
 
         // 转换为DTO列表
@@ -162,7 +150,7 @@ public class PetServiceImpl implements PetService {
             System.out.println("开始上传宠物照片，宠物ID: " + petId);
 
             // 检查宠物是否存在
-            Pet pet = petMapper.selectById(petId);
+            Pet pet = getById(petId);
             if (pet == null) {
                 System.out.println("宠物不存在，ID: " + petId);
                 throw new RuntimeException("宠物不存在");
@@ -219,7 +207,7 @@ public class PetServiceImpl implements PetService {
             if (existingPicture != null) {
                 // 更新现有图片记录
                 existingPicture.setPictureUrl(pictureUrl);
-                existingPicture.setUploadTime(new Date());
+                existingPicture.setUploadTime(LocalDateTime.now());
                 pictureMapper.update(existingPicture);
                 System.out.println("更新图片记录成功");
             } else {
@@ -228,9 +216,9 @@ public class PetServiceImpl implements PetService {
                 picture.setPictureId(UUID.randomUUID().toString().replace("-", "").substring(0, 18));
                 picture.setPictureUsage("P"); // P-宠物照片
                 picture.setPictureUrl(pictureUrl);
-                picture.setUserId(pet.getUserId()); // 设置用户ID
-                picture.setPetId(petId); // 设置宠物ID
-                picture.setUploadTime(new Date());
+                picture.setUserId(pet.getUserId());
+                picture.setPetId(petId);
+                picture.setUploadTime(LocalDateTime.now());
                 pictureMapper.insert(picture);
                 System.out.println("创建图片记录成功");
             }

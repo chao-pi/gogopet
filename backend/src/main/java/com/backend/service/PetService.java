@@ -26,8 +26,9 @@ public interface PetService {
     /**
      * 删除宠物
      * @param petId 宠物ID
+     * @return 是否删除成功
      */
-    void deletePet(String petId);
+    boolean deletePet(String petId);
 
     /**
      * 获取宠物信息

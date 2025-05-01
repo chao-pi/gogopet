@@ -1,119 +1,180 @@
 package com.backend.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 订单实体类
  * 对应数据库表 t_order
  */
 @Data
+@Getter
+@Setter
 @TableName("t_order")
 public class Order {
     /**
      * 订单ID，唯一标识符
      */
-    @TableId("order_id")
+    @TableId(type = IdType.ASSIGN_ID)
     private String orderId;
 
     /**
-     * 宠物ID，关联托运的宠物
+     * 用户ID，关联用户表，表示下单用户
      */
-    @TableField("pet_id")
-    private String petId;
-
-    /**
-     * 用户ID，关联订单创建者
-     */
-    @TableField("user_id")
     private String userId;
 
     /**
-     * 公司ID，关联承运公司
+     * 公司ID，关联公司表，表示接单的公司
      */
-    @TableField("company_id")
     private String companyId;
 
     /**
-     * 订单状态
-     * P-待支付
-     * W-待接单
-     * T-运输中
-     * C-已完成
-     * X-已取消
+     * 订单状态：P-待支付，W-待接单，T-进行中，C-已完成，X-已取消
      */
-    @TableField("order_status")
     private String orderStatus;
 
     /**
-     * 宠物状态
-     * N-正常
-     * A-异常
+     * 宠物状态：N-正常，A-异常
      */
-    @TableField("pet_status")
     private String petStatus;
 
     /**
-     * 运输状态
-     * P-待接单
-     * T-运输中
-     * D-已送达
+     * 运输方式
+     * SPECIAL-专车托运
+     * SHARE-拼车托运
+     * AIR-空运托运
      */
-    @TableField("delivery_status")
-    private String deliveryStatus;
+    @TableField("transport_method")
+    private String transportMethod;
+
+    /**
+     * 起始省份
+     */
+    private String startProvince;
+
+    /**
+     * 起始城市
+     */
+    private String startCity;
+
+    /**
+     * 起始区县
+     */
+    private String startDistrict;
+
+    /**
+     * 起始详细地址
+     */
+    private String startLocation;
+
+    /**
+     * 起始地纬度
+     */
+    private BigDecimal startLatitude;
+
+    /**
+     * 起始地经度
+     */
+    private BigDecimal startLongitude;
+
+    /**
+     * 目的省份
+     */
+    private String endProvince;
+
+    /**
+     * 目的城市
+     */
+    private String endCity;
+
+    /**
+     * 目的区县
+     */
+    private String endDistrict;
+
+    /**
+     * 目的详细地址
+     */
+    private String endLocation;
+
+    /**
+     * 目的地纬度
+     */
+    private BigDecimal endLatitude;
+
+    /**
+     * 目的地经度
+     */
+    private BigDecimal endLongitude;
 
     /**
      * 托运开始时间
      */
-    @TableField("start_time")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 托运结束时间
      */
-    @TableField("end_time")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
-     * 起始地点
+     * 订单完成时间
      */
-    @TableField("start_location")
-    private String startLocation;
+    private LocalDateTime completeTime;
 
     /**
-     * 目的地
+     * 运输距离，单位：公里
      */
-    @TableField("end_location")
-    private String endLocation;
+    private BigDecimal distance;
 
     /**
      * 订单价格，单位：元
      */
-    @TableField("price")
     private BigDecimal price;
 
     /**
-     * 支付状态
-     * U-未支付
-     * P-已支付
-     * R-已退款
+     * 订单备注，用户特殊要求
      */
-    @TableField("payment_status")
-    private String paymentStatus;
+    private String orderRemark;
+
+    /**
+     * 用户评分，1-5分
+     */
+    private BigDecimal rating;
+
+    /**
+     * 用户评价内容
+     */
+    private String ratingComment;
+
+    @TableField(exist = false)
+    private List<String> petIds;
 
     /**
      * 创建时间
      */
-    @TableField("create_time")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField("update_time")
-    private Date updateTime;
+    private LocalDateTime updateTime;
+
+    /**
+     * 运输方式枚举
+     */
+    public static class TransportMethod {
+        public static final String SPECIAL = "SPECIAL";
+        public static final String SHARE = "SHARE";
+        public static final String AIR = "AIR";
+    }
 } 

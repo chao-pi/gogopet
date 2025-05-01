@@ -10,6 +10,7 @@
       <!-- 中间导航菜单 -->
       <nav class="nav-section">
         <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/transport" class="nav-link">宠物托运</router-link>
         <router-link to="/about" class="nav-link">关于我们</router-link>
       </nav>
 
