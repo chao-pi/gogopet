@@ -18,6 +18,11 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
+import java.util.ArrayList;
+import org.springframework.beans.BeanUtils;
+import java.util.stream.Collectors;
+import com.backend.model.dto.PetDTO;
+import com.backend.model.entity.Pet;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -179,7 +184,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         
         order.setOrderStatus(status);
-        order.setUpdateTime(LocalDateTime.now());
         return updateById(order);
     }
 
@@ -224,6 +228,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Order::getUserId, userId)
                    .orderByDesc(Order::getCreateTime);
+        return list(queryWrapper);
+    }
+
+    @Override
+    public List<Order> listByCompanyId(String companyId) {
+        if (companyId == null) {
+            throw new RuntimeException("公司ID不能为空");
+        }
+
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Order::getCompanyId, companyId)
+                .orderByDesc(Order::getCreateTime);
         return list(queryWrapper);
     }
     
@@ -287,5 +303,78 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         
         return R * c;
+    }
+
+    @Override
+    public List<PetDTO> getOrderPets(String orderId) {
+        if (orderId == null) {
+            throw new RuntimeException("订单ID不能为空");
+        }
+
+        // 1. 查询订单是否存在
+        Order order = getById(orderId);
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+
+        // 2. 查询订单-宠物关联记录
+        LambdaQueryWrapper<OrderPet> orderPetWrapper = new LambdaQueryWrapper<>();
+        orderPetWrapper.eq(OrderPet::getOrderId, orderId);
+        List<OrderPet> orderPets = orderPetMapper.selectList(orderPetWrapper);
+
+        // 3. 获取所有宠物ID
+        List<String> petIds = orderPets.stream()
+                .map(OrderPet::getPetId)
+                .collect(Collectors.toList());
+
+        // 4. 查询宠物详细信息
+        List<PetDTO> petDTOs = new ArrayList<>();
+        for (String petId : petIds) {
+            try {
+                Pet pet = petMapper.selectById(petId);
+                if (pet != null) {
+                    PetDTO petDTO = new PetDTO();
+                    BeanUtils.copyProperties(pet, petDTO);
+                    petDTOs.add(petDTO);
+                }
+            } catch (Exception e) {
+                System.err.println("获取宠物信息失败，宠物ID: " + petId + ", 错误: " + e.getMessage());
+            }
+        }
+
+        return petDTOs;
+    }
+
+    // 在 OrderServiceImpl.java 中添加
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateOrderEndTime(String orderId) {
+        if (orderId == null) {
+            return false;
+        }
+        Order order = getById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setEndTime(LocalDateTime.now());
+        order.setUpdateTime(LocalDateTime.now());
+        return updateById(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean evaluateOrder(String orderId, BigDecimal rating, String ratingComment) {
+        if (orderId == null || rating == null || ratingComment == null) {
+            return false;
+        }
+        Order order = getById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setRating(rating);
+        order.setRatingComment(ratingComment);
+        order.setUpdateTime(LocalDateTime.now());
+        order.setCompleteTime(LocalDateTime.now());
+        return updateById(order);
     }
 } 

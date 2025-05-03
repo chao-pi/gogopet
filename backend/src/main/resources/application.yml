@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/gogopet?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password: Czx200471900
     driver-class-name: com.mysql.cj.jdbc.Driver
 #  sql:
 #    init:
