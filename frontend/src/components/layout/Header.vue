@@ -13,6 +13,7 @@
         <router-link to="/transport" class="nav-link">宠物托运</router-link>
         <router-link to="/community" class="nav-link">社区交流</router-link>
         <router-link to="/about" class="nav-link">关于我们</router-link>
+        <router-link to="/analysis" class="nav-link">数据分析</router-link>
       </nav>
 
       <!-- 右侧用户信息 -->
