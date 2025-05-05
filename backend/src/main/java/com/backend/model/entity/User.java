@@ -31,6 +31,12 @@ public class User {
     private String userName;
 
     /**
+     * 用户头像
+     */
+    @TableField("user_avatar")
+    private String userAvatar;
+
+    /**
      * 用户密码，加密存储
      */
     @TableField("password")

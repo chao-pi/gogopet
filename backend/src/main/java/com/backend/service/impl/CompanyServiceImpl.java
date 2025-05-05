@@ -4,11 +4,13 @@ import com.backend.mapper.CompanyMapper;
 import com.backend.mapper.CommentMapper;
 import com.backend.mapper.PictureMapper;
 import com.backend.mapper.UserMapper;
+import com.backend.mapper.OrderMapper;
 import com.backend.model.dto.CompanyCardDTO;
 import com.backend.model.entity.Company;
 import com.backend.model.entity.Comment;
 import com.backend.model.entity.Picture;
 import com.backend.model.entity.User;
+import com.backend.model.entity.Order;
 import com.backend.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     @Override
     public List<CompanyCardDTO> getAllCompanyCards() {
@@ -61,7 +66,7 @@ public class CompanyServiceImpl implements CompanyService {
             dto.setCompanyId(company.getCompanyId());
             dto.setCompanyName(user.getUserName());
             dto.setLogoUrl(logoUrl);
-            dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
+            dto.setRating(company.getRating() != null ? company.getRating().doubleValue() : 0.0);
             dto.setTransportCount(company.getTransportCount() != null ? company.getTransportCount() : 0);
             dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
             dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
@@ -99,7 +104,7 @@ public class CompanyServiceImpl implements CompanyService {
         dto.setCompanyId(companyId);
         dto.setCompanyName(user.getUserName());
         dto.setLogoUrl(logoUrl);
-        dto.setRating(company.getRating() != null ? company.getRating() : 0.0);
+        dto.setRating(company.getRating() != null ? company.getRating().doubleValue() : 0.0);
         dto.setTransportCount(company.getTransportCount() != null ? company.getTransportCount() : 0);
         dto.setServiceArea(company.getServiceArea() != null ? company.getServiceArea() : "D");
         dto.setTransportPricePerKm(company.getTransportPricePerKm() != null ? company.getTransportPricePerKm() : new BigDecimal("0.5"));
@@ -114,15 +119,18 @@ public class CompanyServiceImpl implements CompanyService {
      * @return 平均评分
      */
     private Double calculateCompanyRating(String companyId) {
-        List<Comment> comments = commentMapper.selectByCompanyId(companyId);
-        if (comments.isEmpty()) {
+        // 查询该公司的所有已完成订单
+        List<Order> orders = orderMapper.selectByCompanyIdAndStatus(companyId, "C");
+        if (orders.isEmpty()) {
             return 0.0;
         }
 
-        double sum = comments.stream()
-                .mapToInt(Comment::getRating)
+        // 计算平均评分
+        double sum = orders.stream()
+                .filter(order -> order.getRating() != null)
+                .mapToDouble(order -> order.getRating().doubleValue())
                 .sum();
         
-        return sum / comments.size();
+        return sum / orders.size();
     }
 } 
