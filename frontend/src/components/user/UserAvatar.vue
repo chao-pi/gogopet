@@ -29,6 +29,10 @@
           <i class="fas fa-paw mr-2"></i>
           我的宠物
         </div>
+        <div class="dropdown-item" @click="navigateTo('/orderManagement')">
+          <i class="fas fa-clipboard-list mr-2"></i>
+          订单管理
+        </div>
         <div class="dropdown-item" @click="handleLogout">
           <i class="fas fa-sign-out-alt mr-2"></i>
           退出登录
@@ -65,7 +69,14 @@ const toggleDropdown = () => {
 
 const navigateTo = (path) => {
   isDropdownOpen.value = false
-  router.push(path)
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+  const userType = userInfo.userType
+
+  if (path === '/orderManagement' && userType === 'C') {
+    router.push('/companyOrderManagement')
+  } else {
+    router.push(path)
+  }
 }
 
 const handleLogout = async () => {
@@ -85,7 +96,7 @@ const handleLogout = async () => {
       beforeClose: (action, instance, done) => {
         if (action === 'confirm') {
           isDropdownOpen.value = false
-          userStore.clearUserInfo()
+          userStore.logout()
           router.push('/login')
         }
         done()

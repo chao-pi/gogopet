@@ -3,6 +3,7 @@ spring:
     name: backend
   datasource:
     url: jdbc:mysql://localhost:3306/gogopet?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+<<<<<<< HEAD:backend/src/main/resources/application-example.yml
     username: [your_sql_username]
     password: [your_sql_password]
     driver-class-name: com.mysql.cj.jdbc.Driver
