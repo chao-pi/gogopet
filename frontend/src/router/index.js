@@ -8,13 +8,10 @@ import Profile from '@/views/user/Profile.vue'
 import Pets from '@/views/user/Pets.vue'
 import Transport from '@/views/transport/Transport.vue'
 import OrderForm from '@/views/transport/OrderForm.vue'
-<<<<<<< HEAD
 import Community from '@/views/Community.vue'
 import Analysis from '@/views/Analysis.vue'
-=======
 import OrderManagement from '@/views/user/OrderManagement.vue'
 import CompanyOrderManagement from '@/views/company/CompanyOrderManagement.vue'
->>>>>>> origin/feature/order
 
 const routes = [
   {
