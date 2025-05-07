@@ -3,6 +3,7 @@ package com.backend.service.impl;
 import com.backend.model.entity.Order;
 import com.backend.model.entity.OrderPet;
 import com.backend.model.entity.OrderTracking;
+import com.backend.model.entity.Pet;
 import com.backend.mapper.OrderMapper;
 import com.backend.mapper.OrderPetMapper;
 import com.backend.mapper.OrderTrackingMapper;
@@ -18,6 +19,9 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.backend.model.entity.Company;
+import com.backend.model.entity.User;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -163,7 +167,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrderStatus(String orderId, String status) {
+    public boolean updateOrderStatus(String orderId, String status, String petStatus, String location) {
         if (orderId == null || status == null) {
             return false;
         }
@@ -178,21 +182,140 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new RuntimeException("非法的状态转换");
         }
         
+        // 更新订单状态
         order.setOrderStatus(status);
         order.setUpdateTime(LocalDateTime.now());
+        
+        // 更新宠物状态（如果提供）
+        if (petStatus != null) {
+            order.setPetStatus(petStatus);
+        }
+        
+        // 更新订单追踪信息
+        LambdaQueryWrapper<OrderTracking> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderTracking::getOrderId, orderId);
+        OrderTracking tracking = orderTrackingMapper.selectOne(wrapper);
+        
+        if (tracking != null) {
+            tracking.setStatus(status);
+            if (location != null) {
+                tracking.setLocation(location);
+            }
+            tracking.setLastUpdateTime(LocalDateTime.now());
+            orderTrackingMapper.updateById(tracking);
+        }
+        
         return updateById(order);
     }
 
     @Override
     public Order getOrderDetail(String orderId) {
+        System.out.println("=== 开始获取订单详情 ===");
+        System.out.println("订单ID: " + orderId);
+        
         if (orderId == null) {
+            System.out.println("订单ID为空，抛出异常");
             throw new RuntimeException("订单ID不能为空");
         }
         
+        // 获取订单基本信息
         Order order = getById(orderId);
+        System.out.println("查询到的订单信息: " + (order != null ? 
+            "订单ID: " + order.getOrderId() + ", 公司ID: " + order.getCompanyId() : 
+            "订单不存在"));
+        
         if (order == null) {
+            System.out.println("订单不存在，抛出异常");
             throw new RuntimeException("订单不存在");
         }
+
+        // 获取订单关联的宠物信息
+        LambdaQueryWrapper<OrderPet> petWrapper = new LambdaQueryWrapper<>();
+        petWrapper.eq(OrderPet::getOrderId, orderId);
+        List<OrderPet> orderPets = orderPetMapper.selectList(petWrapper);
+        System.out.println("查询到的宠物关联信息数量: " + orderPets.size());
+        
+        if (!orderPets.isEmpty()) {
+            // 获取第一个宠物的信息（目前系统只支持一个宠物）
+            String petId = orderPets.get(0).getPetId();
+            Pet pet = petMapper.selectById(petId);
+            System.out.println("查询到的宠物信息: " + (pet != null ? 
+                "宠物ID: " + pet.getPetId() + ", 宠物名称: " + pet.getPetName() : 
+                "宠物不存在"));
+            
+            if (pet != null) {
+                // 设置宠物信息到订单对象
+                order.setPetName(pet.getPetName());
+                order.setPetBreed(pet.getPetBreed());
+                order.setPetAge(pet.getPetAge());
+                order.setPetImage(pet.getPetImage());
+                System.out.println("已设置宠物信息到订单");
+            }
+        }
+
+        // 获取公司信息
+        System.out.println("=== 开始查询公司信息 ===");
+        System.out.println("订单中的公司ID: " + order.getCompanyId());
+        
+        if (order.getCompanyId() != null) {
+            System.out.println("开始查询公司信息 - 公司ID: " + order.getCompanyId());
+            
+            Company company = companyMapper.selectById(order.getCompanyId());
+            System.out.println("查询到的公司信息: " + (company != null ? 
+                "公司ID: " + company.getCompanyId() : 
+                "公司不存在"));
+            
+            if (company != null) {
+                System.out.println("开始查询公司对应的用户信息");
+                User companyUser = userMapper.selectByCompanyId(company.getCompanyId());
+                System.out.println("查询到的公司用户信息: " + (companyUser != null ? 
+                    "用户ID: " + companyUser.getUserId() + ", 用户名: " + companyUser.getUserName() : 
+                    "用户不存在"));
+                
+                if (companyUser != null) {
+                    order.setCompanyName(companyUser.getUserName());
+                    System.out.println("设置公司名称: " + companyUser.getUserName());
+                }
+            }
+        } else {
+            System.out.println("订单中没有公司ID，跳过公司信息查询");
+        }
+
+        // 构建完整的地址信息
+        System.out.println("=== 开始构建地址信息 ===");
+        StringBuilder startLocation = new StringBuilder();
+        if (order.getStartProvince() != null) {
+            startLocation.append(order.getStartProvince());
+        }
+        if (order.getStartCity() != null) {
+            startLocation.append(order.getStartCity());
+        }
+        if (order.getStartDistrict() != null) {
+            startLocation.append(order.getStartDistrict());
+        }
+        if (order.getStartLocation() != null) {
+            startLocation.append(order.getStartLocation());
+        }
+        order.setStartLocation(startLocation.toString());
+        System.out.println("构建的起始地址: " + startLocation.toString());
+
+        StringBuilder endLocation = new StringBuilder();
+        if (order.getEndProvince() != null) {
+            endLocation.append(order.getEndProvince());
+        }
+        if (order.getEndCity() != null) {
+            endLocation.append(order.getEndCity());
+        }
+        if (order.getEndDistrict() != null) {
+            endLocation.append(order.getEndDistrict());
+        }
+        if (order.getEndLocation() != null) {
+            endLocation.append(order.getEndLocation());
+        }
+        order.setEndLocation(endLocation.toString());
+        System.out.println("构建的目的地址: " + endLocation.toString());
+
+        System.out.println("=== 订单详情获取完成 ===");
         return order;
     }
 
@@ -227,6 +350,100 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return list(queryWrapper);
     }
     
+    @Override
+    public Page<Order> listByUserId(String userId, int pageNum, int pageSize) {
+        if (userId == null) {
+            throw new RuntimeException("用户ID不能为空");
+        }
+        
+        System.out.println("查询用户订单 - 用户ID: " + userId + ", 页码: " + pageNum + ", 每页大小: " + pageSize);
+        
+        Page<Order> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Order::getUserId, userId)
+                   .orderByDesc(Order::getCreateTime);
+        
+        Page<Order> result = page(page, queryWrapper);
+        System.out.println("查询结果 - 总记录数: " + result.getTotal() + ", 当前页记录数: " + result.getRecords().size());
+        
+        // 为每个订单添加公司信息
+        for (Order order : result.getRecords()) {
+            System.out.println("处理订单: " + order.getOrderId() + ", 公司ID: " + order.getCompanyId());
+            if (order.getCompanyId() != null) {
+                // 查询公司对应的用户（司机）信息
+                User driver = userMapper.selectByCompanyId(order.getCompanyId());
+                System.out.println("查询到的司机信息: " + (driver != null ? 
+                    "司机ID: " + driver.getUserId() + ", 司机名称: " + driver.getUserName() : 
+                    "司机不存在"));
+                
+                if (driver != null) {
+                    order.setCompanyName(driver.getUserName());
+                    System.out.println("设置公司名称: " + driver.getUserName());
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public Page<Order> listByCompanyId(String companyId, int pageNum, int pageSize) {
+        if (companyId == null) {
+            throw new RuntimeException("公司ID不能为空");
+        }
+        
+        System.out.println("查询公司订单 - 公司ID: " + companyId + ", 页码: " + pageNum + ", 每页大小: " + pageSize);
+        
+        Page<Order> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Order::getCompanyId, companyId)
+                   .orderByDesc(Order::getCreateTime);
+        
+        Page<Order> result = page(page, queryWrapper);
+        System.out.println("查询结果 - 总记录数: " + result.getTotal() + ", 当前页记录数: " + result.getRecords().size());
+        
+        // 为每个订单添加用户和宠物信息
+        for (Order order : result.getRecords()) {
+            // 获取用户信息
+            User user = userMapper.selectById(order.getUserId());
+            if (user != null) {
+                order.setUserName(user.getUserName());
+            }
+            
+            // 获取宠物信息
+            LambdaQueryWrapper<OrderPet> petWrapper = new LambdaQueryWrapper<>();
+            petWrapper.eq(OrderPet::getOrderId, order.getOrderId());
+            List<OrderPet> orderPets = orderPetMapper.selectList(petWrapper);
+            
+            if (!orderPets.isEmpty()) {
+                String petId = orderPets.get(0).getPetId();
+                Pet pet = petMapper.selectById(petId);
+                if (pet != null) {
+                    order.setPetName(pet.getPetName());
+                    order.setPetBreed(pet.getPetBreed());
+                    order.setPetAge(pet.getPetAge());
+                }
+            }
+            
+            // 构建完整地址信息
+            StringBuilder startLocation = new StringBuilder();
+            if (order.getStartProvince() != null) startLocation.append(order.getStartProvince());
+            if (order.getStartCity() != null) startLocation.append(order.getStartCity());
+            if (order.getStartDistrict() != null) startLocation.append(order.getStartDistrict());
+            if (order.getStartLocation() != null) startLocation.append(order.getStartLocation());
+            order.setStartLocation(startLocation.toString());
+
+            StringBuilder endLocation = new StringBuilder();
+            if (order.getEndProvince() != null) endLocation.append(order.getEndProvince());
+            if (order.getEndCity() != null) endLocation.append(order.getEndCity());
+            if (order.getEndDistrict() != null) endLocation.append(order.getEndDistrict());
+            if (order.getEndLocation() != null) endLocation.append(order.getEndLocation());
+            order.setEndLocation(endLocation.toString());
+        }
+        
+        return result;
+    }
+    
     /**
      * 检查订单状态转换是否合法
      * @param currentStatus 当前状态
@@ -234,22 +451,48 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 是否合法
      */
     private boolean isValidStatusTransition(String currentStatus, String newStatus) {
+        System.out.println("检查状态转换 - 当前状态: " + currentStatus + ", 新状态: " + newStatus);
+        
         // P(待支付) -> W(待接单)
         if ("P".equals(currentStatus) && "W".equals(newStatus)) {
+            System.out.println("状态转换: 待支付 -> 待接单");
             return true;
         }
-        // W(待接单) -> T(进行中)
-        if ("W".equals(currentStatus) && "T".equals(newStatus)) {
+        // W(待接单) -> 1(运输中-起点)
+        if ("W".equals(currentStatus) && "1".equals(newStatus)) {
+            System.out.println("状态转换: 待接单 -> 运输中-起点");
             return true;
         }
-        // T(进行中) -> C(已完成)
-        if ("T".equals(currentStatus) && "C".equals(newStatus)) {
+        // 1 -> 2 -> 3 -> 4 -> 5 (运输中的各个阶段)
+        if (currentStatus.matches("[1-4]") && newStatus.matches("[2-5]")) {
+            int currentStage = Integer.parseInt(currentStatus);
+            int newStage = Integer.parseInt(newStatus);
+            boolean isValid = newStage == currentStage + 1;
+            System.out.println("状态转换: 运输阶段 " + currentStage + " -> " + newStage + ", 是否有效: " + isValid);
+            return isValid;
+        }
+        // 5(运输中-终点) -> C(已完成)
+        if ("5".equals(currentStatus) && "C".equals(newStatus)) {
+            System.out.println("状态转换: 运输中-终点 -> 已完成");
             return true;
         }
         // P(待支付) -> X(已取消)
         if ("P".equals(currentStatus) && "X".equals(newStatus)) {
+            System.out.println("状态转换: 待支付 -> 已取消");
             return true;
         }
+        // 允许在运输过程中休息或装卸
+        if (currentStatus.matches("[1-5]") && ("R".equals(newStatus) || "L".equals(newStatus))) {
+            System.out.println("状态转换: 运输中 -> 休息/装卸");
+            return true;
+        }
+        // 允许从休息或装卸状态返回运输状态
+        if (("R".equals(currentStatus) || "L".equals(currentStatus)) && currentStatus.matches("[1-5]")) {
+            System.out.println("状态转换: 休息/装卸 -> 运输中");
+            return true;
+        }
+        
+        System.out.println("状态转换无效");
         return false;
     }
 

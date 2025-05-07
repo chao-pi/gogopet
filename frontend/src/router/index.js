@@ -9,6 +9,11 @@ import Pets from '@/views/user/Pets.vue'
 import Transport from '@/views/transport/Transport.vue'
 import OrderForm from '@/views/transport/OrderForm.vue'
 import Community from '@/views/Community.vue'
+import OrderTracking from '@/views/orderTracking/OrderTracking.vue'
+import OrderTrackingEnterprise from '@/views/orderTracking/OrderTracking_enterprise.vue'
+import UserOrders from '@/views/order/UserOrders.vue'
+import OrderDetail from '@/views/order/OrderDetail.vue'
+import CompanyOrders from '@/views/order/CompanyOrders.vue'
 
 const routes = [
   {
@@ -52,6 +57,42 @@ const routes = [
     path: '/order/create',
     name: 'OrderForm',
     component: OrderForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/order/detail/:orderId',
+    name: 'OrderDetail',
+    component: OrderDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/ordertracking/:orderId',
+    name: 'OrderTracking',
+    component: OrderTracking,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/ordertracking',
+    name: 'OrderTrackingLatest',
+    component: OrderTracking,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/OrderTrackingE/:orderId',
+    name: 'OrderTrackingEnterprise',
+    component: OrderTrackingEnterprise,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/orders',
+    name: 'UserOrders',
+    component: UserOrders,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/company/orders',
+    name: 'CompanyOrders',
+    component: CompanyOrders,
     meta: { requiresAuth: true }
   },
   {

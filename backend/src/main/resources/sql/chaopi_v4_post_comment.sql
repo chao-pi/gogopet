@@ -134,8 +134,8 @@ CREATE TABLE t_post (
     post_likes INT DEFAULT 0 COMMENT '点赞数',
     post_status TINYINT DEFAULT 1 COMMENT '帖子状态：0-已删除，1-正常',
     post_images TEXT COMMENT '帖子图片URL列表，以逗号分隔',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'ʱ',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '����ʱ��',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     FOREIGN KEY (user_id) REFERENCES t_user(user_id),
     INDEX idx_user_id (user_id)
 );
@@ -147,7 +147,7 @@ CREATE TABLE t_order_tracking (
     location VARCHAR(255) NOT NULL COMMENT '当前位置',
     latitude DECIMAL(10,6) COMMENT '纬度',
     longitude DECIMAL(10,6) COMMENT '经度',
-    status CHAR(1) NOT NULL COMMENT '状态：T-运输中，R-休息中，L-装卸中，D-已送达',
+    status CHAR(2) NOT NULL COMMENT '状态：T1-在起点，T2-第一检查点，T3-第二检查点，T4-第三检查点，T5-到达终点，R-休息中，L-装卸中，D-已送达',
     remark TEXT COMMENT '备注信息，如异常情况说明',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     estimated_arrival_time DATETIME COMMENT '预计到达时间，仅供参考',

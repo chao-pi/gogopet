@@ -560,7 +560,7 @@ const getAreaName = (code) => {
 const getLocation = async (address) => {
   try {
     // 这里使用高德地图API进行地址解析
-    const apiKey = '1bafd5bd7575abdf3e63dca161765613'
+    const apiKey = '5f5666c361716d0a3fccf30f74ff66eb'
     const formattedAddress = address.replace(/\s+/g, '') // 移除所有空格
     console.log('正在解析地址:', formattedAddress)
     
@@ -590,8 +590,7 @@ const getLocation = async (address) => {
 const calculateDistance = async (startLocation, endLocation) => {
   try {
     // 这里使用高德地图API计算距离
-    // 注意：需要替换成你的高德地图API Key
-    const apiKey = '1bafd5bd7575abdf3e63dca161765613'
+    const apiKey = '5f5666c361716d0a3fccf30f74ff66eb'
     const response = await fetch(
       `https://restapi.amap.com/v3/distance?origins=${startLocation.longitude},${startLocation.latitude}&destination=${endLocation.longitude},${endLocation.latitude}&key=${apiKey}`
     )

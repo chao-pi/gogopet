@@ -12,6 +12,12 @@
         <router-link to="/" class="nav-link">首页</router-link>
         <router-link to="/transport" class="nav-link">宠物托运</router-link>
         <router-link to="/community" class="nav-link">社区交流</router-link>
+        <a 
+          @click="handleOrderTrackingClick" 
+          class="nav-link"
+          v-if="userStore.isLoggedIn"
+          style="cursor: pointer;"
+        >订单追踪</a>
         <router-link to="/about" class="nav-link">关于我们</router-link>
       </nav>
 
@@ -40,9 +46,51 @@
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import UserAvatar from '@/components/user/UserAvatar.vue'
+import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+const handleOrderTrackingClick = async () => {
+  if (userStore.userInfo?.userType === 'C') {
+    try {
+      // 获取公司用户的最新订单
+      const response = await request({
+        url: `/order/company/${userStore.userInfo.companyId}/list`,
+        method: 'get',
+        params: {
+          pageNum: 0,
+          pageSize: 1
+        }
+      })
+      
+      if (response.code === 200 && response.data.records && response.data.records.length > 0) {
+        // 按开始时间排序，获取最新的订单
+        const sortedOrders = response.data.records.sort((a, b) => 
+          new Date(b.startTime) - new Date(a.startTime)
+        )
+        const latestOrder = sortedOrders[0]
+        
+        // 跳转到订单追踪页面，并传递订单ID
+        await router.push({
+          name: 'OrderTrackingEnterprise',
+          params: { orderId: latestOrder.orderId }
+        })
+      } else {
+        ElMessage.info('暂无订单数据')
+      }
+    } catch (error) {
+      console.error('获取最新订单失败:', error)
+      ElMessage.error('获取最新订单失败')
+    }
+  } else {
+    // 普通用户跳转到普通订单追踪页面
+    await router.push({
+      name: 'OrderTrackingLatest'
+    })
+  }
+}
 </script>
 
 <style scoped>

@@ -1,7 +1,11 @@
 <template>
   <div class="user-avatar">
     <div class="avatar-container">
-      <div class="avatar-wrapper" @click="toggleDropdown">
+      <div class="avatar-wrapper"
+        @click="toggleDropdown"
+        @mouseenter="openDropdown"
+        @mouseleave="closeDropdown"
+      >
         <div class="avatar-content">
           <div v-if="avatarUrl" class="avatar-image">
             <img
@@ -20,20 +24,25 @@
         </div>
       </div>
 
-      <div v-if="isDropdownOpen" class="dropdown-menu">
-        <div class="dropdown-item" @click="navigateTo('/profile')">
-          <i class="fas fa-user mr-2"></i>
-          个人中心
+      <transition name="fade-dropdown">
+        <div v-if="isDropdownOpen" class="dropdown-menu"
+          @mouseenter="openDropdown"
+          @mouseleave="closeDropdown"
+        >
+          <div class="dropdown-item" @click="navigateTo('/profile')">
+            <i class="fas fa-user mr-2"></i>
+            个人中心
+          </div>
+          <div class="dropdown-item" @click="navigateTo('/pets')">
+            <i class="fas fa-paw mr-2"></i>
+            我的宠物
+          </div>
+          <div class="dropdown-item" @click="handleLogout">
+            <i class="fas fa-sign-out-alt mr-2"></i>
+            退出登录
+          </div>
         </div>
-        <div class="dropdown-item" @click="navigateTo('/pets')">
-          <i class="fas fa-paw mr-2"></i>
-          我的宠物
-        </div>
-        <div class="dropdown-item" @click="handleLogout">
-          <i class="fas fa-sign-out-alt mr-2"></i>
-          退出登录
-        </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -58,6 +67,17 @@ const props = defineProps({
 const router = useRouter()
 const userStore = useUserStore()
 const isDropdownOpen = ref(false)
+let hoverTimeout = null
+
+const openDropdown = () => {
+  clearTimeout(hoverTimeout)
+  isDropdownOpen.value = true
+}
+const closeDropdown = () => {
+  hoverTimeout = setTimeout(() => {
+    isDropdownOpen.value = false
+  }, 200)
+}
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
@@ -106,6 +126,7 @@ const handleImageError = (e) => {
 <style scoped>
 .user-avatar {
   cursor: pointer;
+  transform: translateX(-60px);
 }
 
 .avatar-container {
@@ -163,7 +184,8 @@ const handleImageError = (e) => {
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  right: 0;
+  right: 50%;
+  transform: translateX(50%);
   margin-top: 0.5rem;
   background: white;
   border-radius: 0.5rem;
@@ -189,5 +211,16 @@ const handleImageError = (e) => {
   width: 20px;
   text-align: center;
   margin-right: 8px;
+}
+
+/* 渐变动画 */
+.fade-dropdown-enter-active, .fade-dropdown-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-dropdown-enter-from, .fade-dropdown-leave-to {
+  opacity: 0;
+}
+.fade-dropdown-enter-to, .fade-dropdown-leave-from {
+  opacity: 1;
 }
 </style> 

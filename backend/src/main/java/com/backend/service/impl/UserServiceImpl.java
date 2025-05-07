@@ -121,6 +121,20 @@ public class UserServiceImpl implements UserService {
         // 构建 UserDTO
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
+        
+        // 确保公司ID被正确设置
+        if (user.getCompanyId() != null) {
+            userDTO.setCompanyId(user.getCompanyId());
+        }
+        
+        // 打印用户信息
+        System.out.println("登录成功 - 用户信息:");
+        System.out.println("用户ID: " + user.getUserId());
+        System.out.println("用户名: " + user.getUserName());
+        System.out.println("用户类型: " + user.getUserType());
+        System.out.println("用户地址: " + user.getUserAddress());
+        System.out.println("头像URL: " + user.getAvatarUrl());
+        System.out.println("公司ID: " + user.getCompanyId());
 
         // 生成 JWT Token，使用用户ID而不是用户名
         String token = jwtUtil.generateToken(user.getUserId());
@@ -141,6 +155,17 @@ public class UserServiceImpl implements UserService {
 
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
+        
+        // 确保公司ID被正确复制
+        if (user.getCompanyId() != null) {
+            userDTO.setCompanyId(user.getCompanyId());
+        }
+        
+        // 打印用户信息用于调试
+        System.out.println("获取用户信息 - 用户ID: " + user.getUserId());
+        System.out.println("获取用户信息 - 公司ID: " + user.getCompanyId());
+        System.out.println("获取用户信息 - 用户类型: " + user.getUserType());
+        
         return userDTO;
     }
 

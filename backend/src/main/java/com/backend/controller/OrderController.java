@@ -9,10 +9,16 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/order")
 public class OrderController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     @Resource
     private OrderService orderService;
@@ -33,6 +39,28 @@ public class OrderController {
         return Result.success(orders);
     }
 
+    @GetMapping("/user/{userId}/list")
+    public Result<Page<Order>> getUserOrders(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        log.info("获取用户订单列表 - 用户ID: {}, 页码: {}, 每页大小: {}", userId, pageNum, pageSize);
+        Page<Order> page = orderService.listByUserId(userId, pageNum, pageSize);
+        log.info("查询结果 - 总记录数: {}, 当前页记录数: {}", page.getTotal(), page.getRecords().size());
+        return Result.success(page);
+    }
+
+    @GetMapping("/company/{companyId}/list")
+    public Result<Page<Order>> getCompanyOrders(
+            @PathVariable String companyId,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        log.info("获取公司订单列表 - 公司ID: {}, 页码: {}, 每页大小: {}", companyId, pageNum, pageSize);
+        Page<Order> page = orderService.listByCompanyId(companyId, pageNum, pageSize);
+        log.info("查询结果 - 总记录数: {}, 当前页记录数: {}", page.getTotal(), page.getRecords().size());
+        return Result.success(page);
+    }
+
     @GetMapping("/detail/{orderId}")
     public Result<Order> getOrderDetail(@PathVariable String orderId) {
         Order order = orderService.getOrderDetail(orderId);
@@ -47,13 +75,13 @@ public class OrderController {
 
     @PostMapping("/pay/{orderId}")
     public Result<Boolean> payOrder(@PathVariable String orderId) {
-        boolean result = orderService.updateOrderStatus(orderId, "W"); // 已支付
+        boolean result = orderService.updateOrderStatus(orderId, "W", null, null); // 已支付
         return Result.success(result);
     }
 
     @PostMapping("/confirm/{orderId}")
     public Result<Boolean> confirmOrder(@PathVariable String orderId) {
-        boolean result = orderService.updateOrderStatus(orderId, "C"); // 已完成
+        boolean result = orderService.updateOrderStatus(orderId, "C", null, null); // 已完成
         return Result.success(result);
     }
 
@@ -66,8 +94,26 @@ public class OrderController {
     }
 
     @PostMapping("/status/update")
-    public Result<Boolean> updateOrderStatus(@RequestParam String orderId, @RequestParam String status) {
-        boolean success = orderService.updateOrderStatus(orderId, status);
-        return Result.success(success);
+    public Result<Boolean> updateOrderStatus(@RequestBody Map<String, String> params) {
+        log.info("更新订单状态 - 请求参数: {}", params);
+        String orderId = params.get("orderId");
+        String status = params.get("status");
+        String petStatus = params.get("petStatus");
+        String location = params.get("location");
+        
+        if (orderId == null || status == null) {
+            log.error("更新订单状态失败 - 订单ID或状态为空");
+            return Result.error("订单ID和状态不能为空");
+        }
+        
+        try {
+            boolean success = orderService.updateOrderStatus(orderId, status, petStatus, location);
+            log.info("更新订单状态 - 订单ID: {}, 新状态: {}, 宠物状态: {}, 位置: {}, 结果: {}", 
+                    orderId, status, petStatus, location, success);
+            return Result.success(success);
+        } catch (Exception e) {
+            log.error("更新订单状态失败", e);
+            return Result.error("更新订单状态失败: " + e.getMessage());
+        }
     }
 } 

@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -12,6 +15,8 @@ import java.util.Date;
  * 托运公司实体类
  * 对应数据库表 t_company
  */
+@Getter
+@Setter
 @Data
 @TableName("t_company")
 public class Company {

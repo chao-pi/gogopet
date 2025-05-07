@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,9 +34,23 @@ public class Order {
     private String userId;
 
     /**
-     * 公司ID，关联公司表，表示接单的公司
+     * 公司ID，关联运输公司
      */
+    @TableField("company_id")
+    @Size(max = 18, message = "公司ID长度不能超过18个字符")
     private String companyId;
+
+    /**
+     * 公司名称
+     */
+    @TableField(exist = false)
+    private String companyName;
+
+    /**
+     * 用户名称
+     */
+    @TableField(exist = false)
+    private String userName;
 
     /**
      * 订单状态：P-待支付，W-待接单，T-进行中，C-已完成，X-已取消
@@ -158,6 +173,30 @@ public class Order {
 
     @TableField(exist = false)
     private List<String> petIds;
+
+    /**
+     * 宠物名称
+     */
+    @TableField(exist = false)
+    private String petName;
+
+    /**
+     * 宠物品种
+     */
+    @TableField(exist = false)
+    private String petBreed;
+
+    /**
+     * 宠物年龄
+     */
+    @TableField(exist = false)
+    private Integer petAge;
+
+    /**
+     * 宠物图片
+     */
+    @TableField(exist = false)
+    private String petImage;
 
     /**
      * 创建时间

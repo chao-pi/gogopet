@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -57,7 +58,20 @@ public class SecurityConfig {
                 // 配置请求授权策略
                 .authorizeHttpRequests(auth -> auth
                         // 放行认证接口、错误页面和上传文件
-                        .requestMatchers("/api/auth/**", "/error", "/test", "/uploads/**", "/api/chat/**", "/ws/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 允许所有OPTIONS请求
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/error",
+                                "/test",
+                                "/uploads/**",
+                                "/api/chat/**",
+                                "/ws/**",
+                                "/api/register",
+                                "/api/pets/**",
+                                "/api/transport/**",
+                                "/api/community/**",
+                                "/api/ml/**"
+                        ).permitAll()
                         // 其他请求都需要认证
                         .anyRequest().authenticated()
                 )
@@ -96,11 +110,21 @@ public class SecurityConfig {
         // 允许的前端地址（开发时可设为前端 dev 服务器）
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         // 允许的 HTTP 方法
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         // 允许的请求头
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
+        configuration.setExposedHeaders(List.of("Authorization"));
         // 允许携带 cookie（用于前后端协作时的认证）
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // 1小时
 
         // 注册配置
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

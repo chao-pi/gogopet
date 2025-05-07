@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', () => {
   // 设置用户信息
   const setUserInfo = (info) => {
     try {
-      console.log('设置用户信息:', info)
+      console.log('设置用户信息 - 原始数据:', info)
       if (info) {
         // 确保用户信息包含必要的字段
         const userData = {
@@ -19,13 +19,16 @@ export const useUserStore = defineStore('user', () => {
           userName: info.userName,
           userType: info.userType,
           userAddress: info.userAddress,
-          avatarUrl: info.avatarUrl || null  // 使用 avatarUrl 而不是 pictureUrl
+          avatarUrl: info.avatarUrl || null,  // 使用 avatarUrl 而不是 pictureUrl
+          companyId: info.companyId || null  // 添加公司ID
         }
-        console.log('处理后的用户数据:', userData)
+        console.log('设置用户信息 - 处理后的数据:', userData)
+        console.log('用户类型:', userData.userType)
+        console.log('公司ID:', userData.companyId)
         userInfo.value = userData
         isLoggedIn.value = true
         localStorage.setItem('userInfo', JSON.stringify(userData))
-        console.log('用户信息已保存到localStorage')
+        console.log('用户信息已保存到localStorage:', JSON.parse(localStorage.getItem('userInfo')))
       } else {
         console.log('清除用户信息')
         userInfo.value = null
@@ -87,15 +90,22 @@ export const useUserStore = defineStore('user', () => {
     const token = localStorage.getItem('token')
     const storedUserInfo = localStorage.getItem('userInfo')
     
+    console.log('初始化用户store - token:', token)
+    console.log('初始化用户store - 存储的用户信息:', storedUserInfo)
+    
     if (token && storedUserInfo) {
       // 如果有token和用户信息，恢复用户状态
       const userData = JSON.parse(storedUserInfo)
+      console.log('从localStorage恢复用户数据:', userData)
+      console.log('恢复的公司ID:', userData.companyId)
       setUserInfo(userData)
     } else if (token && !storedUserInfo) {
       // 如果有token但没有用户信息，尝试获取用户信息
+      console.log('有token但没有用户信息，尝试获取用户信息')
       fetchUserInfo()
     } else {
       // 如果没有token，清除所有信息
+      console.log('没有token，清除所有信息')
       clearUserInfo()
     }
   }

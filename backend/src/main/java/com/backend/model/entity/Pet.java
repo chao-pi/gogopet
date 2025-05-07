@@ -76,6 +76,12 @@ public class Pet {
     private String petGender;
 
     /**
+     * 宠物图片URL
+     */
+    @TableField("pet_image")
+    private String petImage;
+
+    /**
      * 创建时间
      */
     @TableField("create_time")

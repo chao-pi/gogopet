@@ -83,4 +83,10 @@ public class OrderTracking {
      */
     @TableField("create_time")
     private LocalDateTime createTime;
+
+    /**
+     * 完整的订单信息
+     */
+    @TableField(exist = false)
+    private Order order;
 } 
