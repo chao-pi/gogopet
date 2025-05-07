@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 帖子实体类
@@ -86,4 +85,16 @@ public class Post {
      */
     @TableField("update_time")
     private Date updateTime;
+
+    @TableField(exist = false)
+    private Double hotScore;  // 热度分数
+
+    // Getters and Setters
+    public Double getHotScore() {
+        return hotScore;
+    }
+
+    public void setHotScore(Double hotScore) {
+        this.hotScore = hotScore;
+    }
 } 

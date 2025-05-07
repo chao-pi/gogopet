@@ -26,7 +26,6 @@ public class AnalysisServiceImpl implements AnalysisService {
         analysisVO.setTotalOrders(analysisMapper.getTotalOrders());
         analysisVO.setGoodRate(analysisMapper.getGoodRate());
         analysisVO.setActiveCompanies(analysisMapper.getActiveCompanies());
-        analysisVO.setAbnormalRate(analysisMapper.getAbnormalRate());
 
         // 获取公司订单量排行数据
         List<AnalysisVO.CompanyOrderCount> companyOrderCounts = analysisMapper.getCompanyOrderCounts();

@@ -10,10 +10,27 @@
       <!-- 中间导航菜单 -->
       <nav class="nav-section">
         <router-link to="/" class="nav-link">首页</router-link>
-        <router-link to="/transport" class="nav-link">宠物托运</router-link>
-        <router-link to="/community" class="nav-link">社区交流</router-link>
-        <router-link to="/about" class="nav-link">关于我们</router-link>
-        <router-link to="/analysis" class="nav-link">数据分析</router-link>
+        <!-- 未登录用户可见的菜单 -->
+        <template v-if="!userStore.isLoggedIn">
+          <router-link to="/about" class="nav-link">关于我们</router-link>
+        </template>
+        
+        <!-- 已登录普通用户可见的菜单 -->
+        <template v-if="userStore.isLoggedIn && userStore.userInfo?.userType==='U'">
+          <router-link to="/transport" class="nav-link">宠物托运</router-link>
+          <router-link to="/orderManagement" class="nav-link">订单管理</router-link>
+          <router-link to="/community" class="nav-link">社区交流</router-link>
+          <router-link to="/analysis" class="nav-link">数据分析</router-link>
+          <router-link to="/about" class="nav-link">关于我们</router-link>
+        </template>
+
+        <!-- 已登录托运公司可见的菜单 -->
+        <template v-if="userStore.isLoggedIn && userStore.userInfo?.userType==='C'">
+          <router-link to="/companyOrderManagement" class="nav-link">订单管理</router-link>
+          <router-link to="/community" class="nav-link">社区交流</router-link>
+          <router-link to="/analysis" class="nav-link">数据分析</router-link>
+          <router-link to="/about" class="nav-link">关于我们</router-link>
+        </template>
       </nav>
 
       <!-- 右侧用户信息 -->
@@ -49,7 +66,7 @@ const userStore = useUserStore()
 <style scoped>
 .custom-header {
   background: linear-gradient(90deg, #ff9f43 0%, #e67e22 100%);
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   position: relative;
@@ -77,7 +94,8 @@ const userStore = useUserStore()
   top: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  gap: 2rem;
+  gap: 1.2rem;
+  white-space: nowrap;
 }
 
 .nav-link {
@@ -85,6 +103,8 @@ const userStore = useUserStore()
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
+  font-size: 0.95rem;
+  padding: 0.2rem 0.4rem;
 }
 
 .nav-link:hover {

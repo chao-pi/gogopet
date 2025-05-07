@@ -12,7 +12,6 @@ import com.backend.model.entity.PostLike;
 import com.backend.model.entity.PostImage;
 import com.backend.service.PostService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,22 +215,31 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     public List<Post> getMostPopularPosts(int limit) {
         logger.debug("获取最受欢迎的帖子，数量限制: {}", limit);
         try {
-            // 使用子查询确保获取最新的点赞数
+            // 获取所有有效帖子
             QueryWrapper<Post> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("post_status", 1)
-                       .orderByDesc("post_likes")
-                       .last("LIMIT " + limit);
+            queryWrapper.eq("post_status", 1);
+            List<Post> allPosts = list(queryWrapper);
             
-            List<Post> posts = list(queryWrapper);
+            // 计算热度分数并排序
+            List<Post> sortedPosts = allPosts.stream()
+                .map(post -> {
+                    // 计算热度分数：点赞数 * 2 + 评论数
+                    double hotScore = (post.getPostLikes() * 2) + post.getPostComment();
+                    post.setHotScore(hotScore);
+                    return post;
+                })
+                .sorted((p1, p2) -> Double.compare(p2.getHotScore(), p1.getHotScore()))
+                .limit(limit)
+                .collect(Collectors.toList());
             
             // 填充用户信息
-            posts.forEach(this::populatePostInfo);
+            sortedPosts.forEach(this::populatePostInfo);
             
             // 记录日志
-            logger.debug("获取最受欢迎帖子成功，数量：{}", posts.size());
-            posts.forEach(post -> logger.debug("帖子ID：{}，点赞数：{}", post.getPostId(), post.getPostLikes()));
+            logger.debug("获取最受欢迎帖子成功，数量：{}", sortedPosts.size());
+            sortedPosts.forEach(post -> logger.debug("帖子ID：{}，热度分数：{}", post.getPostId(), post.getHotScore()));
             
-            return posts;
+            return sortedPosts;
         } catch (Exception e) {
             logger.error("获取最受欢迎帖子失败", e);
             throw e;

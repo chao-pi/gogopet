@@ -100,7 +100,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'refresh'])
+const emit = defineEmits(['close', 'refresh', 'refreshPopular'])
 const userStore = useUserStore()
 const comments = ref([])
 const newComment = ref('')
@@ -153,6 +153,8 @@ const handleCommentSubmit = async () => {
     await fetchComments()
     // 发出刷新事件
     emit('refresh')
+    // 刷新最受欢迎列表
+    emit('refreshPopular')
   } catch (error) {
     console.error('发表评论失败:', error)
     ElMessage.error('发表评论失败')
@@ -191,6 +193,8 @@ const handleDeleteComment = async (commentId) => {
     await deleteComment(commentId)
     ElMessage.success('评论删除成功')
     await fetchComments() // 刷新评论列表
+    // 刷新最受欢迎列表
+    emit('refreshPopular')
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('删除评论失败')

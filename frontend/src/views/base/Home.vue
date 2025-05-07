@@ -1,5 +1,17 @@
 <script setup>
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleBooking = () => {
+  if (!userStore.isLoggedIn) {
+    router.push('/login')
+    return
+  }
+  router.push('/transport')
+}
 </script>
 
 <template>
@@ -9,7 +21,11 @@
       <div class="banner-content">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">让宠物托运更安全、更智能</h1>
         <p class="text-xl text-white/90 mb-8">专业的宠物托运服务，全程实时追踪，让您放心无忧</p>
-        <button class="cta-button">
+        <button 
+          v-if="!userStore.isLoggedIn || userStore.userInfo?.userType!=='C'"
+          class="cta-button" 
+          @click="handleBooking"
+        >
           <i class="fas fa-paw mr-2"></i>
           立即预约
         </button>

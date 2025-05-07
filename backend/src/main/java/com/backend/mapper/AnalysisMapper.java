@@ -118,7 +118,7 @@ public interface AnalysisMapper {
      * @return 好评率
      */
     @Select("SELECT "+
-    "ROUND(AVG(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) * 100, 1) "+
+    "ROUND(AVG(CASE WHEN rating >= 3.5 THEN 1 ELSE 0 END) * 100, 1) "+
     "FROM "+
     "t_order "+
     "WHERE "+
@@ -126,7 +126,7 @@ public interface AnalysisMapper {
     Double getGoodRate();
 
     /**
-     * 获取活跃公司数，根据托运开始时间（start_time）计算（改用create_time,则根据订单创建时间计算,为便于演示）
+     * 获取活跃公司数，根据托运开始时间（create_time）计算
      * @return 活跃公司数
      */
     @Select("SELECT "+
@@ -134,19 +134,7 @@ public interface AnalysisMapper {
     "FROM "+
     "t_order "+
     "WHERE "+
-    "start_time >= DATE_SUB(CURDATE(), "+
+    "create_time >= DATE_SUB(CURDATE(), "+
     "INTERVAL 30 DAY)")
     Integer getActiveCompanies();
-
-    /**
-     * 获取异常率
-     * @return 异常率
-     */
-    @Select("SELECT "+
-    "ROUND(AVG(CASE WHEN pet_status = 'A' THEN 1 ELSE 0 END) * 100, 1) "+
-    "FROM "+
-    "t_order "+
-    "WHERE "+
-    "pet_status IS NOT NULL")
-    Double getAbnormalRate();
 }

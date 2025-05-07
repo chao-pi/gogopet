@@ -1,5 +1,5 @@
 <template>
-  <div class="order-management">
+  <div class="order-page">
     <div class="header">
       <h1 class="page-title">订单管理</h1>
       <div class="status-tabs">
@@ -16,6 +16,10 @@
       </div>
     </div>
     <div class="orders-container">
+      <el-empty 
+        v-if="filteredOrders.length === 0" 
+        :description="getEmptyDescription(activeTab)" 
+      />
       <div v-for="order in filteredOrders" :key="order.orderId" class="order-card">
         <div class="order-left">
           <div class="order-status" :class="getStatusClass(order.orderStatus)">{{ getStatusText(order.orderStatus) }}</div>
@@ -352,13 +356,28 @@ const submitEvaluate = () => {
     }
   })
 }
+
+// 获取空状态描述文本
+const getEmptyDescription = (tab) => {
+  const descriptions = {
+    'all': '暂无订单',
+    'P': '暂无待支付订单',
+    'W': '暂无待接单订单',
+    'T': '暂无运输中订单',
+    'C': '暂无已完成订单',
+    'toEvaluate': '暂无待评价订单',
+    'evaluated': '暂无已评价订单',
+    'X': '暂无已取消订单'
+  }
+  return descriptions[tab] || '暂无订单'
+}
 </script>
 
 <style scoped>
-.order-management {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.order-page {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  min-height: calc(100vh - 60px);
 }
 
 .header {

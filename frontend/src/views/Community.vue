@@ -1,5 +1,6 @@
 <template>
-  <div class="community-container">
+  <div class="community-page">
+    <div class="community-container">
     <!-- 头部区域 -->
     <div class="community-header">
       <div class="header-content">
@@ -14,6 +15,7 @@
     <div class="community-content">
       <!-- 帖子列表 -->
       <div class="posts-list">
+        <el-empty v-if="posts.length === 0" description="暂无帖子" />
         <transition-group name="post-list">
           <PostCard
             v-for="post in posts"
@@ -44,9 +46,9 @@
           <div class="popular-posts-header">
             <h2 class="text-xl font-bold flex items-center">
               <i class="fas fa-fire text-red-500 mr-2"></i>
-              最受欢迎
+              热门帖子
             </h2>
-            <p class="text-gray-500 text-sm">点赞数最高的10条帖子</p>
+            <p class="text-gray-500 text-sm">热度最高的10条帖子</p>
           </div>
           <div class="popular-posts-list">
             <div v-for="post in popularPosts" :key="post.postId" class="popular-post-item" @click="viewPost(post)">
@@ -103,9 +105,12 @@
         :post="selectedPost"
         @close="showPostDetail = false"
         @refresh="handlePostRefresh"
+        @refreshPopular="fetchPopularPosts"
       />
     </el-dialog>
   </div>
+</div>
+  
 </template>
 
 <script setup>
@@ -205,6 +210,7 @@ const handlePostSubmit = async (postData) => {
     ElMessage.success('发布成功')
     showPostDialog.value = false
     await fetchPosts() // 刷新帖子列表
+    await fetchPopularPosts() // 刷新最受欢迎帖子列表
   } catch (error) {
     console.error('发布帖子失败:', error) // 添加详细错误日志
     ElMessage.error(error.response?.data?.message || '发布失败')
@@ -261,6 +267,7 @@ const handleDeletePost = async (postId) => {
     await deletePost(postId)
     ElMessage.success('删除成功')
     await fetchPosts() // 刷新帖子列表
+    await fetchPopularPosts() // 刷新最受欢迎帖子列表
   } catch (error) {
     console.error('删除帖子失败:', error)
     ElMessage.error(error.response?.data?.message || '删除失败')
@@ -337,6 +344,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.community-page {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  min-height: calc(100vh - 60px);
+}
+
 .community-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -344,7 +357,7 @@ onUnmounted(() => {
 }
 
 .community-header {
-  background: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
+  background: linear-gradient(135deg, white 100%);
   border-radius: 16px;
   padding: 40px;
   margin-bottom: 30px;

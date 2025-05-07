@@ -410,9 +410,9 @@
   
   <style lang="scss" scoped>
   .analysis-page {
-    padding: 24px;
-    background-color: #f5f7fa;
-    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    min-height: calc(100vh - 60px);
     
     .header {
       margin-bottom: 24px;
