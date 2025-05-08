@@ -2,12 +2,16 @@ package com.backend.controller;
 
 import com.backend.common.Result;
 import com.backend.model.dto.OrderDTO;
+import com.backend.model.dto.PetDTO;
 import com.backend.model.entity.Order;
 import com.backend.service.OrderService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +63,12 @@ public class OrderController {
         Page<Order> page = orderService.listByCompanyId(companyId, pageNum, pageSize);
         log.info("查询结果 - 总记录数: {}, 当前页记录数: {}", page.getTotal(), page.getRecords().size());
         return Result.success(page);
+    }
+
+    @GetMapping("/listcompanyid")
+    public Result<List<Order>> getOrdersByCompanyId(@RequestParam String companyId) {
+        List<Order> orders = orderService.listByCompanyId(companyId);
+        return Result.success(orders);
     }
 
     @GetMapping("/detail/{orderId}")
@@ -115,5 +125,35 @@ public class OrderController {
             log.error("更新订单状态失败", e);
             return Result.error("更新订单状态失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 获取订单的宠物信息
+     * @param orderId 订单ID
+     * @return 宠物信息列表
+     */
+    @GetMapping("/{orderId}/pets")
+    public Result<List<PetDTO>> getOrderPets(@PathVariable String orderId) {
+        List<PetDTO> pets = orderService.getOrderPets(orderId);
+        return Result.success(pets);
+    }
+
+    // 在 OrderController.java 中添加
+    @PostMapping("/endtime/update")
+    public Result<Boolean> updateOrderEndTime(
+            @RequestParam String orderId
+    ) {
+        boolean success = orderService.updateOrderEndTime(orderId);
+        return Result.success(success);
+    }
+
+    @PostMapping("/evaluate")
+    public Result<Boolean> evaluateOrder(
+            @RequestParam String orderId,
+            @RequestParam BigDecimal rating,
+            @RequestParam String ratingComment
+    ) {
+        boolean success = orderService.evaluateOrder(orderId, rating, ratingComment);
+        return Result.success(success);
     }
 } 

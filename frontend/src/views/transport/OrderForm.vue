@@ -313,6 +313,7 @@
       title="支付订单"
       width="30%"
       :close-on-click-modal="false"
+      @close="handlePaymentDialogClose"
     >
       <div class="payment-info">
         <div class="order-info">
@@ -803,7 +804,7 @@ const handlePaymentCancel = async () => {
     paymentDialogVisible.value = false
     
     ElMessage.info('订单已创建，请及时支付')
-    router.push('/order/list')
+    router.push('/orderManagement')
   } catch (error) {
     console.error('操作失败:', error)
     ElMessage.error('操作失败，请重试')
@@ -820,7 +821,7 @@ const handlePaymentConfirm = async () => {
     await updateOrderStatus(orderData.value.orderId, 'W')
     
     ElMessage.success('支付成功，等待接单')
-    router.push('/order/list')
+    router.push('/orderManagement')
   } catch (error) {
     console.error('支付失败:', error)
     ElMessage.error('支付失败，请重试')
@@ -830,6 +831,11 @@ const handlePaymentConfirm = async () => {
 // 取消订单
 const cancelOrder = () => {
   router.back()
+}
+
+// 在<script setup>中添加：
+const handlePaymentDialogClose = () => {
+  router.push('/orderManagement')
 }
 
 onMounted(() => {

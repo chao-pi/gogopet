@@ -18,6 +18,13 @@ export function getOrders(params) {
   })
 }
 
+export function getOrdersByCompanyId(params) {
+  return request({
+    url: '/order/listcompanyid',
+    method: 'get',
+    params
+  })
+}
 // 获取订单详情
 export function getOrderDetail(orderId) {
   console.log('准备获取订单详情，订单ID:', orderId)
@@ -32,6 +39,7 @@ export function getOrderDetail(orderId) {
     throw error
   })
 }
+
 
 // 取消订单
 export function cancelOrder(orderId) {
@@ -84,4 +92,36 @@ export function getCompanyOrders(companyId) {
     url: `/order/company/${companyId}/list`,
     method: 'get'
   })
-} 
+}
+
+/**
+ * 获取订单的宠物信息
+ * @param {string} orderId - 订单ID
+ * @returns {Promise} - 返回宠物信息列表
+ */
+export function getOrderPets(orderId) {
+  return request({
+    url: `/order/${orderId}/pets`,
+    method: 'get'
+  })
+}
+
+export function updateOrderEndTime(orderId) {
+  return request({
+    url: '/order/endtime/update',
+    method: 'post',
+    params: { orderId }
+  })
+}
+
+export function addOrderEvaluation({ orderId, score, content }) {
+  return request({
+    url: '/order/evaluate',
+    method: 'post',
+    params: {
+      orderId,
+      rating: score,
+      ratingComment: content
+    }
+  })
+}

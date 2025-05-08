@@ -33,7 +33,7 @@
             <i class="fas fa-user mr-2"></i>
             个人中心
           </div>
-          <div class="dropdown-item" @click="navigateTo('/pets')">
+          <div v-if="userStore.userInfo?.userType==='U'" class="dropdown-item" @click="navigateTo('/pets')">
             <i class="fas fa-paw mr-2"></i>
             我的宠物
           </div>
@@ -105,7 +105,7 @@ const handleLogout = async () => {
       beforeClose: (action, instance, done) => {
         if (action === 'confirm') {
           isDropdownOpen.value = false
-          userStore.clearUserInfo()
+          userStore.logout()
           router.push('/login')
         }
         done()

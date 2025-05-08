@@ -1,9 +1,11 @@
 package com.backend.service;
 
 import com.backend.model.entity.Order;
+import com.backend.model.dto.PetDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface OrderService extends IService<Order> {
@@ -46,4 +48,34 @@ public interface OrderService extends IService<Order> {
      * @return 分页订单列表
      */
     Page<Order> listByCompanyId(String companyId, int pageNum, int pageSize);
+
+    /**
+     * 获取公司订单列表（不分页）
+     * @param companyId 公司ID
+     * @return 订单列表
+     */
+    List<Order> listByCompanyId(String companyId);
+
+    /**
+     * 获取订单的宠物信息
+     * @param orderId 订单ID
+     * @return 宠物信息列表
+     */
+    List<PetDTO> getOrderPets(String orderId);
+
+    /**
+     * 更新订单结束时间
+     * @param orderId 订单ID
+     * @return 是否更新成功
+     */
+    boolean updateOrderEndTime(String orderId);
+
+    /**
+     * 评价订单
+     * @param orderId 订单ID
+     * @param rating 评分
+     * @param ratingComment 评价内容
+     * @return 是否评价成功
+     */
+    boolean evaluateOrder(String orderId, BigDecimal rating, String ratingComment);
 } 

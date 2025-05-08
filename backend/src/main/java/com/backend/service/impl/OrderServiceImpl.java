@@ -22,6 +22,10 @@ import java.util.Random;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.backend.model.entity.Company;
 import com.backend.model.entity.User;
+import java.util.ArrayList;
+import org.springframework.beans.BeanUtils;
+import java.util.stream.Collectors;
+import com.backend.model.dto.PetDTO;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -121,17 +125,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             
             // 11. 处理订单备注
             if (order.getOrderRemark() != null) {
-                System.out.println("原始订单备注: " + order.getOrderRemark());
                 order.setOrderRemark(order.getOrderRemark().trim());
-                System.out.println("处理后的订单备注: " + order.getOrderRemark());
-            } else {
-                System.out.println("订单备注为空");
             }
             
             // 12. 保存订单
-            System.out.println("保存订单前的完整数据: " + order);
             save(order);
-            System.out.println("订单保存成功，订单ID: " + order.getOrderId());
             
             // 13. 创建订单宠物关联记录
             if (order.getPetIds() != null && !order.getPetIds().isEmpty()) {
@@ -156,7 +154,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             orderTracking.setCreateTime(now);
             orderTracking.setUpdateFrequency(30); // 默认30分钟更新一次
             orderTracking.setLastUpdateTime(now);
-            orderTracking.setRemark(order.getOrderRemark()); // 设置订单备注
+            orderTracking.setRemark(order.getOrderRemark());
             orderTrackingMapper.insert(orderTracking);
             
             return order;
@@ -191,18 +189,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             order.setPetStatus(petStatus);
         }
         
-        // 更新订单追踪信息
-        LambdaQueryWrapper<OrderTracking> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderTracking::getOrderId, orderId);
-        OrderTracking tracking = orderTrackingMapper.selectOne(wrapper);
-        
-        if (tracking != null) {
-            tracking.setStatus(status);
-            if (location != null) {
+        // 更新位置信息（如果提供）
+        if (location != null) {
+            OrderTracking tracking = orderTrackingMapper.selectOne(
+                new LambdaQueryWrapper<OrderTracking>()
+                    .eq(OrderTracking::getOrderId, orderId)
+                    .orderByDesc(OrderTracking::getCreateTime)
+                    .last("LIMIT 1")
+            );
+            
+            if (tracking != null) {
                 tracking.setLocation(location);
+                tracking.setLastUpdateTime(LocalDateTime.now());
+                orderTrackingMapper.updateById(tracking);
             }
-            tracking.setLastUpdateTime(LocalDateTime.now());
-            orderTrackingMapper.updateById(tracking);
         }
         
         return updateById(order);
@@ -347,6 +347,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Order::getUserId, userId)
                    .orderByDesc(Order::getCreateTime);
+        return list(queryWrapper);
+    }
+
+    @Override
+    public List<Order> listByCompanyId(String companyId) {
+        if (companyId == null) {
+            throw new RuntimeException("公司ID不能为空");
+        }
+
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Order::getCompanyId, companyId)
+                .orderByDesc(Order::getCreateTime);
         return list(queryWrapper);
     }
     
@@ -530,5 +542,78 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         
         return R * c;
+    }
+
+    @Override
+    public List<PetDTO> getOrderPets(String orderId) {
+        if (orderId == null) {
+            throw new RuntimeException("订单ID不能为空");
+        }
+
+        // 1. 查询订单是否存在
+        Order order = getById(orderId);
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+
+        // 2. 查询订单-宠物关联记录
+        LambdaQueryWrapper<OrderPet> orderPetWrapper = new LambdaQueryWrapper<>();
+        orderPetWrapper.eq(OrderPet::getOrderId, orderId);
+        List<OrderPet> orderPets = orderPetMapper.selectList(orderPetWrapper);
+
+        // 3. 获取所有宠物ID
+        List<String> petIds = orderPets.stream()
+                .map(OrderPet::getPetId)
+                .collect(Collectors.toList());
+
+        // 4. 查询宠物详细信息
+        List<PetDTO> petDTOs = new ArrayList<>();
+        for (String petId : petIds) {
+            try {
+                Pet pet = petMapper.selectById(petId);
+                if (pet != null) {
+                    PetDTO petDTO = new PetDTO();
+                    BeanUtils.copyProperties(pet, petDTO);
+                    petDTOs.add(petDTO);
+                }
+            } catch (Exception e) {
+                System.err.println("获取宠物信息失败，宠物ID: " + petId + ", 错误: " + e.getMessage());
+            }
+        }
+
+        return petDTOs;
+    }
+
+    // 在 OrderServiceImpl.java 中添加
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateOrderEndTime(String orderId) {
+        if (orderId == null) {
+            return false;
+        }
+        Order order = getById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setEndTime(LocalDateTime.now());
+        order.setUpdateTime(LocalDateTime.now());
+        return updateById(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean evaluateOrder(String orderId, BigDecimal rating, String ratingComment) {
+        if (orderId == null || rating == null || ratingComment == null) {
+            return false;
+        }
+        Order order = getById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setRating(rating);
+        order.setRatingComment(ratingComment);
+        order.setUpdateTime(LocalDateTime.now());
+        order.setCompleteTime(LocalDateTime.now());
+        return updateById(order);
     }
 } 
