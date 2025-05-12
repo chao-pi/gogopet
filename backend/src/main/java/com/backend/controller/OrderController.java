@@ -104,12 +104,8 @@ public class OrderController {
     }
 
     @PostMapping("/status/update")
-    public Result<Boolean> updateOrderStatus(@RequestBody Map<String, String> params) {
-        log.info("更新订单状态 - 请求参数: {}", params);
-        String orderId = params.get("orderId");
-        String status = params.get("status");
-        String petStatus = params.get("petStatus");
-        String location = params.get("location");
+    public Result<Boolean> updateOrderStatus(@RequestParam String orderId, String status, String petStatus, String location) {
+
         
         if (orderId == null || status == null) {
             log.error("更新订单状态失败 - 订单ID或状态为空");

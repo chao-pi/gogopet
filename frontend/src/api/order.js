@@ -75,14 +75,11 @@ export function getPaymentQRCode(orderId) {
 }
 
 // 更新订单状态
-export function updateOrderStatus(orderId, data) {
+export function updateOrderStatus(orderId, status, petStatus, location ) {
   return request({
     url: '/order/status/update',
     method: 'post',
-    data: {
-      orderId,
-      ...data
-    }
+    params: { orderId , status, petStatus, location}
   })
 }
 

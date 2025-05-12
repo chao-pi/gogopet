@@ -818,7 +818,7 @@ const handlePaymentConfirm = async () => {
     paymentDialogVisible.value = false
     
     // 更新订单状态为待接单
-    await updateOrderStatus(orderData.value.orderId, 'W')
+    await updateOrderStatus(orderData.value.orderId, 'W', null, null)
     
     ElMessage.success('支付成功，等待接单')
     router.push('/orderManagement')
