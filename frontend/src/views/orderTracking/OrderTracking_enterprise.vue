@@ -227,11 +227,7 @@ const uploadStatus = async (idx) => {
     const currentStatus = statusList.value[idx].name;
 
     // 更新订单状态（包含宠物状态）
-    const response = await updateOrderStatus(orderInfo.value.orderId, {
-      status: currentStatus,
-      location: orderInfo.value.currentLocation || '',
-      petStatus: petStatus
-    });
+    const response = await updateOrderStatus(orderInfo.value.orderId, currentStatus, petStatus, orderInfo.value.currentLocation || '');
 
     if (response.code === 200) {
       ElMessage.success('状态更新成功');
