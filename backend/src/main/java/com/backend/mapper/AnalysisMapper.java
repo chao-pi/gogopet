@@ -35,14 +35,21 @@ public interface AnalysisMapper {
     "CASE "+ 
     "WHEN order_status = 'P' THEN '待支付' "+ 
     "WHEN order_status = 'W' THEN '待接单' "+ 
-    "WHEN order_status = 'T' THEN '进行中' "+ 
+    "WHEN order_status IN ('1', '2', '3', '4', '5') THEN '运输中' "+ 
     "WHEN order_status = 'C' THEN '已完成' "+ 
     "WHEN order_status = 'X' THEN '已取消' "+ 
     "ELSE '未知状态'  "+ 
     "END AS orderStatus, "+ 
     "COUNT(*) AS count "+ 
     "FROM t_order "+ 
-    "GROUP BY order_status")
+    "GROUP BY CASE "+ 
+    "WHEN order_status = 'P' THEN '待支付' "+ 
+    "WHEN order_status = 'W' THEN '待接单' "+ 
+    "WHEN order_status IN ('1', '2', '3', '4', '5') THEN '运输中' "+ 
+    "WHEN order_status = 'C' THEN '已完成' "+ 
+    "WHEN order_status = 'X' THEN '已取消' "+ 
+    "ELSE '未知状态' "+ 
+    "END")
     List<AnalysisVO.OrderStatusCount> getOrderStatusCounts();
 
     /**
