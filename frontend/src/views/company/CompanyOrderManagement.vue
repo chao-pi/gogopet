@@ -161,7 +161,7 @@ const completeOrder = async (orderId) => {
 }
 
 const trackOrder = (orderId) => {
-  router.push(`/order/track/${orderId}`)
+  router.push(`/OrderTrackingE/${orderId}`)
 }
 
 const formatDate = (date) => {
