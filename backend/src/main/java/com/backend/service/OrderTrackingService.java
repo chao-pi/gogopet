@@ -1,6 +1,8 @@
 package com.backend.service;
 
 import com.backend.model.entity.OrderTracking;
+import com.backend.model.entity.Picture;
+import com.backend.mapper.PictureMapper;
 
 public interface OrderTrackingService {
     /**

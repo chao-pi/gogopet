@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import org.springframework.beans.BeanUtils;
 import java.util.stream.Collectors;
 import com.backend.model.dto.PetDTO;
+import com.backend.model.entity.Picture;
+import com.backend.mapper.PictureMapper;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -35,17 +37,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final UserMapper userMapper;
     private final CompanyMapper companyMapper;
     private final PetMapper petMapper;
+    private final PictureMapper pictureMapper;
 
     public OrderServiceImpl(OrderPetMapper orderPetMapper, 
                           OrderTrackingMapper orderTrackingMapper,
                           UserMapper userMapper,
                           CompanyMapper companyMapper,
-                          PetMapper petMapper) {
+                          PetMapper petMapper,
+                          PictureMapper pictureMapper) {
         this.orderPetMapper = orderPetMapper;
         this.orderTrackingMapper = orderTrackingMapper;
         this.userMapper = userMapper;
         this.companyMapper = companyMapper;
         this.petMapper = petMapper;
+        this.pictureMapper = pictureMapper;
     }
 
     @Override
@@ -248,7 +253,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setPetName(pet.getPetName());
                 order.setPetBreed(pet.getPetBreed());
                 order.setPetAge(pet.getPetAge());
-                order.setPetImage(pet.getPetImage());
+                
+                // 从t_picture表获取宠物图片URL
+                Picture picture = pictureMapper.selectByPetId(petId);
+                if (picture != null && picture.getPictureUrl() != null) {
+                    order.setPetImage(picture.getPictureUrl());
+                }
                 System.out.println("已设置宠物信息到订单");
             }
         }

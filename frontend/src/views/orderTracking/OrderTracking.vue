@@ -66,7 +66,19 @@
           
           <div class="pet-details">
             <div class="pet-image">
-              <img :src="orderInfo.petImage" :alt="orderInfo.petName">
+              <el-image 
+                :src="orderInfo.petImage" 
+                :alt="orderInfo.petName"
+                fit="cover"
+                :preview-src-list="orderInfo.petImage ? [orderInfo.petImage] : []"
+              >
+                <template #error>
+                  <div class="image-error">
+                    <el-icon><picture-filled /></el-icon>
+                    <span>图片加载失败</span>
+                  </div>
+                </template>
+              </el-image>
             </div>
             <div class="pet-info">
               <div class="detail-item">
@@ -132,7 +144,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import { Position } from '@element-plus/icons-vue'
+import { Position, PictureFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getOrderDetail, getOrders, getCompanyOrders } from '@/api/order.js'
 import { useRoute, useRouter } from 'vue-router'
@@ -726,12 +738,30 @@ onMounted(async () => {
   overflow: hidden;
   border-radius: 8px;
   margin-bottom: 12px;
+  background-color: #f5f7fa;
 }
 
-.pet-image img {
+.pet-image .el-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+
+.image-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #909399;
+}
+
+.image-error .el-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.image-error span {
+  font-size: 14px;
 }
 
 .chat-section {

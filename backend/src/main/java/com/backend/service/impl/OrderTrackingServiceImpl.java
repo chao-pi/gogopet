@@ -6,12 +6,14 @@ import com.backend.model.entity.User;
 import com.backend.model.entity.Pet;
 import com.backend.model.entity.Company;
 import com.backend.model.entity.OrderPet;
+import com.backend.model.entity.Picture;
 import com.backend.mapper.OrderMapper;
 import com.backend.mapper.OrderTrackingMapper;
 import com.backend.mapper.UserMapper;
 import com.backend.mapper.PetMapper;
 import com.backend.mapper.CompanyMapper;
 import com.backend.mapper.OrderPetMapper;
+import com.backend.mapper.PictureMapper;
 import com.backend.service.OrderTrackingService;
 import com.backend.common.exception.UnauthorizedException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -42,6 +44,9 @@ public class OrderTrackingServiceImpl implements OrderTrackingService {
     @Autowired
     private OrderPetMapper orderPetMapper;
 
+    @Autowired
+    private PictureMapper pictureMapper;
+
     @Override
     public OrderTracking getOrderTracking(String orderId) {
         // 获取订单追踪信息
@@ -68,60 +73,28 @@ public class OrderTrackingServiceImpl implements OrderTrackingService {
             String petId = orderPets.get(0).getPetId();
             Pet pet = petMapper.selectById(petId);
             if (pet != null) {
-                // 设置宠物信息到订单对象
+                // 设置宠物基本信息到订单对象
                 order.setPetName(pet.getPetName());
                 order.setPetBreed(pet.getPetBreed());
                 order.setPetAge(pet.getPetAge());
-                order.setPetImage(pet.getPetImage());
-            }
-        }
-
-        // 获取公司信息
-        if (order.getCompanyId() != null) {
-            Company company = companyMapper.selectById(order.getCompanyId());
-            if (company != null) {
-                // 获取公司对应的用户信息
-                User companyUser = userMapper.selectByCompanyId(company.getCompanyId());
-                if (companyUser != null) {
-                    order.setCompanyName(companyUser.getUserName());
+                
+                // 从t_picture表获取宠物图片URL
+                Picture picture = pictureMapper.selectByPetId(petId);
+                if (picture != null && picture.getPictureUrl() != null) {
+                    order.setPetImage(picture.getPictureUrl());
                 }
             }
         }
 
-        // 构建完整的地址信息
-        StringBuilder startLocation = new StringBuilder();
-        if (order.getStartProvince() != null) {
-            startLocation.append(order.getStartProvince());
+        // 获取公司信息
+        Company company = companyMapper.selectById(order.getCompanyId());
+        if (company != null) {
+            order.setCompanyName(company.getCompanyId());
         }
-        if (order.getStartCity() != null) {
-            startLocation.append(order.getStartCity());
-        }
-        if (order.getStartDistrict() != null) {
-            startLocation.append(order.getStartDistrict());
-        }
-        if (order.getStartLocation() != null && !order.getStartLocation().trim().isEmpty()) {
-            startLocation.append(order.getStartLocation());
-        }
-        order.setStartLocation(startLocation.toString());
 
-        StringBuilder endLocation = new StringBuilder();
-        if (order.getEndProvince() != null) {
-            endLocation.append(order.getEndProvince());
-        }
-        if (order.getEndCity() != null) {
-            endLocation.append(order.getEndCity());
-        }
-        if (order.getEndDistrict() != null) {
-            endLocation.append(order.getEndDistrict());
-        }
-        if (order.getEndLocation() != null && !order.getEndLocation().trim().isEmpty()) {
-            endLocation.append(order.getEndLocation());
-        }
-        order.setEndLocation(endLocation.toString());
-
-        // 将订单信息设置到追踪对象中
+        // 设置订单信息到追踪对象
         tracking.setOrder(order);
-
+        
         return tracking;
     }
 
@@ -145,37 +118,15 @@ public class OrderTrackingServiceImpl implements OrderTrackingService {
 
     @Override
     public boolean isOrderOwner(String orderId) {
-        // 获取当前登录用户ID
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (currentUserId == null) {
-            throw new UnauthorizedException("用户未登录");
-        }
-        
-        // 查询订单信息
         Order order = orderMapper.selectById(orderId);
-        if (order == null) {
-            throw new RuntimeException("订单不存在");
-        }
-
-        // 检查当前用户是否为订单所有者
-        return order.getUserId().equals(currentUserId);
+        return order != null && order.getUserId().equals(currentUserId);
     }
 
     @Override
     public boolean isNormalUser() {
-        // 获取当前登录用户ID
         String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (currentUserId == null) {
-            throw new UnauthorizedException("用户未登录");
-        }
-
-        // 查询用户信息
         User user = userMapper.selectById(currentUserId);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        // 检查用户类型是否为普通用户（U）
-        return "U".equals(user.getUserType());
+        return user != null && "U".equals(user.getUserType());
     }
 } 

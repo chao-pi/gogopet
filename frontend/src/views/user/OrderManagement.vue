@@ -273,12 +273,17 @@ const goToPayment = (orderId) => {
 
 // 托运追踪
 const trackOrder = (orderId) => {
-  router.push(`/order/track/${orderId}`)
+  const userType = userStore.userInfo?.userType
+  if (userType === 'C') {
+    router.push(`/OrderTrackingE/${orderId}`)
+  } else {
+    router.push(`/ordertracking/${orderId}`)
+  }
 }
 
 // 查看订单详情
 const viewOrderDetail = (orderId) => {
-  router.push(`/order/track/${orderId}`)
+  router.push(`/order/detail/${orderId}`)
 }
 
 // 日期格式化

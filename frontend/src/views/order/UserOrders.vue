@@ -109,7 +109,7 @@ const viewOrderTracking = (orderId) => {
   if (userType === 'C') {
     router.push(`/OrderTrackingE/${orderId}`)
   } else {
-    router.push(`/ordertracking/${orderId}`)
+    router.push(`/orderTracking/${orderId}`)
   }
 }
 

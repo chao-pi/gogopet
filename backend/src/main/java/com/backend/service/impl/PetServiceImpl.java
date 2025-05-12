@@ -119,28 +119,56 @@ public class PetServiceImpl extends ServiceImpl<PetMapper, Pet> implements PetSe
 
     @Override
     public List<PetDTO> getPetsByUserId(String userId) {
-        System.out.println("查询用户的宠物列表，用户ID: " + userId);
-
-        // 查询用户的所有宠物
-        List<Pet> pets = baseMapper.selectByUserId(userId);
-        List<PetDTO> petDTOs = new ArrayList<>();
-
-        // 转换为DTO列表
-        for (Pet pet : pets) {
-            PetDTO petDTO = new PetDTO();
-            BeanUtils.copyProperties(pet, petDTO);
-
-            // 查询宠物的图片
-            Picture picture = pictureMapper.selectByPetId(pet.getPetId());
-            if (picture != null) {
-                petDTO.setAvatarUrl(picture.getPictureUrl());
-            }
-
-            petDTOs.add(petDTO);
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("用户ID不能为空");
         }
 
-        System.out.println("查询到 " + petDTOs.size() + " 个宠物");
-        return petDTOs;
+        System.out.println("开始查询用户的宠物列表，用户ID: " + userId);
+
+        try {
+            // 查询用户的所有宠物
+            List<Pet> pets = baseMapper.selectByUserId(userId);
+            if (pets == null || pets.isEmpty()) {
+                System.out.println("未找到用户的宠物，用户ID: " + userId);
+                return new ArrayList<>();
+            }
+
+            List<PetDTO> petDTOs = new ArrayList<>();
+            System.out.println("找到 " + pets.size() + " 个宠物，开始处理图片信息");
+
+            // 转换为DTO列表
+            for (Pet pet : pets) {
+                try {
+                    PetDTO petDTO = new PetDTO();
+                    BeanUtils.copyProperties(pet, petDTO);
+
+                    // 查询宠物的图片
+                    Picture picture = pictureMapper.selectByPetId(pet.getPetId());
+                    if (picture != null) {
+                        String pictureUrl = picture.getPictureUrl();
+                        if (pictureUrl != null && !pictureUrl.trim().isEmpty()) {
+                            petDTO.setAvatarUrl(pictureUrl);
+                            System.out.println("设置宠物图片URL成功，宠物ID: " + pet.getPetId() + ", URL: " + pictureUrl);
+                        } else {
+                            System.out.println("宠物图片URL为空，宠物ID: " + pet.getPetId());
+                        }
+                    } else {
+                        System.out.println("未找到宠物图片，宠物ID: " + pet.getPetId());
+                    }
+
+                    petDTOs.add(petDTO);
+                } catch (Exception e) {
+                    System.err.println("处理宠物信息时发生错误，宠物ID: " + pet.getPetId() + ", 错误: " + e.getMessage());
+                    // 继续处理下一个宠物，不中断整个流程
+                }
+            }
+
+            System.out.println("宠物列表处理完成，共处理 " + petDTOs.size() + " 个宠物");
+            return petDTOs;
+        } catch (Exception e) {
+            System.err.println("查询宠物列表时发生错误，用户ID: " + userId + ", 错误: " + e.getMessage());
+            throw new RuntimeException("获取宠物列表失败: " + e.getMessage());
+        }
     }
 
     @Override
