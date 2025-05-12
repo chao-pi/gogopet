@@ -7,7 +7,7 @@
           <el-tab-pane label="全部" name="all"></el-tab-pane>
           <el-tab-pane label="待支付" name="P"></el-tab-pane>
           <el-tab-pane label="待接单" name="W"></el-tab-pane>
-          <el-tab-pane label="运输中" name="T"></el-tab-pane>
+          <el-tab-pane label="运输中" name="Transport"></el-tab-pane>
           <el-tab-pane label="已完成" name="C"></el-tab-pane>
           <el-tab-pane label="已取消" name="X"></el-tab-pane>
         </el-tabs>
@@ -105,6 +105,10 @@ const activeTab = ref('all')
 const filteredOrders = computed(() => {
   if (activeTab.value === 'all') {
     return orders.value
+  } else if(activeTab.value === 'Transport') {
+    return orders.value.filter(order => order.orderStatus === 'T' || order.orderStatus === '1'
+        || order.orderStatus === '2' || order.orderStatus === '3' || order.orderStatus === '4'
+        || order.orderStatus === '5' || order.orderStatus === 'R' || order.orderStatus === 'L'|| order.orderStatus === 'D')
   } else {
     return orders.value.filter(order => order.orderStatus === activeTab.value)
   }
@@ -141,7 +145,8 @@ const fetchOrders = async () => {
 
 const acceptOrder = async (orderId) => {
   try {
-    await updateOrderStatus(orderId, 'T')
+    const targetOrder = orders.value.find(order => order.id === orderId)
+    await updateOrderStatus(orderId, '1', null, null)
     ElMessage.success('接单成功！')
     fetchOrders()
   } catch (error) {
@@ -151,7 +156,7 @@ const acceptOrder = async (orderId) => {
 
 const completeOrder = async (orderId) => {
   try {
-    await updateOrderStatus(orderId, 'C');
+    await updateOrderStatus(orderId, 'C', null, null)
     await updateOrderEndTime(orderId);
     ElMessage.success('订单已完成！')
     fetchOrders()
@@ -174,7 +179,15 @@ const getStatusClass = (status) => {
     'W': 'status-waiting',
     'T': 'status-transporting',
     'C': 'status-completed',
-    'X': 'status-cancelled'
+    'X': 'status-cancelled',
+    '1': 'status-start',
+    '2': 'status-first',
+    '3': 'status-second',
+    '4': 'status-third',
+    '5': 'status-destination',
+    'R': 'status-rest',
+    'L': 'status-loading',
+    'D': 'status-finish'
   }
   return statusMap[status] || ''
 }
@@ -185,7 +198,15 @@ const getStatusText = (status) => {
     'W': '待接单',
     'T': '运输中',
     'C': '已完成',
-    'X': '已取消'
+    'X': '已取消',
+    '1': '运输中-起点',
+    '2': '运输中-第一检查点',
+    '3': '运输中-第二检查点',
+    '4': '运输中-第三检查点',
+    '5': '运输中-终点',
+    'R': '休息中',
+    'L': '装卸中',
+    'D': '已送达'
   }
   return statusMap[status] || status
 }
@@ -348,6 +369,45 @@ const handleTabClick = () => {}
 }
 
 .status-transporting {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+.status-start {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-first {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-second {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-third {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-destination {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-rest {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-loading {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-finish {
   background-color: #e8f5e9;
   color: #2e7d32;
 }
