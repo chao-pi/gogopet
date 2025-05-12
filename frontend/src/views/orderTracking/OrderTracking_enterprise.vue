@@ -204,6 +204,9 @@ const isCurrent = (idx) => {
   const currentStatus = orderInfo.value.orderStatus
   if (!currentStatus) return false
   
+  // 如果订单已完成，则禁用所有上传按钮
+  if (currentStatus === 'C') return false
+  
   // 如果是最后一个状态且已完成，则禁用上传
   if (currentStatus === '5' && idx === 4) return false
   
@@ -233,6 +236,16 @@ const uploadStatus = async (idx) => {
       ElMessage.success('状态更新成功');
       statusList.value[idx].status = 'done';
       await fetchOrderData();
+      // 如果是最后一个节点，自动将订单状态设为C（已完成）
+      if (idx === 4) {
+        const finishResp = await updateOrderStatus(orderInfo.value.orderId, 'C', petStatus, orderInfo.value.currentLocation || '');
+        if (finishResp.code === 200) {
+          ElMessage.success('订单已完成');
+          await fetchOrderData();
+        } else {
+          ElMessage.error(finishResp.message || '订单完成状态更新失败');
+        }
+      }
     } else {
       ElMessage.error(response.message || '状态更新失败');
     }
