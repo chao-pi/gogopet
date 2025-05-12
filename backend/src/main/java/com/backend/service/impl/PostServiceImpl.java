@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Autowired
     private PostImageMapper postImageMapper;
+
+    @Value("${upload.url-prefix:http://localhost:8080/uploads}")
+    private String uploadUrlPrefix;
 
     @Override
     @Transactional
@@ -100,7 +104,19 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         User user = userMapper.selectById(post.getUserId());
         if (user != null) {
             post.setUserName(user.getUserName());
-            post.setUserAvatar(user.getUserAvatar());
+            String avatarUrl = user.getAvatarUrl();
+            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                post.setUserAvatar(avatarUrl);
+            } else {
+                String avatar = user.getUserAvatar();
+                if (avatar != null && !avatar.isEmpty() && !avatar.startsWith("http")) {
+                    if (!uploadUrlPrefix.endsWith("/")) {
+                        uploadUrlPrefix += "/";
+                    }
+                    avatar = uploadUrlPrefix + avatar;
+                }
+                post.setUserAvatar(avatar);
+            }
         }
     }
 

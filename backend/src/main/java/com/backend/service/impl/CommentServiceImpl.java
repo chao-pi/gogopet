@@ -131,7 +131,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                             .filter(comment -> comment.getUserId().equals(userId))
                             .forEach(comment -> {
                                 comment.setUserName(user.getUserName());
-                                comment.setUserAvatar(user.getUserAvatar());
+                                String avatarUrl = user.getAvatarUrl();
+                                if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                                    comment.setUserAvatar(avatarUrl);
+                                } else {
+                                    comment.setUserAvatar(user.getUserAvatar());
+                                }
                             });
                     }
                 }
