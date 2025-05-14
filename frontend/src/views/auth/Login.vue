@@ -138,34 +138,21 @@ const handleLogin = async () => {
       localStorage.removeItem('rememberedUsername')
     }
     
-    // 打印请求参数
-    console.log('登录请求参数:', {
-      userName: loginForm.value.userName,
-      password: loginForm.value.password
-    })
-    
     const response = await login(loginForm.value)
-    
-    // 打印响应数据
-    console.log('登录响应:', response)
     
     if (response.token && response.user) {
       try {
         // 保存用户信息和token
-        console.log('保存用户信息:', response.user)
         userStore.setUserInfo(response.user)
-        console.log('保存token:', response.token)
         userStore.setToken(response.token)
         
         // 显示成功消息
         ElMessage.success('登录成功')
         
         // 跳转到首页
-        console.log('准备跳转到首页')
         router.push('/')
       } catch (storeError) {
         console.error('保存用户信息失败:', storeError)
-        // 即使保存失败，也尝试跳转到首页
         router.push('/')
       }
     } else {
@@ -174,25 +161,16 @@ const handleLogin = async () => {
     }
   } catch (error) {
     console.error('登录失败:', error)
-    // 打印详细的错误信息
-    console.error('错误详情:', {
-      message: error.message,
-      response: error.response,
-      request: error.request
-    })
     
     if (error.response) {
       // 服务器返回了错误响应
       const errorData = error.response.data
-      console.error('服务器错误响应:', errorData)
       errorMessage.value = errorData.message || '登录失败，请检查用户名和密码'
     } else if (error.request) {
       // 请求已发出但没有收到响应
-      console.error('网络错误:', error.request)
       errorMessage.value = '网络错误，请检查网络连接'
     } else {
       // 请求配置出错
-      console.error('请求配置错误:', error.message)
       errorMessage.value = '请求配置错误，请稍后重试'
     }
     
