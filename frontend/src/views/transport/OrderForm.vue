@@ -203,7 +203,7 @@
                 {{ currentPet.petAge }}岁
               </el-descriptions-item>
               <el-descriptions-item label="宠物性别">
-                {{ currentPet.petGender === 'MALE' ? '公' : '母' }}
+                {{ currentPet.petGender === 'M' ? '公' : '母' }}
               </el-descriptions-item>
               <el-descriptions-item label="宠物体重">
                 {{ currentPet.petWeight }}kg
